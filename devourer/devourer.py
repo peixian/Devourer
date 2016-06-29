@@ -1,6 +1,5 @@
 import sys
 import json
-import urllib2
 import requests
 import pandas as pd
 
@@ -9,15 +8,19 @@ HS_JSON_EXT = ["cardbacks.json", "cards.collectible.json", "cards.json"]
 
 USERNAME = "ancient-molten-giant-2943"
 API_KEY = "-X_VZRijrHoV4qMZxfXq"
+URL = "https://trackobot.com/profile/history.json?"
 
-def pull_data(username, api_key):
+def pull_data(username, api_key, page=1):
     """
     Repulls the data using the Track-o-Bot API
     """
-    URL = "https://trackobot.com/profile/history.json?"
-    auth = {"username": username, "token": api_key}
-    data = requests.get(URL, params=auth)
-    return data
+    auth = {"username": username, "token": api_key, "page": page}
+    req = requests.get(URL, params=auth)
+    data = req.json()
+    with open("history_{}.json".format(page), "w") as outfile:
+        json.dump(data, outfile)
+    if (data["meta"]["next_page"] != None):
+        pull_data(username, api_key, page=data["meta"]["next_page"])
 
 def parse_data(data):
     """
@@ -27,8 +30,7 @@ def parse_data(data):
     return data
 
 def main():
-    df = parse_data(pull_data(USERNAME, API_KEY))
-    print(df)
+    pull_data(USERNAME, API_KEY)
 
 
 

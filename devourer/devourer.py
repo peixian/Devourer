@@ -21,17 +21,31 @@ def pull_data(username, api_key, page=1):
         json.dump(data, outfile)
     if (data["meta"]["next_page"] != None):
         pull_data(username, api_key, page=data["meta"]["next_page"])
+    return data["meta"]["total_pages"]
 
-def parse_data(data):
+def parse_data(pages):
     """
     Parses the json from the pull_data, splits it into readable json object
     """
-    data = pd.read_json(data)
-    return data
+    history = []
+    meta = {}
+    for i in xrange(1, pages+1):
+        with open("history_{}.json".format(i), "r") as infile:
+            data = json.load(infile)["history"]
+            
+            history.extend(data)
+
+    meta["total_items"] = len(history)
+    meta["total_pages"] = pages
+    out = {"history": history, "meta": meta}
+    with open("history.json", "w") as outfile:
+        json.dump(out, outfile)
+    return history
 
 def main():
-    pull_data(USERNAME, API_KEY)
-
+    #tot_pages = pull_data(USERNAME, API_KEY)
+    #parse_data(tot_pages)
+    parse_data(8)
 
 
 if __name__ == "__main__":

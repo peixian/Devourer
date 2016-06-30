@@ -10,43 +10,59 @@ USERNAME = "ancient-molten-giant-2943"
 API_KEY = "-X_VZRijrHoV4qMZxfXq"
 URL = "https://trackobot.com/profile/history.json?"
 
-def pull_data(username, api_key, page=1):
-    """
-    Repulls the data using the Track-o-Bot API
-    """
-    auth = {"username": username, "token": api_key, "page": page}
-    req = requests.get(URL, params=auth)
-    data = req.json()
+class devourer(object):
+    def __init__(self):
+        self.total_pages = 0
+        self.history = []
+
+        
+    def pull_data(username, api_key, page=1):
+        """
+        Repulls the data using the Track-o-Bot API
+     """
+        auth = {"username": username, "token": api_key, "page": page}
+        req = requests.get(URL, params=auth)
+        data = req.json()
     with open("history_{}.json".format(page), "w") as outfile:
         json.dump(data, outfile)
     if (data["meta"]["next_page"] != None):
         pull_data(username, api_key, page=data["meta"]["next_page"])
-    return data["meta"]["total_pages"]
+        self.total_pages = data["meta"]["total_pages"]
 
-def parse_data(pages):
-    """
-    Parses the json from the pull_data, splits it into readable json object
-    """
-    history = []
-    meta = {}
-    for i in xrange(1, pages+1):
-        with open("history_{}.json".format(i), "r") as infile:
-            data = json.load(infile)["history"]
-            
-            history.extend(data)
+    def parse_data():
+        """
+        Parses the json from the pull_data, splits it into readable json object
+        """
+        history = []
+        meta = {}
+        for i in xrange(1, self.total_pages+1):
+            with open("history_{}.json".format(i), "r") as infile:
+                data = json.load(infile)["history"]
 
-    meta["total_items"] = len(history)
-    meta["total_pages"] = pages
-    out = {"history": history, "meta": meta}
-    with open("history.json", "w") as outfile:
-        json.dump(out, outfile)
-    return history
+                history.extend(data)
 
+        meta["total_items"] = len(history)
+        meta["total_pages"] = pages
+        out = {"history": history, "meta": meta}
+        with open("history.json", "w") as outfile:
+            json.dump(out, outfile)
+        self.history = history
+        return history
+
+    def generate_decks():
+        """
+        Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)
+        """
+        games = pd.DataFrame(self.history)
+        print(games.head(5))
+
+        print(games["hero_deck"].unique())
+    
 def main():
-    #tot_pages = pull_data(USERNAME, API_KEY)
-    #parse_data(tot_pages)
-    parse_data(8)
-
+    nom = devourer()
+    nom.pull_data(USERNAME, API_KEY)
+    nom.parse_data()
+    nom.generate_decks()
 
 if __name__ == "__main__":
     main()

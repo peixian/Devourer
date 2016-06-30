@@ -2,6 +2,7 @@ import sys
 import json
 import requests
 import pandas as pd
+import os.path
 
 HS_JSON = "https://api.hearthstonejson.com/v1/latest/enUS/"
 HS_JSON_EXT = ["cardbacks.json", "cards.collectible.json", "cards.json"]
@@ -11,31 +12,32 @@ API_KEY = "-X_VZRijrHoV4qMZxfXq"
 URL = "https://trackobot.com/profile/history.json?"
 
 class devourer(object):
+
     def __init__(self):
         self.total_pages = 0
         self.history = []
-
         
-    def pull_data(self, username, api_key, page=1):
+    def pull_data(self, username, api_key, page=1, force_update = False):
         """
         Repulls the data using the Track-o-Bot API
         """
-        auth = {"username": username, "token": api_key, "page": page}
 
-        req = requests.get(URL, params=auth)
-        data = req.json()
+        if (force_update or not os.path.isfile("history_1.json")):
+            auth = {"username": username, "token": api_key, "page": page}
+            req = requests.get(URL, params=auth)
+            data = req.json()
 
-        with open("history_{}.json".format(page), "w") as outfile:
-            json.dump(data, outfile)
-        if (data["meta"]["next_page"] != None):
-            pull_data(username, api_key, page=data["meta"]["next_page"])
-
-        self.total_pages = data["meta"]["total_pages"]
-
-    def parse_data(self):
+            with open("history_{}.json".format(page), "w") as outfile:
+                json.dump(data, outfile)
+            if (data["meta"]["next_page"] != None):
+                self.pull_data(username, api_key, page=data["meta"]["next_page"])
+        
+    def parse_data(self, force_update = False):
         """
         Parses the json from the pull_data, splits it into readable json object
         """
+        with open("history_1.json", "r") as infile:
+            self.total_pages = json.load(infile)["meta"]["total_pages"]
         history = []
         meta = {}
         for i in xrange(1, self.total_pages+1):
@@ -45,7 +47,7 @@ class devourer(object):
                 history.extend(data)
 
         meta["total_items"] = len(history)
-        meta["total_pages"] = pages
+        meta["total_pages"] = self.total_pages
         out = {"history": history, "meta": meta}
         with open("history.json", "w") as outfile:
             json.dump(out, outfile)

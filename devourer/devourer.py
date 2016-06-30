@@ -16,20 +16,23 @@ class devourer(object):
         self.history = []
 
         
-    def pull_data(username, api_key, page=1):
+    def pull_data(self, username, api_key, page=1):
         """
         Repulls the data using the Track-o-Bot API
-     """
+        """
         auth = {"username": username, "token": api_key, "page": page}
+
         req = requests.get(URL, params=auth)
         data = req.json()
-    with open("history_{}.json".format(page), "w") as outfile:
-        json.dump(data, outfile)
-    if (data["meta"]["next_page"] != None):
-        pull_data(username, api_key, page=data["meta"]["next_page"])
+
+        with open("history_{}.json".format(page), "w") as outfile:
+            json.dump(data, outfile)
+        if (data["meta"]["next_page"] != None):
+            pull_data(username, api_key, page=data["meta"]["next_page"])
+
         self.total_pages = data["meta"]["total_pages"]
 
-    def parse_data():
+    def parse_data(self):
         """
         Parses the json from the pull_data, splits it into readable json object
         """
@@ -49,7 +52,7 @@ class devourer(object):
         self.history = history
         return history
 
-    def generate_decks():
+    def generate_decks(self):
         """
         Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)
         """

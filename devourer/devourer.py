@@ -21,18 +21,21 @@ class devourer(object):
         """
         Repulls the data using the Track-o-Bot API
         """
-
-        if (force_update or not os.path.isfile("history_1.json")):
+        if (force_update):
             auth = {"username": username, "token": api_key, "page": page}
             req = requests.get(URL, params=auth)
             data = req.json()
-
+            print("Pulling page #{}".format(page))
+            print(req.url)
+            print(data["meta"])
+            print(data["meta"]["next_page"] != None)
+            
             with open("history_{}.json".format(page), "w") as outfile:
                 json.dump(data, outfile)
             if (data["meta"]["next_page"] != None):
-                self.pull_data(username, api_key, page=data["meta"]["next_page"])
+              self.pull_data(username, api_key, page=data["meta"]["next_page"], force_update = force_update)
         
-    def parse_data(self, force_update = False):
+    def parse_data(self):
         """
         Parses the json from the pull_data, splits it into readable json object
         """
@@ -40,7 +43,7 @@ class devourer(object):
             self.total_pages = json.load(infile)["meta"]["total_pages"]
         history = []
         meta = {}
-        for i in xrange(1, self.total_pages+1):
+        for i in range(1, self.total_pages+1):
             with open("history_{}.json".format(i), "r") as infile:
                 data = json.load(infile)["history"]
 
@@ -62,7 +65,9 @@ class devourer(object):
         print(games.head(5))
 
         print(games["hero_deck"].unique())
-    
+        
+
+        
 def main():
     nom = devourer()
     nom.pull_data(USERNAME, API_KEY, force_update = True)

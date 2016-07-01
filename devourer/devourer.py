@@ -65,7 +65,7 @@ class devourer(object):
     
 def main():
     nom = devourer()
-    nom.pull_data(USERNAME, API_KEY)
+    nom.pull_data(USERNAME, API_KEY, force_update = True)
     nom.parse_data()
     nom.generate_decks()
 

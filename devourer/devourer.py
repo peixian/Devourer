@@ -2,7 +2,12 @@ import sys
 import json
 import requests
 import pandas as pd
+import numpy as np
 import os.path
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
 
 HS_JSON = "https://api.hearthstonejson.com/v1/latest/enUS/"
 HS_JSON_EXT = ["cardbacks.json", "cards.collectible.json", "cards.json"]
@@ -27,8 +32,6 @@ class devourer(object):
             data = req.json()
             print("Pulling page #{}".format(page))
             print(req.url)
-            print(data["meta"])
-            print(data["meta"]["next_page"] != None)
             
             with open("history_{}.json".format(page), "w") as outfile:
                 json.dump(data, outfile)
@@ -48,7 +51,7 @@ class devourer(object):
                 data = json.load(infile)["history"]
 
                 history.extend(data)
-
+                
         meta["total_items"] = len(history)
         meta["total_pages"] = self.total_pages
         out = {"history": history, "meta": meta}
@@ -62,15 +65,21 @@ class devourer(object):
         Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)
         """
         games = pd.DataFrame(self.history)
-        print(games.head(5))
-
+        
         print(games["hero_deck"].unique())
+
+        ranked_matches = games[games["rank"].notnull()]
+        ranked_wins = ranked_matches[(ranked_matches.result == "win") & (ranked_matches.hero == "Warrior") & (ranked_matches.hero_deck == "Control")]["card_history"]
+        win_turns = list(map(lambda x: x[-1]["turn"], ranked_wins))
+
+        sns.distplot(win_turns)
+        sns.plt.show()
         
 
-        
+
 def main():
     nom = devourer()
-    nom.pull_data(USERNAME, API_KEY, force_update = True)
+    nom.pull_data(USERNAME, API_KEY, force_update = False)
     nom.parse_data()
     nom.generate_decks()
 

@@ -64,24 +64,30 @@ class devourer(object):
         """
         Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)
         """
-        games = pd.DataFrame(self.history)
+        self.games = pd.DataFrame(self.history)
+        self.games["player_deck_type"] = "{}_{}".format(self.games["hero"], self.games["hero_deck"])
+        self.games["opponent_deck_type"] = "{}_{}".format(self.games["opponent"], self.games["opponent_deck"])
+        print(self.games.dtypes)
+        return self.games
+  
+    def results(self, hero, hero_deck, game_result = "win"):
+        """
+        Get win turns, win %, most commonly played card, played card turns
+        """
+        ranked_matches = self.games[(self.games["rank"].notnull()) & (self.games["hero"] == hero) & (self.games["hero_deck"] == hero_deck) & (self.games["result"] == game_result)]
+        card_history = ranked_matches["card_history"]
+        game_history = pd.concat(list(map(lambda x: pd.DataFrame(x), card_history)))
         
-        print(games["hero_deck"].unique())
-
-        ranked_matches = games[games["rank"].notnull()]
-        ranked_wins = ranked_matches[(ranked_matches.result == "win") & (ranked_matches.hero == "Warrior") & (ranked_matches.hero_deck == "Control")]["card_history"]
-        win_turns = list(map(lambda x: x[-1]["turn"], ranked_wins))
-
-        sns.distplot(win_turns)
-        sns.plt.show()
+        print(game_history)
         
-
+    
 
 def main():
     nom = devourer()
     nom.pull_data(USERNAME, API_KEY, force_update = False)
     nom.parse_data()
     nom.generate_decks()
+    nom.results("Warrior", "Control")
 
 if __name__ == "__main__":
     main()

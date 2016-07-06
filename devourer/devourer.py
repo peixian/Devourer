@@ -65,22 +65,27 @@ class devourer(object):
         Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)
         """
         self.games = pd.DataFrame(self.history)
-        self.games["player_deck_type"] = "{}_{}".format(self.games["hero"], self.games["hero_deck"])
-        self.games["opponent_deck_type"] = "{}_{}".format(self.games["opponent"], self.games["opponent_deck"])
-        print(self.games.dtypes)
+        self.games.loc[self.games['hero_deck'].isnull(), 'hero_deck'] = 'Other'
+        self.games.loc[self.games['opponent_deck'].isnull(), 'opponent_deck'] = 'Other'
+        #print(self.games)
+        self.games["p_deck_type"] = self.games["hero_deck"].map(str) + "_" +  self.games["hero"]
+        self.games["o_deck_type"] = self.games["opponent_deck"].map(str) + "_" + self.games["opponent"]
+
+        
+        
         return self.games
   
-    def results(self, hero, hero_deck, game_result = "win"):
+    def results(self, hero, hero_deck, game_result = "loss"):
         """
         Get win turns, win %, most commonly played card, played card turns
         """
         ranked_matches = self.games[(self.games["rank"].notnull()) & (self.games["hero"] == hero) & (self.games["hero_deck"] == hero_deck) & (self.games["result"] == game_result)]
-        card_history = ranked_matches["card_history"]
-        game_history = pd.concat(list(map(lambda x: pd.DataFrame(x), card_history)))
-        
-        print(game_history)
-        
-    
+        for opponent_deck in ranked_matches["o_deck_type"].unique():
+            game_history = pd.concat(map(lambda x: pd.DataFrame(x), ranked_matches[ranked_matches["o_deck_type"] == opponent_deck]["card_history"]))
+            game_history["card_name"] = list(map(lambda x: x["name"], game_history["card"]))
+            print(opponent_deck)
+            print(game_history.describe())
+            
 
 def main():
     nom = devourer()

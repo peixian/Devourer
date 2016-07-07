@@ -1,4 +1,4 @@
-import sys
+terimport sys
 import json
 import requests
 import pandas as pd
@@ -70,8 +70,6 @@ class devourer(object):
         #print(self.games)
         self.games["p_deck_type"] = self.games["hero_deck"].map(str) + "_" +  self.games["hero"]
         self.games["o_deck_type"] = self.games["opponent_deck"].map(str) + "_" + self.games["opponent"]
-
-        
         
         return self.games
   

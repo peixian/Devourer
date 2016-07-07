@@ -1,4 +1,4 @@
-terimport sys
+import sys
 import json
 import requests
 import pandas as pd
@@ -82,6 +82,7 @@ class devourer(object):
             game_history = pd.concat(map(lambda x: pd.DataFrame(x), ranked_matches[ranked_matches["o_deck_type"] == opponent_deck]["card_history"]))
             game_history["card_name"] = list(map(lambda x: x["name"], game_history["card"]))
             print(opponent_deck)
+            print(game_history["card_name"].describe())
             print(game_history.describe())
             
 

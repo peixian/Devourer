@@ -1,0 +1,112 @@
+#+BEGIN_SRC ipython :session
+  import sys
+  import json
+  import requests
+  import pandas as pd
+  import numpy as np
+  import os.path
+  import seaborn as sns
+  import matplotlib.pyplot as plt
+
+  sys.path.append('/Users/peixianwang/Code/devourer/devourer')
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC ipython :session
+  import devourer
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC ipython :session
+  USERNAME = "ancient-molten-giant-2943"
+  API_KEY = "-X_VZRijrHoV4qMZxfXq"
+  URL = "https://trackobot.com/profile/history.json?"
+
+  HS_JSON = "https://api.hearthstonejson.com/v1/latest/enUS/"
+  HS_JSON_EXT = ["cardbacks.json", "cards.collectible.json", "cards.json"]
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC ipython :session 
+  nom = devourer.devourer()
+  nom.pull_data(USERNAME, API_KEY, force_update = False)
+  data = nom.parse_data()
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC ipython :session :results output
+  decks = nom.generate_decks()
+  print(decks.head())
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+                      added  \
+0  2016-07-18T16:12:50.000Z   
+1  2016-07-18T16:06:27.000Z   
+2  2016-07-18T15:59:15.000Z   
+3  2016-07-18T15:48:31.000Z   
+4  2016-07-18T15:42:09.000Z   
+
+                                        card_history   coin  duration    hero  \
+0  [{'turn': 1, 'card': {'id': 'LOE_018', 'name':...   True       363   Druid   
+1  [{'turn': 2, 'card': {'id': 'CS2_017', 'name':...  False       252   Druid   
+2  [{'turn': 1, 'card': {'id': 'CS2_235', 'name':...   True       623  Priest   
+3  [{'turn': 2, 'card': {'id': 'LOE_006', 'name':...  False       356  Priest   
+4  [{'turn': 1, 'card': {'id': 'BRM_004', 'name':...   True       438  Priest   
+
+  hero_deck        id  legend    mode  note opponent opponent_deck  rank  \
+0     Token  35210043     NaN  casual  None   Shaman         Aggro   NaN   
+1     Other  35209510     NaN  casual  None   Shaman         Other   NaN   
+2    Dragon  35208841     NaN  casual  None   Shaman         Other   NaN   
+3    Dragon  35207886     NaN  casual  None    Druid         Token   NaN   
+4    Dragon  35207316     NaN  casual  None    Druid         Token   NaN   
+
+  result    p_deck_type   o_deck_type  
+0    win    Token_Druid  Aggro_Shaman  
+1   loss    Other_Druid  Other_Shaman  
+2    win  Dragon_Priest  Other_Shaman  
+3    win  Dragon_Priest   Token_Druid  
+4   loss  Dragon_Priest   Token_Druid  
+#+end_example
+
+#+BEGIN_SRC ipython :session :results output
+  ranked_decks = decks[decks["mode"] == "ranked"]
+  print(ranked_decks.head())
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+                       added  \
+9   2016-07-10T23:46:27.000Z   
+10  2016-07-10T15:44:12.000Z   
+11  2016-07-08T17:32:13.000Z   
+12  2016-07-08T17:00:18.000Z   
+13  2016-07-08T16:53:08.000Z   
+
+                                         card_history   coin  duration  \
+9   [{'turn': 1, 'card': {'id': 'GAME_005', 'name'...   True       284   
+10  [{'turn': 1, 'card': {'id': 'LOE_018', 'name':...  False       342   
+11  [{'turn': 1, 'card': {'id': 'GAME_005', 'name'...   True       661   
+12  [{'turn': 2, 'card': {'id': 'CS2_106', 'name':...  False       415   
+13  [{'turn': 1, 'card': {'id': 'NEW1_012', 'name'...   True       638   
+
+       hero hero_deck        id  legend    mode  note opponent opponent_deck  \
+9   Warrior    Dragon  34654135     NaN  ranked  None    Rogue         Other   
+10  Warrior    Dragon  34610410     NaN  ranked  None   Shaman         Aggro   
+11  Warrior    Dragon  34400263     NaN  ranked  None  Warlock          Reno   
+12  Warrior    Dragon  34396935     NaN  ranked  None    Druid        C'Thun   
+13  Warrior    Dragon  34396168     NaN  ranked  None     Mage         Tempo   
+
+    rank result     p_deck_type   o_deck_type  
+9   13.0    win  Dragon_Warrior   Other_Rogue  
+10  13.0    win  Dragon_Warrior  Aggro_Shaman  
+11  13.0   loss  Dragon_Warrior  Reno_Warlock  
+12  14.0    win  Dragon_Warrior  C'Thun_Druid  
+13  14.0    win  Dragon_Warrior    Tempo_Mage  
+#+end_example
+

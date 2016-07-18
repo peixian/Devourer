@@ -21,7 +21,7 @@ class devourer(object):
     def __init__(self):
         self.total_pages = 0
         self.history = []
-        
+
     def pull_data(self, username, api_key, page=1, force_update = False):
         """
         Repulls the data using the Track-o-Bot API
@@ -32,12 +32,12 @@ class devourer(object):
             data = req.json()
             print("Pulling page #{}".format(page))
             print(req.url)
-            
+
             with open("history_{}.json".format(page), "w") as outfile:
                 json.dump(data, outfile)
             if (data["meta"]["next_page"] != None):
               self.pull_data(username, api_key, page=data["meta"]["next_page"], force_update = force_update)
-        
+
     def parse_data(self):
         """
         Parses the json from the pull_data, splits it into readable json object
@@ -51,7 +51,7 @@ class devourer(object):
                 data = json.load(infile)["history"]
 
                 history.extend(data)
-                
+
         meta["total_items"] = len(history)
         meta["total_pages"] = self.total_pages
         out = {"history": history, "meta": meta}
@@ -70,9 +70,9 @@ class devourer(object):
         #print(self.games)
         self.games["p_deck_type"] = self.games["hero_deck"].map(str) + "_" +  self.games["hero"]
         self.games["o_deck_type"] = self.games["opponent_deck"].map(str) + "_" + self.games["opponent"]
-        
+
         return self.games
-  
+
     def results(self, hero, hero_deck, game_result = "loss"):
         """
         Get win turns, win %, most commonly played card, played card turns
@@ -84,7 +84,7 @@ class devourer(object):
             print(opponent_deck)
             print(game_history["card_name"].describe())
             print(game_history.describe())
-            
+
 
 def main():
     nom = devourer()

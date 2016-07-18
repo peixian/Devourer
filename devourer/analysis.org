@@ -6,8 +6,9 @@
   import numpy as np
   import os.path
   import seaborn as sns
+  %matplotlib inline
   import matplotlib.pyplot as plt
-
+  import pprint
   sys.path.append('/Users/peixianwang/Code/devourer/devourer')
 #+END_SRC
 
@@ -32,7 +33,7 @@
 
 #+BEGIN_SRC ipython :session 
   nom = devourer.devourer()
-  nom.pull_data(USERNAME, API_KEY, force_update = False)
+  nom.pull_data(USERNAME, API_KEY, force_update = True)
   data = nom.parse_data()
 #+END_SRC
 
@@ -53,22 +54,22 @@
 4  2016-07-18T15:42:09.000Z   
 
                                         card_history   coin  duration    hero  \
-0  [{'turn': 1, 'card': {'id': 'LOE_018', 'name':...   True       363   Druid   
-1  [{'turn': 2, 'card': {'id': 'CS2_017', 'name':...  False       252   Druid   
-2  [{'turn': 1, 'card': {'id': 'CS2_235', 'name':...   True       623  Priest   
-3  [{'turn': 2, 'card': {'id': 'LOE_006', 'name':...  False       356  Priest   
-4  [{'turn': 1, 'card': {'id': 'BRM_004', 'name':...   True       438  Priest   
+0  [{'player': 'opponent', 'card': {'id': 'LOE_01...   True       363   Druid   
+1  [{'player': 'me', 'card': {'id': 'CS2_017', 'm...  False       252   Druid   
+2  [{'player': 'me', 'card': {'id': 'CS2_235', 'm...   True       623  Priest   
+3  [{'player': 'me', 'card': {'id': 'LOE_006', 'm...  False       356  Priest   
+4  [{'player': 'me', 'card': {'id': 'BRM_004', 'm...   True       438  Priest   
 
   hero_deck        id  legend    mode  note opponent opponent_deck  rank  \
 0     Token  35210043     NaN  casual  None   Shaman         Aggro   NaN   
-1     Other  35209510     NaN  casual  None   Shaman         Other   NaN   
+1     Token  35209510     NaN  casual  None   Shaman         Other   NaN   
 2    Dragon  35208841     NaN  casual  None   Shaman         Other   NaN   
 3    Dragon  35207886     NaN  casual  None    Druid         Token   NaN   
 4    Dragon  35207316     NaN  casual  None    Druid         Token   NaN   
 
   result    p_deck_type   o_deck_type  
 0    win    Token_Druid  Aggro_Shaman  
-1   loss    Other_Druid  Other_Shaman  
+1   loss    Token_Druid  Other_Shaman  
 2    win  Dragon_Priest  Other_Shaman  
 3    win  Dragon_Priest   Token_Druid  
 4   loss  Dragon_Priest   Token_Druid  
@@ -89,11 +90,11 @@
 13  2016-07-08T16:53:08.000Z   
 
                                          card_history   coin  duration  \
-9   [{'turn': 1, 'card': {'id': 'GAME_005', 'name'...   True       284   
-10  [{'turn': 1, 'card': {'id': 'LOE_018', 'name':...  False       342   
-11  [{'turn': 1, 'card': {'id': 'GAME_005', 'name'...   True       661   
-12  [{'turn': 2, 'card': {'id': 'CS2_106', 'name':...  False       415   
-13  [{'turn': 1, 'card': {'id': 'NEW1_012', 'name'...   True       638   
+9   [{'player': 'me', 'card': {'id': 'GAME_005', '...   True       284   
+10  [{'player': 'opponent', 'card': {'id': 'LOE_01...  False       342   
+11  [{'player': 'me', 'card': {'id': 'GAME_005', '...   True       661   
+12  [{'player': 'me', 'card': {'id': 'CS2_106', 'm...  False       415   
+13  [{'player': 'opponent', 'card': {'id': 'NEW1_0...   True       638   
 
        hero hero_deck        id  legend    mode  note opponent opponent_deck  \
 9   Warrior    Dragon  34654135     NaN  ranked  None    Rogue         Other   
@@ -109,4 +110,101 @@
 12  14.0    win  Dragon_Warrior  C'Thun_Druid  
 13  14.0    win  Dragon_Warrior    Tempo_Mage  
 #+end_example
+
+#+BEGIN_SRC ipython :session :results output
+  ranked_decks["win"] = ranked_decks["result"].map(lambda x: True if x == "win" else False)
+  ranked_decks["count"] = [1]*len(ranked_decks)
+  encounter_rates = ranked_decks.groupby(["p_deck_type", "o_deck_type"]).agg({"coin": np.sum, "duration": [np.mean, np.std], "count": np.sum, "win": np.sum})
+  print(encounter_rates)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+                                    duration             coin  win count
+                                        mean         std  sum  sum   sum
+p_deck_type     o_deck_type                                             
+C'Thun_Warrior  Aggro_Paladin     526.000000         NaN  1.0  0.0     1
+                Aggro_Shaman      210.000000         NaN  1.0  0.0     1
+                C'Thun_Warrior    975.000000  158.391919  1.0  2.0     2
+                Dragon_Warrior    577.000000         NaN  0.0  1.0     1
+                Midrange_Hunter   497.333333  103.510064  3.0  2.0     3
+                Midrange_Shaman   600.000000         NaN  0.0  1.0     1
+                N'Zoth_Rogue      592.000000         NaN  0.0  0.0     1
+                Other_Shaman      710.000000         NaN  1.0  1.0     1
+                Tempo_Mage        657.666667   90.754247  1.0  2.0     3
+                Tempo_Warrior     279.000000         NaN  1.0  0.0     1
+                Token_Druid       472.000000         NaN  0.0  0.0     1
+                Zoo_Warlock       550.000000         NaN  1.0  1.0     1
+Control_Priest  Miracle_Rogue     330.000000         NaN  1.0  0.0     1
+Control_Warrior Aggro_Shaman      435.250000   79.742816  2.0  2.0     4
+                C'Thun_Druid      674.500000  499.924494  0.0  2.0     2
+                C'Thun_Warrior   1049.666667  101.928079  2.0  1.0     3
+                Dragon_Priest     781.000000         NaN  0.0  1.0     1
+                Dragon_Warrior    523.750000  159.414293  3.0  4.0     4
+                Freeze_Mage       391.000000   82.024387  1.0  2.0     2
+                Malygos_Rogue     581.000000         NaN  0.0  0.0     1
+                Midrange_Hunter   380.400000   99.336226  9.0  3.0    15
+                Midrange_Shaman   472.166667  180.366756  2.0  3.0     6
+                N'Zoth_Paladin   1030.250000   63.918568  1.0  1.0     4
+                N'Zoth_Rogue      751.500000  200.111219  0.0  2.0     2
+                Other_Druid       288.000000         NaN  1.0  1.0     1
+                Other_Hunter      887.000000         NaN  0.0  1.0     1
+                Other_Paladin     764.000000         NaN  0.0  0.0     1
+                Other_Shaman      911.000000  211.461580  3.0  2.0     3
+                Other_Warrior     825.500000  419.314321  1.0  1.0     2
+                Pirate_Warrior    379.500000   34.648232  2.0  1.0     2
+...                                      ...         ...  ...  ...   ...
+Other_Warrior   Aggro_Shaman      425.000000   86.122006  1.0  1.0     3
+                C'Thun_Druid      426.500000  101.116270  1.0  1.0     2
+                C'Thun_Warrior    987.000000         NaN  0.0  0.0     1
+                Control_Warrior  1233.000000         NaN  0.0  1.0     1
+                Dragon_Warrior    467.000000         NaN  1.0  0.0     1
+                N'Zoth_Paladin   1014.000000         NaN  0.0  0.0     1
+                Other_Hunter      164.000000  110.013636  2.0  2.0     3
+                Other_Mage        562.500000  378.302128  1.0  2.0     2
+                Other_Paladin     524.000000         NaN  0.0  0.0     1
+                Other_Rogue       401.000000         NaN  1.0  0.0     1
+                Other_Shaman      445.500000   92.630988  0.0  1.0     2
+                Other_Warlock     510.000000  129.641814  2.0  1.0     3
+                Other_Warrior     621.000000         NaN  1.0  0.0     1
+                Ramp_Druid        623.000000         NaN  1.0  1.0     1
+                Tempo_Mage        859.000000   14.142136  1.0  2.0     2
+                Token_Druid       583.000000         NaN  1.0  0.0     1
+                Zoo_Warlock       356.000000         NaN  1.0  1.0     1
+Tempo_Warrior   Other_Rogue       501.000000         NaN  0.0  1.0     1
+                Pirate_Warrior    439.000000         NaN  0.0  0.0     1
+Token_Druid     Aggro_Shaman      383.000000         NaN  0.0  1.0     1
+                Other_Druid       246.500000   31.680699  3.0  2.0     4
+                Other_Hunter      308.750000   68.470797  4.0  2.0     4
+                Other_Mage        653.400000  214.701653  3.0  2.0     5
+                Other_Paladin     561.000000         NaN  0.0  0.0     1
+                Other_Priest      501.000000  135.764502  0.0  1.0     2
+                Other_Rogue       653.750000  114.263949  2.0  3.0     4
+                Other_Shaman      484.800000  210.332356  2.0  2.0     5
+                Other_Warlock     515.500000  284.495167  5.0  3.0     6
+                Other_Warrior     526.600000  291.043468  1.0  2.0     5
+Zoo_Warlock     Midrange_Hunter   470.000000         NaN  1.0  1.0     1
+
+[95 rows x 5 columns]
+#+end_example
+
+#+BEGIN_SRC ipython :session :results output
+  encounter_rates["win%"] = encounter_rates["win"]["sum"]/encounter_rates["count"]["sum"]
+  filtered_encounter_rates = encounter_rates[encounter_rates['count']['sum'] > 1]
+  #print(filtered_encounter_rates)
+  encounter_rates_reset = filtered_encounter_rates.reset_index()
+  #print(encounter_rates_reset)
+  matchups = encounter_rates_reset.pivot('o_deck_type', 'p_deck_type', 'win%')
+  #print(matchups.head())
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC ipython :session :file tmp/image.png :exports both
+  sns.heatmap(matchups)
+  sns.plt.show()
+#+END_SRC
+
+#+RESULTS:
+[[file:tmp/image.png]]
 

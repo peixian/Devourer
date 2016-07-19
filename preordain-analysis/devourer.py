@@ -35,8 +35,21 @@ class devourer(object):
 
             with open("history_{}.json".format(page), "w") as outfile:
                 json.dump(data, outfile)
+
             if (data["meta"]["next_page"] != None):
               self.pull_data(username, api_key, page=data["meta"]["next_page"], force_update = force_update)
+
+    def grab_data(self, username, api_key):
+        url = "https://trackobot.com/profile/history.json?"
+        auth = {"username": username, "token": api_key}
+        req = requests.get(url, params=auth)
+        metadata = req.json()["meta"]
+        data = [req.json()['history']]
+        if metadata['total_pages'] != None:
+            for page_number in range(2..metadata['total_pages']+1):
+                auth['page'] = page_number
+                data.extend(requests.get(url, auth).json()['history'])
+        return data
 
     def parse_data(self):
         """

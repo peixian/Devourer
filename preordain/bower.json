@@ -1,0 +1,23 @@
+{
+  "name": "preordain",
+  "homepage": "preordain.info",
+  "authors": [
+    "Peixian Wang <peixian@fastmail.com>"
+  ],
+  "description": "Analytics web app for Hearthstone",
+  "main": "app.py",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "static/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "skeleton": "^2.0.4",
+    "d3": "^4.1.1",
+    "jquery": "^3.1.0"
+  }
+}

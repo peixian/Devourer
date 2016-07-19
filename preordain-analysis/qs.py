@@ -16,7 +16,7 @@ USERNAME = "ancient-molten-giant-2943"
 API_KEY = "-X_VZRijrHoV4qMZxfXq"
 URL = "https://trackobot.com/profile/history.json?"
 
-class devourer(object):
+class preordain_analyzer(object):
 
     def __init__(self):
         self.total_pages = 0
@@ -42,14 +42,15 @@ class devourer(object):
     def grab_data(self, username, api_key):
         url = "https://trackobot.com/profile/history.json?"
         auth = {"username": username, "token": api_key}
-        req = requests.get(url, params=auth)
-        metadata = req.json()["meta"]
-        data = [req.json()['history']]
+        req = requests.get(url, params=auth).json()
+        metadata = req["meta"]
+        results = {'children': req['history']}
         if metadata['total_pages'] != None:
-            for page_number in range(2..metadata['total_pages']+1):
+            for page_number in range(2, metadata['total_pages']+1):
                 auth['page'] = page_number
-                data.extend(requests.get(url, auth).json()['history'])
-        return data
+                results['children'].extend(requests.get(url, params=auth).json()['history'])
+        self.history = data
+        return results
 
     def parse_data(self):
         """
@@ -86,26 +87,37 @@ class devourer(object):
 
         return self.games
 
-    def results(self, hero, hero_deck, game_result = "loss"):
+    def generate_matchups(self, game_mode = 'ranked', game_threshold = 0):
         """
-        Get win turns, win %, most commonly played card, played card turns
+        Generates a pandas groupby table with duration, count, coin, win #, and win %
+        game_mode is either ranked, casual, or both
+        game_threshold filters out the games with lower threshold
         """
-        ranked_matches = self.games[(self.games["rank"].notnull()) & (self.games["hero"] == hero) & (self.games["hero_deck"] == hero_deck) & (self.games["result"] == game_result)]
-        for opponent_deck in ranked_matches["o_deck_type"].unique():
-            game_history = pd.concat(map(lambda x: pd.DataFrame(x), ranked_matches[ranked_matches["o_deck_type"] == opponent_deck]["card_history"]))
-            game_history["card_name"] = list(map(lambda x: x["name"], game_history["card"]))
-            print(opponent_deck)
-            print(game_history["card_name"].describe())
-            print(game_history.describe())
+        decks = self.games
+        if game_mode != 'both':
+            decks = decks[decks['mode'] == game_mode]
+        decks['win'] = decks['results'].map(lambda x: True if x == 'win' else False)
+        decks['count'] = [1]*len(decks)
+        decks = decks.groupby(["p_deck_type", "o_deck_type"]).agg({"coin": np.sum, "duration": [np.mean, np.std], "count": np.sum, "win": np.sum})
+        decks['win%'] = decks['win']['sum']/decks['count']['sum']
+        decks = decks[decks['count']['sum'] > game_threshold]
+        return decks #note this returns a groupby, so a reset_index is necessary before pivoting/plotting
 
 
-def main():
-    nom = devourer()
-    nom.pull_data(USERNAME, API_KEY, force_update = False)
-    nom.parse_data()
-    nom.generate_decks()
-    nom.results("Warrior", "Control")
 
-if __name__ == "__main__":
-    main()
+
+
+
+    # def results(self, hero, hero_deck, game_result = "loss"):
+    #     """
+    #     Get win turns, win %, most commonly played card, played card turns
+    #     """
+    #     ranked_matches = self.games[(self.games["rank"].notnull()) & (self.games["hero"] == hero) & (self.games["hero_deck"] == hero_deck) & (self.games["result"] == game_result)]
+    #     for opponent_deck in ranked_matches["o_deck_type"].unique():
+    #         game_history = pd.concat(map(lambda x: pd.DataFrame(x), ranked_matches[ranked_matches["o_deck_type"] == opponent_deck]["card_history"]))
+    #         game_history["card_name"] = list(map(lambda x: x["name"], game_history["card"]))
+    #         print(opponent_deck)
+    #         print(game_history["card_name"].describe())
+    #         print(game_history.describe())
+
 

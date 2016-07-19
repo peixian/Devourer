@@ -1,1 +1,1 @@
-./preordain-analysis/qs.py
+../preordain-analysis/qs.py

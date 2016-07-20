@@ -1,3 +1,5 @@
+#TODO Clean up the documentation! 
+
 import sys
 import json
 import requests
@@ -8,8 +10,7 @@ import datetime
 import sqlite3
 import hashlib
 
-
-DATA_PATH = '/'
+DATA_PATH = '/' #TODO FIX THIS
 
 HS_JSON = 'https://api.hearthstonejson.com/v1/latest/enUS/'
 HS_JSON_EXT = ['cardbacks.json', 'cards.collectible.json', 'cards.json']
@@ -138,7 +139,7 @@ class preordain_analyzer(object):
         '''
 
         user_hash = hashlib.sha1(b'{}{}'.format(self.username, self.api_key)).hexdigest()
-        conn = sqlite3.connect('~/userdata.db')
+        conn = sqlite3.connect('{}/userdata.db'.format(DATA_PATH)) #TODO FIX THIS
         c = conn.cursor()
         if c.execute('SELECT (1) from users where user_hash=?', user_hash):
             c.execute('SELECT * FROM users WHERE user_hash=?', user_hash)

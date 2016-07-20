@@ -15,7 +15,7 @@
 #+RESULTS:
 
 #+BEGIN_SRC ipython :session
-  import devourer
+  import qs
 #+END_SRC
 
 #+RESULTS:
@@ -32,7 +32,7 @@
 #+RESULTS:
 
 #+BEGIN_SRC ipython :session 
-  nom = devourer.devourer()
+  nom = qs.preordain_analyzer()
   nom.pull_data(USERNAME, API_KEY, force_update = False)
   data = nom.parse_data()
 #+END_SRC
@@ -54,11 +54,11 @@
 4  2016-07-18T15:42:09.000Z   
 
                                         card_history   coin  duration    hero  \
-0  [{'card': {'name': 'Tunnel Trogg', 'id': 'LOE_...   True       363   Druid   
-1  [{'card': {'name': 'Shapeshift', 'id': 'CS2_01...  False       252   Druid   
-2  [{'card': {'name': 'Northshire Cleric', 'id': ...   True       623  Priest   
-3  [{'card': {'name': 'Museum Curator', 'id': 'LO...  False       356  Priest   
-4  [{'card': {'name': 'Twilight Whelp', 'id': 'BR...   True       438  Priest   
+0  [{'turn': 1, 'card': {'name': 'Tunnel Trogg', ...   True       363   Druid   
+1  [{'turn': 2, 'card': {'name': 'Shapeshift', 'i...  False       252   Druid   
+2  [{'turn': 1, 'card': {'name': 'Northshire Cler...   True       623  Priest   
+3  [{'turn': 2, 'card': {'name': 'Museum Curator'...  False       356  Priest   
+4  [{'turn': 1, 'card': {'name': 'Twilight Whelp'...   True       438  Priest   
 
   hero_deck        id  legend    mode  note opponent opponent_deck  rank  \
 0     Token  35210043     NaN  casual  None   Shaman         Aggro   NaN   
@@ -90,11 +90,11 @@
 13  2016-07-08T16:53:08.000Z   
 
                                          card_history   coin  duration  \
-9   [{'card': {'name': 'The Coin', 'id': 'GAME_005...   True       284   
-10  [{'card': {'name': 'Tunnel Trogg', 'id': 'LOE_...  False       342   
-11  [{'card': {'name': 'The Coin', 'id': 'GAME_005...   True       661   
-12  [{'card': {'name': 'Fiery War Axe', 'id': 'CS2...  False       415   
-13  [{'card': {'name': 'Mana Wyrm', 'id': 'NEW1_01...   True       638   
+9   [{'turn': 1, 'card': {'name': 'The Coin', 'id'...   True       284   
+10  [{'turn': 1, 'card': {'name': 'Tunnel Trogg', ...  False       342   
+11  [{'turn': 1, 'card': {'name': 'The Coin', 'id'...   True       661   
+12  [{'turn': 2, 'card': {'name': 'Fiery War Axe',...  False       415   
+13  [{'turn': 1, 'card': {'name': 'Mana Wyrm', 'id...   True       638   
 
        hero hero_deck        id  legend    mode  note opponent opponent_deck  \
 9   Warrior    Dragon  34654135     NaN  ranked  None    Rogue         Other   
@@ -208,3 +208,142 @@ Zoo_Warlock     Midrange_Hunter   470.000000         NaN     1  1.0  1.0
 
 #+RESULTS:
 [[file:tmp/image.png]]
+
+#+BEGIN_SRC ipython :session
+  import qs
+  nom = qs.preordain_analyzer()
+#+END_SRC
+
+#+RESULTS:
+
+#+BEGIN_SRC ipython :session :results output
+  nom.grab_data(USERNAME, API_KEY)
+  nom.generate_decks()
+  matchups = nom.generate_matchups(game_mode = 'both', game_threshold=1)
+#+END_SRC
+
+#+RESULTS:
+
+
+
+#+BEGIN_SRC ipython :session :results output
+
+  print(matchups.head())
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+                                coin  win count    duration              \
+                                 sum  sum   sum        mean         std   
+p_deck_type     o_deck_type                                               
+C'Thun_Warrior  C'Thun_Warrior   1.0  2.0     2  975.000000  158.391919   
+                Midrange_Hunter  3.0  2.0     3  497.333333  103.510064   
+                Tempo_Mage       1.0  2.0     3  657.666667   90.754247   
+                Zoo_Warlock      1.0  2.0     2  495.000000   77.781746   
+Control_Warrior Aggro_Shaman     2.0  2.0     4  435.250000   79.742816   
+
+                                     win%  
+                                           
+p_deck_type     o_deck_type                
+C'Thun_Warrior  C'Thun_Warrior   1.000000  
+                Midrange_Hunter  0.666667  
+                Tempo_Mage       0.666667  
+                Zoo_Warlock      1.000000  
+Control_Warrior Aggro_Shaman     0.500000  
+#+end_example
+
+#+BEGIN_SRC ipython :session :results output
+  matchups = nom.generate_matchups(game_mode='ranked', game_threshold=1)
+  print(matchups.head())
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+                                count coin    duration              win  \
+                                  sum  sum        mean         std  sum   
+p_deck_type     o_deck_type                                               
+C'Thun_Warrior  C'Thun_Warrior      2  1.0  975.000000  158.391919  2.0   
+                Midrange_Hunter     3  3.0  497.333333  103.510064  2.0   
+                Tempo_Mage          3  1.0  657.666667   90.754247  2.0   
+Control_Warrior Aggro_Shaman        4  2.0  435.250000   79.742816  2.0   
+                C'Thun_Druid        2  0.0  674.500000  499.924494  2.0   
+
+                                     win%  
+                                           
+p_deck_type     o_deck_type                
+C'Thun_Warrior  C'Thun_Warrior   1.000000  
+                Midrange_Hunter  0.666667  
+                Tempo_Mage       0.666667  
+Control_Warrior Aggro_Shaman     0.500000  
+                C'Thun_Druid     1.000000  
+#+end_example
+
+
+#+BEGIN_SRC ipython :session :results output
+  games = nom.games
+  #games = games.groupby()
+  grouped = games.groupby(["p_deck_type", "o_deck_type"])
+  #grouped = grouped.apply(lambda x: list(x.card_history))
+  grouped = grouped.agg({"coin": np.sum, "duration": [np.mean, np.std], "count": np.sum, "win": np.sum, "card_history": lambda x: tuple(x)})
+  #grouped = games.groupby(['p_deck_type', 'o_deck_type']).agg({"card_history": lambda x: list(x.card_history)})
+  #grouped = grouped.apply(lambda x: list(x.card_history))
+  print(len(grouped['card_history']['<lambda>'][2]))
+  print(grouped.head())
+  print(grouped['card_history']['<lambda>'][2])
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+2
+                               count coin    duration              \
+                                 sum  sum        mean         std   
+p_deck_type    o_deck_type                                          
+C'Thun_Warrior Aggro_Paladin       1  1.0  526.000000         NaN   
+               Aggro_Shaman        1  1.0  210.000000         NaN   
+               C'Thun_Warrior      2  1.0  975.000000  158.391919   
+               Dragon_Warrior      1  0.0  577.000000         NaN   
+               Midrange_Hunter     3  3.0  497.333333  103.510064   
+
+                                                                     card_history  \
+                                                                         <lambda>   
+p_deck_type    o_deck_type                                                          
+C'Thun_Warrior Aggro_Paladin    ([{'card': {'name': 'Competitive Spirit', 'man...   
+               Aggro_Shaman     ([{'card': {'name': 'Sir Finley Mrrgglton', 'm...   
+               C'Thun_Warrior   ([{'card': {'name': 'Shield Block', 'mana': 3,...   
+               Dragon_Warrior   ([{'card': {'name': 'Sir Finley Mrrgglton', 'm...   
+               Midrange_Hunter  ([{'card': {'name': 'Huge Toad', 'mana': 2, 'i...   
+
+                                win  
+                                sum  
+p_deck_type    o_deck_type           
+C'Thun_Warrior Aggro_Paladin    0.0  
+               Aggro_Shaman     0.0  
+               C'Thun_Warrior   2.0  
+               Dragon_Warrior   1.0  
+               Midrange_Hunter  2.0  
+([{'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 3, 'player': 'opponent'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 3, 'player': 'me'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 4, 'player': 'opponent'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 4, 'player': 'me'}, {'card': {'name': 'Slam', 'mana': 2, 'id': 'EX1_391'}, 'turn': 5, 'player': 'opponent'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 5, 'player': 'me'}, {'card': {'name': 'Beckoner of Evil', 'mana': 2, 'id': 'OG_281'}, 'turn': 5, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 6, 'player': 'opponent'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 6, 'player': 'me'}, {'card': {'name': 'Elise Starseeker', 'mana': 4, 'id': 'LOE_079'}, 'turn': 7, 'player': 'opponent'}, {'card': {'name': 'Elise Starseeker', 'mana': 4, 'id': 'LOE_079'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Gorehowl', 'mana': 7, 'id': 'EX1_411'}, 'turn': 8, 'player': 'opponent'}, {'card': {'name': 'Justicar Trueheart', 'mana': 6, 'id': 'AT_132'}, 'turn': 8, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 9, 'player': 'opponent'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 9, 'player': 'opponent'}, {'card': {'name': 'Slam', 'mana': 2, 'id': 'EX1_391'}, 'turn': 9, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 9, 'player': 'me'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 10, 'player': 'opponent'}, {'card': {'name': 'Sylvanas Windrunner', 'mana': 6, 'id': 'EX1_016'}, 'turn': 10, 'player': 'opponent'}, {'card': {'name': 'Gorehowl', 'mana': 7, 'id': 'EX1_411'}, 'turn': 10, 'player': 'me'}, {'card': {'name': 'Harrison Jones', 'mana': 5, 'id': 'EX1_558'}, 'turn': 11, 'player': 'opponent'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 11, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 11, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 11, 'player': 'me'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 12, 'player': 'opponent'}, {'card': {'name': 'Emperor Thaurissan', 'mana': 6, 'id': 'BRM_028'}, 'turn': 12, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 13, 'player': 'opponent'}, {'card': {'name': 'Brann Bronzebeard', 'mana': 3, 'id': 'LOE_077'}, 'turn': 13, 'player': 'me'}, {'card': {'name': 'The Coin', 'mana': None, 'id': 'GAME_005'}, 'turn': 13, 'player': 'me'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 13, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 14, 'player': 'opponent'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 14, 'player': 'opponent'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 14, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 14, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 14, 'player': 'me'}, {'card': {'name': 'Map to the Golden Monkey', 'mana': 2, 'id': 'LOE_019t'}, 'turn': 15, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 15, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 15, 'player': 'me'}, {'card': {'name': 'Revenge', 'mana': 2, 'id': 'BRM_015'}, 'turn': 16, 'player': 'opponent'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 16, 'player': 'opponent'}, {'card': {'name': 'Doomcaller', 'mana': 8, 'id': 'OG_255'}, 'turn': 16, 'player': 'me'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 17, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 17, 'player': 'opponent'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 17, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 18, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 18, 'player': 'me'}, {'card': {'name': 'Beckoner of Evil', 'mana': 2, 'id': 'OG_281'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': 'Map to the Golden Monkey', 'mana': 2, 'id': 'LOE_019t'}, 'turn': 19, 'player': 'me'}, {'card': {'name': 'Golden Monkey', 'mana': 4, 'id': 'LOE_019t2'}, 'turn': 20, 'player': 'opponent'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 20, 'player': 'me'}, {'card': {'name': 'Malkorok', 'mana': 7, 'id': 'OG_220'}, 'turn': 21, 'player': 'opponent'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 21, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 21, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 21, 'player': 'me'}, {'card': {'name': 'Gruul', 'mana': 8, 'id': 'NEW1_038'}, 'turn': 22, 'player': 'opponent'}], [{'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 4, 'player': 'me'}, {'card': {'name': 'The Coin', 'mana': None, 'id': 'GAME_005'}, 'turn': 4, 'player': 'opponent'}, {'card': {'name': 'Crazed Worshipper', 'mana': 5, 'id': 'OG_321'}, 'turn': 4, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 5, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 5, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 5, 'player': 'opponent'}, {'card': {'name': 'Emperor Thaurissan', 'mana': 6, 'id': 'BRM_028'}, 'turn': 6, 'player': 'me'}, {'card': {'name': 'Sylvanas Windrunner', 'mana': 6, 'id': 'EX1_016'}, 'turn': 6, 'player': 'opponent'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 7, 'player': 'opponent'}, {'card': {'name': 'Bash', 'mana': 3, 'id': 'AT_064'}, 'turn': 7, 'player': 'opponent'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 7, 'player': 'opponent'}, {'card': {'name': 'Justicar Trueheart', 'mana': 6, 'id': 'AT_132'}, 'turn': 8, 'player': 'me'}, {'card': {'name': 'Elise Starseeker', 'mana': 4, 'id': 'LOE_079'}, 'turn': 8, 'player': 'me'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 8, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 8, 'player': 'opponent'}, {'card': {'name': 'Gorehowl', 'mana': 7, 'id': 'EX1_411'}, 'turn': 9, 'player': 'opponent'}, {'card': {'name': 'Doomcaller', 'mana': 8, 'id': 'OG_255'}, 'turn': 10, 'player': 'me'}, {'card': {'name': 'Justicar Trueheart', 'mana': 6, 'id': 'AT_132'}, 'turn': 10, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 10, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 11, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 11, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 11, 'player': 'opponent'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 12, 'player': 'me'}, {'card': {'name': 'Brawl', 'mana': 5, 'id': 'EX1_407'}, 'turn': 12, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 12, 'player': 'me'}, {'card': {'name': "Twin Emperor Vek'lor", 'mana': 7, 'id': 'OG_131'}, 'turn': 12, 'player': 'opponent'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 13, 'player': 'me'}, {'card': {'name': 'Brawl', 'mana': 5, 'id': 'EX1_407'}, 'turn': 13, 'player': 'me'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 13, 'player': 'opponent'}, {'card': {'name': 'Gorehowl', 'mana': 7, 'id': 'EX1_411'}, 'turn': 14, 'player': 'me'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 14, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 15, 'player': 'me'}, {'card': {'name': 'Bash', 'mana': 3, 'id': 'AT_064'}, 'turn': 15, 'player': 'opponent'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 17, 'player': 'me'}, {'card': {'name': 'Beckoner of Evil', 'mana': 2, 'id': 'OG_281'}, 'turn': 17, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 17, 'player': 'opponent'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 17, 'player': 'opponent'}, {'card': {'name': 'Map to the Golden Monkey', 'mana': 2, 'id': 'LOE_019t'}, 'turn': 18, 'player': 'me'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 18, 'player': 'opponent'}, {'card': {'name': "Twin Emperor Vek'lor", 'mana': 7, 'id': 'OG_131'}, 'turn': 19, 'player': 'me'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': 'Slam', 'mana': 2, 'id': 'EX1_391'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': 'Blood To Ichor', 'mana': 1, 'id': 'OG_314'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 20, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 20, 'player': 'opponent'}, {'card': {'name': 'Brann Bronzebeard', 'mana': 3, 'id': 'LOE_077'}, 'turn': 20, 'player': 'opponent'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 21, 'player': 'me'}, {'card': {'name': 'Sylvanas Windrunner', 'mana': 6, 'id': 'EX1_016'}, 'turn': 21, 'player': 'me'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 21, 'player': 'me'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 21, 'player': 'opponent'}, {'card': {'name': 'Slam', 'mana': 2, 'id': 'EX1_391'}, 'turn': 22, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 22, 'player': 'me'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 22, 'player': 'me'}, {'card': {'name': 'Brann Bronzebeard', 'mana': 3, 'id': 'LOE_077'}, 'turn': 22, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 22, 'player': 'opponent'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 23, 'player': 'me'}, {'card': {'name': 'Brawl', 'mana': 5, 'id': 'EX1_407'}, 'turn': 23, 'player': 'opponent'}])
+#+end_example
+
+#+BEGIN_SRC ipython :session :results output
+  print(nom.games[(nom.games['p_deck_type'] == "C'Thun_Warrior") & (nom.games['o_deck_type'] == "C'Thun_Warrior")])
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+                       added  \
+25  2016-07-08T01:16:59.000Z   
+51  2016-07-06T17:45:28.000Z   
+
+                                         card_history   coin  duration  \
+25  [{'turn': 3, 'card': {'mana': 3, 'name': 'Shie...   True       863   
+51  [{'turn': 4, 'card': {'mana': 4, 'name': 'C'Th...  False      1087   
+
+       hero hero_deck        id  legend    mode  note opponent opponent_deck  \
+25  Warrior    C'Thun  34335967     NaN  ranked  None  Warrior        C'Thun   
+51  Warrior    C'Thun  34194521     NaN  ranked  None  Warrior        C'Thun   
+
+    rank result     p_deck_type     o_deck_type   win  count  
+25  13.0    win  C'Thun_Warrior  C'Thun_Warrior  True      1  
+51  14.0    win  C'Thun_Warrior  C'Thun_Warrior  True      1  
+#+end_example
+

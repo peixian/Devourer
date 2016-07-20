@@ -1,4 +1,5 @@
 from flask import Flask, make_response
+from . import qs
 
 app = Flask(__name__)
 
@@ -18,3 +19,4 @@ def submit(username, api_key):
             auth['page'] = page_number
             results['children'].extend(requests.get(url, params=auth).json()['history'])
     return json.dumps(results, indent=4)
+

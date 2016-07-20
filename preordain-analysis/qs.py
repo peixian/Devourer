@@ -49,7 +49,8 @@ class preordain_analyzer(object):
             for page_number in range(2, metadata['total_pages']+1):
                 auth['page'] = page_number
                 results['children'].extend(requests.get(url, params=auth).json()['history'])
-        self.history = data
+        results['meta'] = {'total_items': metadata['total_items']}
+        self.history = results
         return results
 
     def parse_data(self):
@@ -67,18 +68,17 @@ class preordain_analyzer(object):
                 history.extend(data)
 
         meta["total_items"] = len(history)
-        meta["total_pages"] = self.total_pages
         out = {"history": history, "meta": meta}
         with open("history.json", "w") as outfile:
             json.dump(out, outfile)
-        self.history = history
+        self.history = {'children': history, "meta": meta}
         return history
 
     def generate_decks(self):
         """
         Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)
         """
-        self.games = pd.DataFrame(self.history)
+        self.games = pd.DataFrame(self.history['children'])
         self.games.loc[self.games['hero_deck'].isnull(), 'hero_deck'] = 'Other'
         self.games.loc[self.games['opponent_deck'].isnull(), 'opponent_deck'] = 'Other'
         #print(self.games)
@@ -86,6 +86,13 @@ class preordain_analyzer(object):
         self.games["o_deck_type"] = self.games["opponent_deck"].map(str) + "_" + self.games["opponent"]
 
         return self.games
+
+    def _get_card_list(dict_list, player='me'):
+        """
+        Returns the list of cards that were played in a game
+        """
+        p_card_list = list(filter(None, map(lambda x: x['card'] if x['player'] == player else None, dict_list)))
+        return p_card_list
 
     def generate_matchups(self, game_mode = 'ranked', game_threshold = 0):
         """
@@ -96,12 +103,16 @@ class preordain_analyzer(object):
         decks = self.games
         if game_mode != 'both':
             decks = decks[decks['mode'] == game_mode]
-        decks['win'] = decks['results'].map(lambda x: True if x == 'win' else False)
+        decks['win'] = decks['result'].map(lambda x: True if x == 'win' else False)
         decks['count'] = [1]*len(decks)
-        decks = decks.groupby(["p_deck_type", "o_deck_type"]).agg({"coin": np.sum, "duration": [np.mean, np.std], "count": np.sum, "win": np.sum})
-        decks['win%'] = decks['win']['sum']/decks['count']['sum']
-        decks = decks[decks['count']['sum'] > game_threshold]
-        return decks #note this returns a groupby, so a reset_index is necessary before pivoting/plotting
+        decks['p_cards_played'] = decks['card_history'].map(lambda x: self._get_card_list(x, player='me'))
+        decks['o_cards_played'] = decks['card_history'].map(lambda x: self._get_card_list(x, player='opponent'))
+        self.games = decks
+        
+        grouped = decks.groupby(["p_deck_type", "o_deck_type"]).agg({"coin": np.sum, "duration": [np.mean, np.std], "count": np.sum, "win": np.sum, "card_history": lambda x: tuple(x)})
+        grouped['win%'] = grouped['win']['sum']/grouped['count']['sum']
+        grouped = grouped[grouped['count']['sum'] > game_threshold]
+        return grouped #note this returns a groupby, so a reset_index is necessary before pivoting/plotting
 
 
 

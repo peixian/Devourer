@@ -4,9 +4,7 @@ import requests
 import pandas as pd
 import numpy as np
 import os.path
-import seaborn as sns
-import matplotlib.pyplot as plt
-
+import datetime 
 
 
 HS_JSON = "https://api.hearthstonejson.com/v1/latest/enUS/"
@@ -81,18 +79,33 @@ class preordain_analyzer(object):
         self.games = pd.DataFrame(self.history['children'])
         self.games.loc[self.games['hero_deck'].isnull(), 'hero_deck'] = 'Other'
         self.games.loc[self.games['opponent_deck'].isnull(), 'opponent_deck'] = 'Other'
-        #print(self.games)
         self.games["p_deck_type"] = self.games["hero_deck"].map(str) + "_" +  self.games["hero"]
         self.games["o_deck_type"] = self.games["opponent_deck"].map(str) + "_" + self.games["opponent"]
 
+        self._generate_cards_played()
         return self.games
 
-    def _get_card_list(dict_list, player='me'):
+
+    def _make_dates(self):
+        format_date = lambda x: datetime.datetime.strptime(x[:-5], '%Y-%m-%dT%H:%M:S')
+        split_date = lambda x: {'year': x.year, 'month': x.month, 'day': x.day, 'hour': x.hour, 'minute': x.minute, 'second': x.second}
+        date_df = pd.DataFrame(list(map(lambda x: split_date(format_date(x)), self.gaes['added'])))
+        self.games = self.games.join(date_df, how='outer')
+
+    def _get_card_list(self, dict_list, player='me'):
         """
         Returns the list of cards that were played in a game
         """
-        p_card_list = list(filter(None, map(lambda x: x['card'] if x['player'] == player else None, dict_list)))
+        p_card_list = list(filter(None, map(lambda x: x['card']['name'] if x['player'] == player else None, dict_list)))
         return p_card_list
+
+
+    def _generate_cards_played(self):
+        """
+        Generates a list of cards for player and opponent into the list ['p_cards_played'] and ['o_cards_played'], meant to be used with the generate_cards function, this function is automatically called by generate_decks
+        """
+        self.games['p_cards_played'] = self.games['card_history'].map(lambda x: self._get_card_list(x, player='me'))
+        self.games['o_cards_played'] = self.games['card_history'].map(lambda x: self._get_card_list(x, player='opponent'))
 
     def generate_matchups(self, game_mode = 'ranked', game_threshold = 0):
         """
@@ -105,9 +118,6 @@ class preordain_analyzer(object):
             decks = decks[decks['mode'] == game_mode]
         decks['win'] = decks['result'].map(lambda x: True if x == 'win' else False)
         decks['count'] = [1]*len(decks)
-        decks['p_cards_played'] = decks['card_history'].map(lambda x: self._get_card_list(x, player='me'))
-        decks['o_cards_played'] = decks['card_history'].map(lambda x: self._get_card_list(x, player='opponent'))
-        self.games = decks
 
         grouped = decks.groupby(["p_deck_type", "o_deck_type"]).agg({"coin": np.sum, "duration": [np.mean, np.std], "count": np.sum, "win": np.sum, "card_history": lambda x: tuple(x)})
         grouped['win%'] = grouped['win']['sum']/grouped['count']['sum']
@@ -121,30 +131,14 @@ class preordain_analyzer(object):
         """
         p_df = []
         o_df = []
-        for r in zip(decks['p_cards_played'], decks['o_cards_played'], decks['result']):
+        for r in zip(filtered['p_cards_played'], filtered['o_cards_played'], filtered['result']):
             for p_card in r[0]:
                 p_df.append({'card': p_card, 'win': 1, 'loss': 0} if r[2] == 'win' else {'card': p_card, 'win': 0, 'loss': 1})
             for o_card in r[1]:
                 o_df.append({'card': o_card, 'win': 1, 'loss': 0} if r[2] == 'loss' else {'card': o_card, 'win': 0, 'loss': 1})
 
-        p_df = pd.DataFrame(p_df).groupby('card').agg(np.sum)
-        o_df = pd.DataFrame(o_df).groupby('card').agg(np.sum)
+        p_df = pd.DataFrame(p_df)
+        o_df = pd.DataFrame(o_df)
+        p_df = p_df.groupby('card').agg(np.sum)
+        o_df = o_df.groupby('card').agg(np.sum)
         return p_df, o_df
-
-
-
-
-
-    # def results(self, hero, hero_deck, game_result = "loss"):
-    #     """
-    #     Get win turns, win %, most commonly played card, played card turns
-    #     """
-    #     ranked_matches = self.games[(self.games["rank"].notnull()) & (self.games["hero"] == hero) & (self.games["hero_deck"] == hero_deck) & (self.games["result"] == game_result)]
-    #     for opponent_deck in ranked_matches["o_deck_type"].unique():
-    #         game_history = pd.concat(map(lambda x: pd.DataFrame(x), ranked_matches[ranked_matches["o_deck_type"] == opponent_deck]["card_history"]))
-    #         game_history["card_name"] = list(map(lambda x: x["name"], game_history["card"]))
-    #         print(opponent_deck)
-    #         print(game_history["card_name"].describe())
-    #         print(game_history.describe())
-
-

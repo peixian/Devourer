@@ -225,6 +225,66 @@ Zoo_Warlock     Midrange_Hunter   470.000000         NaN     1  1.0  1.0
 #+RESULTS:
 
 
+#+BEGIN_SRC ipython :session :results output
+  def get_card_list(dict_list, player='me'):
+      p_card_list = list(filter(None, map(lambda x: x['card'] if x['player'] == player else None, dict_list)))
+      return p_card_list
+
+  decks = nom.games
+  print(decks['card_history'][0][0])
+  #p_card_list, o_card_list = decks['card_history'].map(lambda x: get_card_list(x))
+  #decks['p_cards_played'], decks['o_cards_played'] = p_card_list, o_card_list
+  decks['p_cards_played'] = decks['card_history'].map(lambda x: get_card_list(x, player='me'))
+  decks['o_cards_played'] = decks['card_history'].map(lambda x: get_card_list(x, player='opponent'))
+  print(decks.head())
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+{'turn': 1, 'player': 'opponent', 'card': 'Tunnel Trogg'}
+                      added  \
+0  2016-07-18T16:12:50.000Z   
+1  2016-07-18T16:06:27.000Z   
+2  2016-07-18T15:59:15.000Z   
+3  2016-07-18T15:48:31.000Z   
+4  2016-07-18T15:42:09.000Z   
+
+                                        card_history   coin  duration    hero  \
+0  [{'turn': 1, 'player': 'opponent', 'card': 'Tu...   True       363   Druid   
+1  [{'turn': 2, 'player': 'me', 'card': 'Shapeshi...  False       252   Druid   
+2  [{'turn': 1, 'player': 'me', 'card': 'Northshi...   True       623  Priest   
+3  [{'turn': 2, 'player': 'me', 'card': 'Museum C...  False       356  Priest   
+4  [{'turn': 1, 'player': 'me', 'card': 'Twilight...   True       438  Priest   
+
+  hero_deck        id  legend    mode  note opponent opponent_deck  rank  \
+0     Token  35210043     NaN  casual  None   Shaman         Aggro   NaN   
+1     Token  35209510     NaN  casual  None   Shaman         Other   NaN   
+2    Dragon  35208841     NaN  casual  None   Shaman         Other   NaN   
+3    Dragon  35207886     NaN  casual  None    Druid         Token   NaN   
+4    Dragon  35207316     NaN  casual  None    Druid         Token   NaN   
+
+  result    p_deck_type   o_deck_type    win  count  \
+0    win    Token_Druid  Aggro_Shaman   True      1   
+1   loss    Token_Druid  Other_Shaman  False      1   
+2    win  Dragon_Priest  Other_Shaman   True      1   
+3    win  Dragon_Priest   Token_Druid   True      1   
+4   loss  Dragon_Priest   Token_Druid  False      1   
+
+                                      p_cards_played  \
+0  [The Coin, Wild Growth, Innervate, Druid of th...   
+1  [Shapeshift, Shapeshift, Fandral Staghelm, Inn...   
+2  [Northshire Cleric, Museum Curator, The Coin, ...   
+3  [Museum Curator, Blackwing Technician, Shiftin...   
+4  [Twilight Whelp, The Coin, Northshire Cleric, ...   
+
+                                      o_cards_played  
+0  [Tunnel Trogg, Ancestral Knowledge, Argent Squ...  
+1  [Totemic Call, The Coin, Flamewreathed Faceles...  
+2  [Totem Golem, Rockbiter Weapon, Flamewreathed ...  
+3  [Wild Growth, The Coin, Nourish, Shapeshift, F...  
+4  [Wrath, Shapeshift, Violet Teacher, Druid of t...  
+#+end_example
+
 
 #+BEGIN_SRC ipython :session :results output
 
@@ -233,23 +293,32 @@ Zoo_Warlock     Midrange_Hunter   470.000000         NaN     1  1.0  1.0
 
 #+RESULTS:
 #+begin_example
-                                coin  win count    duration              \
-                                 sum  sum   sum        mean         std   
-p_deck_type     o_deck_type                                               
-C'Thun_Warrior  C'Thun_Warrior   1.0  2.0     2  975.000000  158.391919   
-                Midrange_Hunter  3.0  2.0     3  497.333333  103.510064   
-                Tempo_Mage       1.0  2.0     3  657.666667   90.754247   
-                Zoo_Warlock      1.0  2.0     2  495.000000   77.781746   
-Control_Warrior Aggro_Shaman     2.0  2.0     4  435.250000   79.742816   
+                                   duration             count  \
+                                       mean         std   sum   
+p_deck_type     o_deck_type                                     
+C'Thun_Warrior  C'Thun_Warrior   975.000000  158.391919     2   
+                Midrange_Hunter  497.333333  103.510064     3   
+                Tempo_Mage       657.666667   90.754247     3   
+                Zoo_Warlock      495.000000   77.781746     2   
+Control_Warrior Aggro_Shaman     435.250000   79.742816     4   
 
-                                     win%  
-                                           
-p_deck_type     o_deck_type                
-C'Thun_Warrior  C'Thun_Warrior   1.000000  
-                Midrange_Hunter  0.666667  
-                Tempo_Mage       0.666667  
-                Zoo_Warlock      1.000000  
-Control_Warrior Aggro_Shaman     0.500000  
+                                                                      card_history  \
+                                                                          <lambda>   
+p_deck_type     o_deck_type                                                          
+C'Thun_Warrior  C'Thun_Warrior   ([{'turn': 3, 'player': 'opponent', 'card': 'S...   
+                Midrange_Hunter  ([{'turn': 2, 'player': 'opponent', 'card': 'H...   
+                Tempo_Mage       ([{'turn': 1, 'player': 'opponent', 'card': 'M...   
+                Zoo_Warlock      ([{'turn': 1, 'player': 'opponent', 'card': 'T...   
+Control_Warrior Aggro_Shaman     ([{'turn': 1, 'player': 'opponent', 'card': 'S...   
+
+                                coin  win      win%  
+                                 sum  sum            
+p_deck_type     o_deck_type                          
+C'Thun_Warrior  C'Thun_Warrior   1.0  2.0  1.000000  
+                Midrange_Hunter  3.0  2.0  0.666667  
+                Tempo_Mage       1.0  2.0  0.666667  
+                Zoo_Warlock      1.0  2.0  1.000000  
+Control_Warrior Aggro_Shaman     2.0  2.0  0.500000  
 #+end_example
 
 #+BEGIN_SRC ipython :session :results output
@@ -290,6 +359,7 @@ Control_Warrior Aggro_Shaman     0.500000
   print(len(grouped['card_history']['<lambda>'][2]))
   print(grouped.head())
   print(grouped['card_history']['<lambda>'][2])
+  ch = grouped['card_history']['<lambda>'][2]
 #+END_SRC
 
 #+RESULTS:
@@ -324,6 +394,32 @@ C'Thun_Warrior Aggro_Paladin    0.0
 ([{'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 3, 'player': 'opponent'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 3, 'player': 'me'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 4, 'player': 'opponent'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 4, 'player': 'me'}, {'card': {'name': 'Slam', 'mana': 2, 'id': 'EX1_391'}, 'turn': 5, 'player': 'opponent'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 5, 'player': 'me'}, {'card': {'name': 'Beckoner of Evil', 'mana': 2, 'id': 'OG_281'}, 'turn': 5, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 6, 'player': 'opponent'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 6, 'player': 'me'}, {'card': {'name': 'Elise Starseeker', 'mana': 4, 'id': 'LOE_079'}, 'turn': 7, 'player': 'opponent'}, {'card': {'name': 'Elise Starseeker', 'mana': 4, 'id': 'LOE_079'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Gorehowl', 'mana': 7, 'id': 'EX1_411'}, 'turn': 8, 'player': 'opponent'}, {'card': {'name': 'Justicar Trueheart', 'mana': 6, 'id': 'AT_132'}, 'turn': 8, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 9, 'player': 'opponent'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 9, 'player': 'opponent'}, {'card': {'name': 'Slam', 'mana': 2, 'id': 'EX1_391'}, 'turn': 9, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 9, 'player': 'me'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 10, 'player': 'opponent'}, {'card': {'name': 'Sylvanas Windrunner', 'mana': 6, 'id': 'EX1_016'}, 'turn': 10, 'player': 'opponent'}, {'card': {'name': 'Gorehowl', 'mana': 7, 'id': 'EX1_411'}, 'turn': 10, 'player': 'me'}, {'card': {'name': 'Harrison Jones', 'mana': 5, 'id': 'EX1_558'}, 'turn': 11, 'player': 'opponent'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 11, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 11, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 11, 'player': 'me'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 12, 'player': 'opponent'}, {'card': {'name': 'Emperor Thaurissan', 'mana': 6, 'id': 'BRM_028'}, 'turn': 12, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 13, 'player': 'opponent'}, {'card': {'name': 'Brann Bronzebeard', 'mana': 3, 'id': 'LOE_077'}, 'turn': 13, 'player': 'me'}, {'card': {'name': 'The Coin', 'mana': None, 'id': 'GAME_005'}, 'turn': 13, 'player': 'me'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 13, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 14, 'player': 'opponent'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 14, 'player': 'opponent'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 14, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 14, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 14, 'player': 'me'}, {'card': {'name': 'Map to the Golden Monkey', 'mana': 2, 'id': 'LOE_019t'}, 'turn': 15, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 15, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 15, 'player': 'me'}, {'card': {'name': 'Revenge', 'mana': 2, 'id': 'BRM_015'}, 'turn': 16, 'player': 'opponent'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 16, 'player': 'opponent'}, {'card': {'name': 'Doomcaller', 'mana': 8, 'id': 'OG_255'}, 'turn': 16, 'player': 'me'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 17, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 17, 'player': 'opponent'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 17, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 18, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 18, 'player': 'me'}, {'card': {'name': 'Beckoner of Evil', 'mana': 2, 'id': 'OG_281'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': 'Map to the Golden Monkey', 'mana': 2, 'id': 'LOE_019t'}, 'turn': 19, 'player': 'me'}, {'card': {'name': 'Golden Monkey', 'mana': 4, 'id': 'LOE_019t2'}, 'turn': 20, 'player': 'opponent'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 20, 'player': 'me'}, {'card': {'name': 'Malkorok', 'mana': 7, 'id': 'OG_220'}, 'turn': 21, 'player': 'opponent'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 21, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 21, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 21, 'player': 'me'}, {'card': {'name': 'Gruul', 'mana': 8, 'id': 'NEW1_038'}, 'turn': 22, 'player': 'opponent'}], [{'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 4, 'player': 'me'}, {'card': {'name': 'The Coin', 'mana': None, 'id': 'GAME_005'}, 'turn': 4, 'player': 'opponent'}, {'card': {'name': 'Crazed Worshipper', 'mana': 5, 'id': 'OG_321'}, 'turn': 4, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 5, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 5, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 5, 'player': 'opponent'}, {'card': {'name': 'Emperor Thaurissan', 'mana': 6, 'id': 'BRM_028'}, 'turn': 6, 'player': 'me'}, {'card': {'name': 'Sylvanas Windrunner', 'mana': 6, 'id': 'EX1_016'}, 'turn': 6, 'player': 'opponent'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 7, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 7, 'player': 'opponent'}, {'card': {'name': 'Bash', 'mana': 3, 'id': 'AT_064'}, 'turn': 7, 'player': 'opponent'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 7, 'player': 'opponent'}, {'card': {'name': 'Justicar Trueheart', 'mana': 6, 'id': 'AT_132'}, 'turn': 8, 'player': 'me'}, {'card': {'name': 'Elise Starseeker', 'mana': 4, 'id': 'LOE_079'}, 'turn': 8, 'player': 'me'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 8, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 8, 'player': 'opponent'}, {'card': {'name': 'Gorehowl', 'mana': 7, 'id': 'EX1_411'}, 'turn': 9, 'player': 'opponent'}, {'card': {'name': 'Doomcaller', 'mana': 8, 'id': 'OG_255'}, 'turn': 10, 'player': 'me'}, {'card': {'name': 'Justicar Trueheart', 'mana': 6, 'id': 'AT_132'}, 'turn': 10, 'player': 'opponent'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 10, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 11, 'player': 'me'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 11, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 11, 'player': 'opponent'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 12, 'player': 'me'}, {'card': {'name': 'Brawl', 'mana': 5, 'id': 'EX1_407'}, 'turn': 12, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 12, 'player': 'me'}, {'card': {'name': "Twin Emperor Vek'lor", 'mana': 7, 'id': 'OG_131'}, 'turn': 12, 'player': 'opponent'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 13, 'player': 'me'}, {'card': {'name': 'Brawl', 'mana': 5, 'id': 'EX1_407'}, 'turn': 13, 'player': 'me'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 13, 'player': 'opponent'}, {'card': {'name': 'Gorehowl', 'mana': 7, 'id': 'EX1_411'}, 'turn': 14, 'player': 'me'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 14, 'player': 'opponent'}, {'card': {'name': 'Ancient Shieldbearer', 'mana': 7, 'id': 'OG_301'}, 'turn': 15, 'player': 'me'}, {'card': {'name': 'Bash', 'mana': 3, 'id': 'AT_064'}, 'turn': 15, 'player': 'opponent'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 17, 'player': 'me'}, {'card': {'name': 'Beckoner of Evil', 'mana': 2, 'id': 'OG_281'}, 'turn': 17, 'player': 'me'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 17, 'player': 'opponent'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 17, 'player': 'opponent'}, {'card': {'name': 'Map to the Golden Monkey', 'mana': 2, 'id': 'LOE_019t'}, 'turn': 18, 'player': 'me'}, {'card': {'name': "C'Thun's Chosen", 'mana': 4, 'id': 'OG_283'}, 'turn': 18, 'player': 'opponent'}, {'card': {'name': "Twin Emperor Vek'lor", 'mana': 7, 'id': 'OG_131'}, 'turn': 19, 'player': 'me'}, {'card': {'name': 'Acolyte of Pain', 'mana': 3, 'id': 'EX1_007'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': 'Ravaging Ghoul', 'mana': 3, 'id': 'OG_149'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': 'Slam', 'mana': 2, 'id': 'EX1_391'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': 'Blood To Ichor', 'mana': 1, 'id': 'OG_314'}, 'turn': 19, 'player': 'opponent'}, {'card': {'name': "Disciple of C'Thun", 'mana': 3, 'id': 'OG_162'}, 'turn': 20, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 20, 'player': 'opponent'}, {'card': {'name': 'Brann Bronzebeard', 'mana': 3, 'id': 'LOE_077'}, 'turn': 20, 'player': 'opponent'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 21, 'player': 'me'}, {'card': {'name': 'Sylvanas Windrunner', 'mana': 6, 'id': 'EX1_016'}, 'turn': 21, 'player': 'me'}, {'card': {'name': 'Shield Slam', 'mana': 1, 'id': 'EX1_410'}, 'turn': 21, 'player': 'me'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 21, 'player': 'opponent'}, {'card': {'name': 'Slam', 'mana': 2, 'id': 'EX1_391'}, 'turn': 22, 'player': 'me'}, {'card': {'name': 'Execute', 'mana': 1, 'id': 'CS2_108'}, 'turn': 22, 'player': 'me'}, {'card': {'name': 'Shield Block', 'mana': 3, 'id': 'EX1_606'}, 'turn': 22, 'player': 'me'}, {'card': {'name': 'Brann Bronzebeard', 'mana': 3, 'id': 'LOE_077'}, 'turn': 22, 'player': 'me'}, {'card': {'name': 'Fiery War Axe', 'mana': 2, 'id': 'CS2_106'}, 'turn': 22, 'player': 'opponent'}, {'card': {'name': "C'Thun", 'mana': 10, 'id': 'OG_280'}, 'turn': 23, 'player': 'me'}, {'card': {'name': 'Brawl', 'mana': 5, 'id': 'EX1_407'}, 'turn': 23, 'player': 'opponent'}])
 #+end_example
 
+
+#+BEGIN_SRC ipython :session :results output
+  ch = pd.Series(ch)
+  print(ch)
+#+END_SRC
+
+#+RESULTS:
+: 0    [{'card': {'name': 'Shield Block', 'mana': 3, ...
+: 1    [{'card': {'name': 'C'Thun's Chosen', 'mana': ...
+: dtype: object
+
+
+#+BEGIN_SRC ipython :session :results output
+  #print(ch)
+  for game_history in ch:
+      for turn in game_history:
+          turn['card'] = turn['card']['name']
+  print(ch)
+#+END_SRC
+
+#+RESULTS:
+: 0    [{'card': 'Shield Block', 'turn': 3, 'player':...
+: 1    [{'card': 'C'Thun's Chosen', 'turn': 4, 'playe...
+: dtype: object
+
+
 #+BEGIN_SRC ipython :session :results output
   print(nom.games[(nom.games['p_deck_type'] == "C'Thun_Warrior") & (nom.games['o_deck_type'] == "C'Thun_Warrior")])
 #+END_SRC
@@ -345,5 +441,544 @@ C'Thun_Warrior Aggro_Paladin    0.0
     rank result     p_deck_type     o_deck_type   win  count  
 25  13.0    win  C'Thun_Warrior  C'Thun_Warrior  True      1  
 51  14.0    win  C'Thun_Warrior  C'Thun_Warrior  True      1  
+#+end_example
+
+
+
+#+BEGIN_SRC ipython :session :results output
+  print(decks)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+                        added  \
+0    2016-07-18T16:12:50.000Z   
+1    2016-07-18T16:06:27.000Z   
+2    2016-07-18T15:59:15.000Z   
+3    2016-07-18T15:48:31.000Z   
+4    2016-07-18T15:42:09.000Z   
+5    2016-07-18T15:34:28.000Z   
+6    2016-07-16T17:13:41.000Z   
+7    2016-07-16T16:55:49.000Z   
+8    2016-07-16T04:57:38.000Z   
+9    2016-07-10T23:46:27.000Z   
+10   2016-07-10T15:44:12.000Z   
+11   2016-07-08T17:32:13.000Z   
+12   2016-07-08T17:00:18.000Z   
+13   2016-07-08T16:53:08.000Z   
+14   2016-07-08T16:42:19.000Z   
+15   2016-07-08T16:34:45.000Z   
+16   2016-07-08T16:19:04.000Z   
+17   2016-07-08T16:12:46.000Z   
+18   2016-07-08T16:09:09.000Z   
+19   2016-07-08T16:00:52.000Z   
+20   2016-07-08T01:56:50.000Z   
+21   2016-07-08T01:52:29.000Z   
+22   2016-07-08T01:40:25.000Z   
+23   2016-07-08T01:31:00.000Z   
+24   2016-07-08T01:22:50.000Z   
+25   2016-07-08T01:16:59.000Z   
+26   2016-07-07T20:34:06.000Z   
+27   2016-07-07T20:24:35.000Z   
+28   2016-07-07T19:24:09.000Z   
+29   2016-07-07T19:18:55.000Z   
+..                        ...   
+239  2016-06-02T18:56:32.000Z   
+240  2016-06-02T18:32:45.000Z   
+241  2016-06-02T18:22:50.000Z   
+242  2016-06-02T18:08:57.000Z   
+243  2016-06-02T18:04:12.000Z   
+244  2016-06-02T16:51:40.000Z   
+245  2016-06-02T16:34:14.000Z   
+246  2016-06-02T05:50:40.000Z   
+247  2016-06-02T05:39:22.000Z   
+248  2016-06-02T05:33:09.000Z   
+249  2016-06-02T05:28:00.000Z   
+250  2016-06-02T05:16:53.000Z   
+251  2016-06-02T03:06:45.000Z   
+252  2016-06-02T02:58:58.000Z   
+253  2016-06-02T02:47:16.000Z   
+254  2016-06-02T02:35:59.000Z   
+255  2016-06-02T02:32:15.000Z   
+256  2016-06-02T02:27:18.000Z   
+257  2016-06-02T02:21:38.000Z   
+258  2016-06-02T02:11:30.000Z   
+259  2016-06-02T01:44:44.000Z   
+260  2016-06-02T01:38:04.000Z   
+261  2016-06-02T01:25:34.000Z   
+262  2016-06-02T00:20:08.000Z   
+263  2016-06-01T23:05:56.000Z   
+264  2016-06-01T23:00:59.000Z   
+265  2016-06-01T22:56:05.000Z   
+266  2016-06-01T13:51:07.000Z   
+267  2016-06-01T13:44:15.000Z   
+268  2016-06-01T06:58:38.000Z   
+
+                                          card_history   coin  duration  \
+0    [{'turn': 1, 'player': 'opponent', 'card': 'Tu...   True       363   
+1    [{'turn': 2, 'player': 'me', 'card': 'Shapeshi...  False       252   
+2    [{'turn': 1, 'player': 'me', 'card': 'Northshi...   True       623   
+3    [{'turn': 2, 'player': 'me', 'card': 'Museum C...  False       356   
+4    [{'turn': 1, 'player': 'me', 'card': 'Twilight...   True       438   
+5    [{'turn': 1, 'player': 'opponent', 'card': 'Fi...   True       257   
+6    [{'turn': 2, 'player': 'me', 'card': 'Armor Up...  False      1041   
+7                                                   []   True        22   
+8    [{'turn': 1, 'player': 'opponent', 'card': 'No...   True       376   
+9    [{'turn': 1, 'player': 'me', 'card': 'The Coin...   True       284   
+10   [{'turn': 1, 'player': 'opponent', 'card': 'Tu...  False       342   
+11   [{'turn': 1, 'player': 'me', 'card': 'The Coin...   True       661   
+12   [{'turn': 2, 'player': 'me', 'card': 'Fiery Wa...  False       415   
+13   [{'turn': 1, 'player': 'opponent', 'card': 'Ma...   True       638   
+14   [{'turn': 2, 'player': 'me', 'card': 'Alexstra...  False       405   
+15   [{'turn': 2, 'player': 'me', 'card': 'Fiery Wa...  False       385   
+16   [{'turn': 2, 'player': 'opponent', 'card': 'Da...  False       361   
+17   [{'turn': 2, 'player': 'me', 'card': 'Wild Gro...  False       197   
+18   [{'turn': 3, 'player': 'opponent', 'card': 'Fe...   True       259   
+19   [{'turn': 3, 'player': 'opponent', 'card': 'Ac...   True       553   
+20   [{'turn': 2, 'player': 'opponent', 'card': 'Fl...   True       240   
+21   [{'turn': 2, 'player': 'opponent', 'card': 'Fi...  False       710   
+22   [{'turn': 1, 'player': 'opponent', 'card': 'Mi...  False       547   
+23   [{'turn': 1, 'player': 'me', 'card': 'Living R...  False       416   
+24   [{'turn': 1, 'player': 'opponent', 'card': 'Si...   True       210   
+25   [{'turn': 3, 'player': 'opponent', 'card': 'Sh...   True       863   
+26   [{'turn': 1, 'player': 'opponent', 'card': 'Co...   True       526   
+27   [{'turn': 2, 'player': 'opponent', 'card': 'Si...  False       577   
+28   [{'turn': 1, 'player': 'me', 'card': 'The Coin...   True       293   
+29   [{'turn': 1, 'player': 'me', 'card': 'The Coin...   True       199   
+..                                                 ...    ...       ...   
+239  [{'turn': 1, 'player': 'opponent', 'card': 'Th...  False       553   
+240  [{'turn': 1, 'player': 'me', 'card': 'The Coin...   True       489   
+241  [{'turn': 1, 'player': 'me', 'card': 'Living R...  False       814   
+242  [{'turn': 1, 'player': 'opponent', 'card': 'Vo...   True       272   
+243  [{'turn': 1, 'player': 'opponent', 'card': 'Ar...  False       274   
+244  [{'turn': 1, 'player': 'me', 'card': 'Living R...   True      1028   
+245  [{'turn': 1, 'player': 'opponent', 'card': 'Li...   True       242   
+246  [{'turn': 1, 'player': 'opponent', 'card': 'Po...   True       659   
+247  [{'turn': 1, 'player': 'opponent', 'card': 'Ra...  False       362   
+248  [{'turn': 1, 'player': 'me', 'card': 'Sir Finl...   True       295   
+249  [{'turn': 1, 'player': 'me', 'card': 'The Coin...   True       652   
+250  [{'turn': 1, 'player': 'opponent', 'card': 'Fi...   True       209   
+251  [{'turn': 1, 'player': 'opponent', 'card': 'Fl...   True       448   
+252  [{'turn': 3, 'player': 'opponent', 'card': 'Tu...   True       688   
+253  [{'turn': 2, 'player': 'opponent', 'card': 'Th...  False       614   
+254  [{'turn': 1, 'player': 'me', 'card': 'Innervat...   True       214   
+255  [{'turn': 1, 'player': 'opponent', 'card': 'Fl...  False       286   
+256  [{'turn': 1, 'player': 'me', 'card': 'The Coin...   True       325   
+257  [{'turn': 3, 'player': 'me', 'card': 'Raven Id...  False       597   
+258  [{'turn': 1, 'player': 'me', 'card': 'Living R...   True       630   
+259  [{'turn': 1, 'player': 'opponent', 'card': 'Li...   True       367   
+260  [{'turn': 1, 'player': 'opponent', 'card': 'Th...  False       733   
+261  [{'turn': 1, 'player': 'opponent', 'card': 'Fi...   True       364   
+262  [{'turn': 3, 'player': 'me', 'card': 'The Coin...   True       524   
+263  [{'turn': 2, 'player': 'me', 'card': 'Wild Gro...   True       283   
+264  [{'turn': 1, 'player': 'opponent', 'card': 'Po...   True       267   
+265                                                 []  False        21   
+266  [{'turn': 1, 'player': 'opponent', 'card': 'Jo...   True       401   
+267  [{'turn': 1, 'player': 'me', 'card': 'Sir Finl...  False       380   
+268  [{'turn': 1, 'player': 'me', 'card': 'Sir Finl...  False       366   
+
+        hero hero_deck        id  legend      mode  note opponent  \
+0      Druid     Token  35210043     NaN    casual  None   Shaman   
+1      Druid     Token  35209510     NaN    casual  None   Shaman   
+2     Priest    Dragon  35208841     NaN    casual  None   Shaman   
+3     Priest    Dragon  35207886     NaN    casual  None    Druid   
+4     Priest    Dragon  35207316     NaN    casual  None    Druid   
+5     Priest   Control  35206632     NaN    casual  None   Hunter   
+6    Warrior   Control  35047823     NaN    casual  None  Warrior   
+7    Warrior   Control  35046642     NaN    casual  None   Priest   
+8      Druid     Other  35007924     NaN  friendly  None   Priest   
+9    Warrior    Dragon  34654135     NaN    ranked  None    Rogue   
+10   Warrior    Dragon  34610410     NaN    ranked  None   Shaman   
+11   Warrior    Dragon  34400263     NaN    ranked  None  Warlock   
+12   Warrior    Dragon  34396935     NaN    ranked  None    Druid   
+13   Warrior    Dragon  34396168     NaN    ranked  None     Mage   
+14   Warrior    Dragon  34394993     NaN    ranked  None  Warrior   
+15   Warrior    Dragon  34394186     NaN    ranked  None  Warrior   
+16     Druid     Token  34392506     NaN    casual  None  Warlock   
+17     Druid     Token  34391853     NaN    casual  None  Warrior   
+18     Druid      Ramp  34391473     NaN    casual  None   Shaman   
+19     Druid     Token  34390676     NaN    casual  None     Mage   
+20     Druid     Token  34337992     NaN    casual  None   Priest   
+21     Druid     Token  34337786     NaN    casual  None  Warrior   
+22     Druid     Token  34337184     NaN    casual  None   Priest   
+23     Druid     Token  34336694     NaN    casual  None   Shaman   
+24   Warrior    C'Thun  34336293     NaN    ranked  None   Shaman   
+25   Warrior    C'Thun  34335967     NaN    ranked  None  Warrior   
+26   Warrior    C'Thun  34314050     NaN    ranked  None  Paladin   
+27   Warrior    C'Thun  34313278     NaN    ranked  None  Warrior   
+28     Druid     Token  34308399     NaN    casual  None     Mage   
+29     Druid     Token  34307964     NaN    casual  None  Warrior   
+..       ...       ...       ...     ...       ...   ...      ...   
+239    Druid     Token  30367422     NaN    ranked  None    Rogue   
+240    Druid     Token  30364508     NaN    ranked  None  Warlock   
+241    Druid     Token  30363307     NaN    ranked  None    Rogue   
+242    Druid     Token  30361672     NaN    ranked  None  Warlock   
+243    Druid     Token  30361118     NaN    ranked  None   Shaman   
+244    Druid     Token  30352186     NaN    ranked  None  Warlock   
+245    Druid     Token  30350059     NaN    ranked  None    Druid   
+246  Warrior     Other  30298811     NaN    ranked  None  Warlock   
+247  Warrior    Dragon  30298343     NaN    ranked  None    Druid   
+248  Warrior     Other  30298101     NaN    ranked  None     Mage   
+249    Druid     Token  30297889     NaN    ranked  None    Rogue   
+250    Druid     Token  30297435     NaN    ranked  None   Hunter   
+251  Warrior     Other  30291924     NaN    ranked  None  Warlock   
+252    Druid     Token  30291608     NaN    ranked  None   Shaman   
+253    Druid     Token  30291081     NaN    ranked  None  Warrior   
+254    Druid     Token  30290522     NaN    ranked  None    Druid   
+255    Druid     Token  30290339     NaN    ranked  None  Warlock   
+256    Druid     Token  30290116     NaN    ranked  None   Hunter   
+257    Druid     Token  30289838     NaN    ranked  None   Priest   
+258    Druid     Token  30289297     NaN    ranked  None  Warlock   
+259  Warrior    Dragon  30287815     NaN    ranked  None    Druid   
+260    Druid     Token  30287442     NaN    ranked  None   Shaman   
+261    Druid     Token  30286759     NaN    ranked  None   Hunter   
+262    Druid     Other  30282795     NaN    ranked  None   Priest   
+263    Druid     Other  30277416     NaN    ranked  None  Warrior   
+264    Druid     Other  30276996     NaN    ranked  None  Warlock   
+265    Druid     Other  30276564     NaN    ranked  None   Priest   
+266  Warrior     Other  30211909     NaN    ranked  None    Rogue   
+267  Warrior     Other  30211136     NaN    ranked  None   Shaman   
+268  Warrior     Other  30174031     NaN    casual  None    Rogue   
+
+    opponent_deck  rank result      p_deck_type      o_deck_type    win  \
+0           Aggro   NaN    win      Token_Druid     Aggro_Shaman   True   
+1           Other   NaN   loss      Token_Druid     Other_Shaman  False   
+2           Other   NaN    win    Dragon_Priest     Other_Shaman   True   
+3           Token   NaN    win    Dragon_Priest      Token_Druid   True   
+4           Token   NaN   loss    Dragon_Priest      Token_Druid  False   
+5        Midrange   NaN    win   Control_Priest  Midrange_Hunter   True   
+6          C'Thun   NaN    win  Control_Warrior   C'Thun_Warrior   True   
+7           Other   NaN    win  Control_Warrior     Other_Priest   True   
+8         Control   NaN   loss      Other_Druid   Control_Priest  False   
+9           Other  13.0    win   Dragon_Warrior      Other_Rogue   True   
+10          Aggro  13.0    win   Dragon_Warrior     Aggro_Shaman   True   
+11           Reno  13.0   loss   Dragon_Warrior     Reno_Warlock  False   
+12         C'Thun  14.0    win   Dragon_Warrior     C'Thun_Druid   True   
+13          Tempo  14.0    win   Dragon_Warrior       Tempo_Mage   True   
+14         C'Thun  13.0   loss   Dragon_Warrior   C'Thun_Warrior  False   
+15         Dragon  13.0   loss   Dragon_Warrior   Dragon_Warrior  False   
+16            Zoo   NaN    win      Token_Druid      Zoo_Warlock   True   
+17         Dragon   NaN   loss      Token_Druid   Dragon_Warrior  False   
+18       Midrange   NaN   loss       Ramp_Druid  Midrange_Shaman  False   
+19         Freeze   NaN   loss      Token_Druid      Freeze_Mage  False   
+20         N'Zoth   NaN   loss      Token_Druid    N'Zoth_Priest  False   
+21          Other   NaN    win      Token_Druid    Other_Warrior   True   
+22        Control   NaN   loss      Token_Druid   Control_Priest  False   
+23       Midrange   NaN    win      Token_Druid  Midrange_Shaman   True   
+24          Aggro  13.0   loss   C'Thun_Warrior     Aggro_Shaman  False   
+25         C'Thun  13.0    win   C'Thun_Warrior   C'Thun_Warrior   True   
+26          Aggro  13.0   loss   C'Thun_Warrior    Aggro_Paladin  False   
+27         Dragon  13.0    win   C'Thun_Warrior   Dragon_Warrior   True   
+28          Tempo   NaN   loss      Token_Druid       Tempo_Mage  False   
+29          Other   NaN    win      Token_Druid    Other_Warrior   True   
+..            ...   ...    ...              ...              ...    ...   
+239         Other  15.0    win      Token_Druid      Other_Rogue   True   
+240         Other  16.0    win      Token_Druid    Other_Warlock   True   
+241         Other  16.0    win      Token_Druid      Other_Rogue   True   
+242         Other  16.0   loss      Token_Druid    Other_Warlock  False   
+243         Other  16.0    win      Token_Druid     Other_Shaman   True   
+244         Other  16.0    win      Token_Druid    Other_Warlock   True   
+245         Other  16.0   loss      Token_Druid      Other_Druid  False   
+246         Other  18.0   loss    Other_Warrior    Other_Warlock  False   
+247         Other  19.0    win   Dragon_Warrior      Other_Druid   True   
+248         Other  19.0    win    Other_Warrior       Other_Mage   True   
+249         Other  18.0   loss      Token_Druid      Other_Rogue  False   
+250         Other  18.0   loss      Token_Druid     Other_Hunter  False   
+251         Other  18.0   loss    Other_Warrior    Other_Warlock  False   
+252         Other  17.0   loss      Token_Druid     Other_Shaman  False   
+253         Other  17.0   loss      Token_Druid    Other_Warrior  False   
+254         Other  17.0    win      Token_Druid      Other_Druid   True   
+255         Other  17.0   loss      Token_Druid    Other_Warlock  False   
+256         Other  18.0    win      Token_Druid     Other_Hunter   True   
+257         Other  18.0    win      Token_Druid     Other_Priest   True   
+258         Other  18.0   loss      Token_Druid    Other_Warlock  False   
+259         Other  18.0    win   Dragon_Warrior      Other_Druid   True   
+260         Other  19.0    win      Token_Druid     Other_Shaman   True   
+261         Other  19.0    win      Token_Druid     Other_Hunter   True   
+262         Other  19.0    win      Other_Druid     Other_Priest   True   
+263         Other  19.0    win      Other_Druid    Other_Warrior   True   
+264         Other  19.0   loss      Other_Druid    Other_Warlock  False   
+265         Other   NaN    win      Other_Druid     Other_Priest   True   
+266         Other  17.0   loss    Other_Warrior      Other_Rogue  False   
+267         Other  18.0    win    Other_Warrior     Other_Shaman   True   
+268         Other   NaN    win    Other_Warrior      Other_Rogue   True   
+
+     count                                     p_cards_played  \
+0        1  [The Coin, Wild Growth, Innervate, Druid of th...   
+1        1  [Shapeshift, Shapeshift, Fandral Staghelm, Inn...   
+2        1  [Northshire Cleric, Museum Curator, The Coin, ...   
+3        1  [Museum Curator, Blackwing Technician, Shiftin...   
+4        1  [Twilight Whelp, The Coin, Northshire Cleric, ...   
+5        1  [Blood To Ichor, Armor Up!, Slam, Execute, Eli...   
+6        1  [Armor Up!, Acolyte of Pain, Armor Up!, Armor ...   
+7        1                                                 []   
+8        1  [The Coin, Huge Toad, Power of the Wild, Mount...   
+9        1  [The Coin, Alexstrasza's Champion, Ravaging Gh...   
+10       1  [Fiery War Axe, Fierce Monkey, Ravaging Ghoul,...   
+11       1  [The Coin, Alexstrasza's Champion, Fiery War A...   
+12       1  [Fiery War Axe, Ravaging Ghoul, Kor'kron Elite...   
+13       1  [The Coin, Alexstrasza's Champion, Faerie Drag...   
+14       1  [Alexstrasza's Champion, Fiery War Axe, Slam, ...   
+15       1  [Fiery War Axe, Kor'kron Elite, Execute, Kor'k...   
+16       1  [Innervate, Emperor Thaurissan, Violet Teacher...   
+17       1  [Wild Growth, Power of the Wild, Fandral Stagh...   
+18       1  [Wild Growth, Swipe, The Coin, Mulch, Violet T...   
+19       1  [Wrath, Innervate, Ancient of War, Nourish, Th...   
+20       1           [Wrath, Living Roots, Druid of the Claw]   
+21       1  [Wild Growth, Innervate, Ancient of War, Fandr...   
+22       1  [Innervate, Emperor Thaurissan, Nourish, Druid...   
+23       1  [Living Roots, Power of the Wild, Living Roots...   
+24       1  [Disciple of C'Thun, Ravaging Ghoul, Shield Bl...   
+25       1  [Shield Block, C'Thun's Chosen, Acolyte of Pai...   
+26       1  [The Coin, Ravaging Ghoul, Acolyte of Pain, El...   
+27       1  [Acolyte of Pain, Crazed Worshipper, Disciple ...   
+28       1  [The Coin, Druid of the Saber, Living Roots, M...   
+29       1  [The Coin, Huge Toad, Abusive Sergeant, Innerv...   
+..     ...                                                ...   
+239      1  [Innervate, Mire Keeper, Wrath, Living Roots, ...   
+240      1  [The Coin, Wild Growth, Wild Growth, Swipe, Vi...   
+241      1  [Living Roots, Wild Growth, Fandral Staghelm, ...   
+242      1  [The Coin, Power of the Wild, Living Roots, Mi...   
+243      1  [Wild Growth, Violet Teacher, Innervate, Wrath...   
+244      1  [Living Roots, Wrath, Living Roots, The Coin, ...   
+245      1  [The Coin, Innervate, Fandral Staghelm, Wild G...   
+246      1  [The Coin, Acolyte of Pain, Ravaging Ghoul, Di...   
+247      1  [Alexstrasza's Champion, Sir Finley Mrrgglton,...   
+248      1  [Sir Finley Mrrgglton, Alexstrasza's Champion,...   
+249      1  [The Coin, Wild Growth, Innervate, Wild Growth...   
+250      1  [The Coin, Wrath, Feral Rage, Swipe, Fandral S...   
+251      1  [The Coin, Fiery War Axe, Alexstrasza's Champi...   
+252      1  [Innervate, Nourish, Wrath, Mire Keeper, Power...   
+253      1  [Feral Rage, Fandral Staghelm, Nourish, Wrath,...   
+254      1  [Innervate, The Coin, Violet Teacher, Wild Gro...   
+255      1  [Innervate, Mire Keeper, Swipe, Living Roots, ...   
+256      1  [The Coin, Wild Growth, Violet Teacher, Innerv...   
+257      1  [Raven Idol, Wild Growth, Wrath, Feral Rage, I...   
+258      1  [Living Roots, Power of the Wild, Living Roots...   
+259      1  [Fiery War Axe, The Coin, Blood To Ichor, Kor'...   
+260      1  [Innervate, Mire Keeper, Mire Keeper, Wild Gro...   
+261      1  [Innervate, Fandral Staghelm, Living Roots, Mi...   
+262      1  [The Coin, Mire Keeper, Raven Idol, Soul of th...   
+263      1  [Wild Growth, Mire Keeper, Violet Teacher, Wra...   
+264      1  [The Coin, Wrath, Power of the Wild, Wild Grow...   
+265      1                                                 []   
+266      1  [Sir Finley Mrrgglton, Blood To Ichor, Twiligh...   
+267      1  [Sir Finley Mrrgglton, Faerie Dragon, Fiery Wa...   
+268      1  [Sir Finley Mrrgglton, Fiery War Axe, Fierce M...   
+
+                                        o_cards_played  
+0    [Tunnel Trogg, Ancestral Knowledge, Argent Squ...  
+1    [Totemic Call, The Coin, Flamewreathed Faceles...  
+2    [Totem Golem, Rockbiter Weapon, Flamewreathed ...  
+3    [Wild Growth, The Coin, Nourish, Shapeshift, F...  
+4    [Wrath, Shapeshift, Violet Teacher, Druid of t...  
+5    [Fiery Bat, Steady Shot, Carrion Grub, Steady ...  
+6    [Armor Up!, Fiery War Axe, Armor Up!, C'Thun's...  
+7                                                   []  
+8    [Northshire Cleric, Northshire Cleric, Acolyte...  
+9    [Deadly Poison, Tomb Pillager, Shiv, Shadow St...  
+10   [Tunnel Trogg, The Coin, Argent Squire, Abusiv...  
+11   [Doomsayer, Dark Peddler, Soulfire, Sen'jin Sh...  
+12   [Wrath, Twilight Elder, Swipe, Living Roots, D...  
+13   [Mana Wyrm, Arcane Blast, Sorcerer's Apprentic...  
+14   [Slam, Disciple of C'Thun, C'Thun's Chosen, Th...  
+15   [Frothing Berserker, Twilight Guardian, The Co...  
+16   [Dark Peddler, Darkshire Councilman, Shadow Bo...  
+17   [Alexstrasza's Champion, Fiery War Axe, The Co...  
+18   [Feral Spirit, Flametongue Totem, Tunnel Trogg...  
+19   [Acolyte of Pain, Ice Barrier, Novice Engineer...  
+20   [Flame Juggler, Museum Curator, Power Word: Sh...  
+21   [Fiery War Axe, Frothing Berserker, Bloodhoof ...  
+22   [Mind Vision, Mind Vision, Acolyte of Pain, Sw...  
+23   [Tunnel Trogg, Totem Golem, Totem Golem, Mana ...  
+24   [Sir Finley Mrrgglton, Flame Juggler, Feral Sp...  
+25   [Shield Block, C'Thun's Chosen, Slam, Fiery Wa...  
+26   [Competitive Spirit, Bilefin Tidehunter, Selfl...  
+27   [Sir Finley Mrrgglton, Fiery War Axe, The Coin...  
+28   [Cult Sorcerer, Spellslinger, Sorcerer's Appre...  
+29                                                  []  
+..                                                 ...  
+239  [The Coin, Undercity Huckster, Bloodmage Thaln...  
+240  [Beckoner of Evil, Twilight Elder, Twilight Dr...  
+241  [The Coin, Deadly Poison, SI:7 Agent, Undercit...  
+242  [Voidwalker, Knife Juggler, Flame Juggler, Fla...  
+243  [Argent Squire, Abusive Sergeant, Flametongue ...  
+244  [Doomsayer, Earthen Ring Farseer, Sen'jin Shie...  
+245  [Living Roots, Wild Growth, Feral Rage, Fandra...  
+246  [Possessed Villager, Dark Peddler, Darkshire C...  
+247  [Raven Idol, The Coin, Innervate, Druid of the...  
+248  [Forgotten Torch, Polymorph, Fireball, Cult So...  
+249  [Undercity Huckster, Tomb Pillager, Xaril, Poi...  
+250  [Fiery Bat, Huge Toad, Animal Companion, Hound...  
+251  [Flame Imp, Dark Peddler, Bilefin Tidehunter, ...  
+252  [Tuskarr Totemic, Feral Spirit, Lightning Stor...  
+253  [The Coin, Fierce Monkey, Armorsmith, Ravaging...  
+254  [Mounted Raptor, Violet Teacher, Innervate, Li...  
+255  [Flame Imp, Knife Juggler, Dark Peddler, Posse...  
+256  [King's Elekk, Animal Companion, Houndmaster, ...  
+257  [The Coin, Shifting Shade, Twilight Elder, Cra...  
+258  [Hellfire, Twilight Drake, Reno Jackson, Hellf...  
+259  [Living Roots, Power of the Wild, Wrath, Swipe...  
+260  [The Coin, Beckoner of Evil, Feral Spirit, Tun...  
+261  [Fiery Bat, Animal Companion, Unleash the Houn...  
+262  [Twilight Drake, Twilight Drake, Shadow Word: ...  
+263  [Twilight Drake, Bash, Alexstrasza's Champion,...  
+264  [Possessed Villager, Dark Peddler, Imp Gang Bo...  
+265                                                 []  
+266  [Journey Below, SI:7 Agent, Backstab, Tomb Pil...  
+267  [The Coin, Stormcrack, Feral Spirit, Flametong...  
+268  [Acidic Swamp Ooze, Refreshment Vendor, Shiv, ...  
+
+[269 rows x 20 columns]
+#+end_example
+
+#+BEGIN_SRC ipython :session :results output
+  p_df = []
+  o_df = []
+  for r in zip(decks['p_cards_played'], decks['o_cards_played'], decks['result']):
+      for p_card in r[0]:
+          p_df.append({'card': p_card, 'win': 1, 'loss': 0} if r[2] == 'win' else {'card': p_card, 'win': 0, 'loss': 1})
+      for o_card in r[1]:
+          o_df.append({'card': o_card, 'win': 1, 'loss': 0} if r[2] == 'loss' else {'card': o_card, 'win': 0, 'loss': 1})
+
+  p_df = pd.DataFrame(p_df).groupby('card').agg(np.sum)
+  o_df = pd.DataFrame(o_df).groupby('card').agg(np.sum)
+
+  print(p_df)
+  print(o_df)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+                        loss  win
+card                             
+Abomination                0    1
+Abusive Sergeant           1    4
+Acidic Swamp Ooze          2    1
+Acidmaw                    1    0
+Acolyte of Pain           36   50
+Alexstrasza's Champion    25   34
+Ancient Shieldbearer       6   13
+Ancient of War             4    5
+Animal Companion           2    0
+Anomalus                   0    1
+Arcane Blast               2    0
+Arcane Golem               1    0
+Arcane Intellect           3    0
+Arcane Missiles            1    0
+Argent Horserider          0    2
+Argent Squire              0    3
+Armor Up!                  0    9
+Armorsmith                 5    2
+Assassinate                4    1
+Auchenai Soulpriest        4    7
+Azure Drake               34   29
+Backstab                   4    2
+Bananas                    0    2
+Baron Geddon               0    1
+Bash                      42   76
+Battle Rage                5    8
+Beckoner of Evil           5    6
+Bite                       0    1
+Blackwing Corruptor       21   24
+Blackwing Technician      16   25
+...                      ...  ...
+Tank Up!                   0   12
+The Beast                  1    0
+The Black Knight           1    0
+The Coin                  65   68
+The Skeleton Knight        2    1
+Thistle Tea                2    0
+Thoughtsteal               1    0
+Thunder Bluff Valiant      0    1
+Tomb Pillager              3    3
+Tomb Spider                1    0
+Treant                     0    1
+Truesilver Champion        0    1
+Twilight Guardian         29   33
+Twilight Summoner          0    1
+Twilight Whelp             3    4
+Twin Emperor Vek'lor       3    7
+Unleash the Hounds         1    0
+Vaporize                   1    1
+Violet Teacher            18   31
+Voidwalker                 0    2
+Warhorse Trainer           0    1
+Whirlwind                  3    0
+Wild Growth               26   33
+Wild Pyromancer            1    1
+Wisp                       0    2
+Wisps of the Old Gods      6   16
+Worthless Imp              3    0
+Wrath                     31   29
+Wyrmrest Agent             3    3
+Yogg-Saron, Hope's End    33   34
+
+[233 rows x 2 columns]
+                         loss  win
+card                              
+A Light in the Darkness     1    0
+Abusive Sergeant           28   18
+Acidic Swamp Ooze          10    6
+Acolyte of Pain            23   26
+Al'Akir the Windlord        2    2
+Aldor Peacekeeper           2    7
+Alexstrasza                 3    2
+Alexstrasza's Champion      7    3
+Amani Berserker             2    0
+Ancestral Knowledge         8    1
+Ancestral Spirit            3    0
+Ancient Shade               1    0
+Ancient Shieldbearer        7    8
+Ancient of War             10    6
+Animal Companion           18   19
+Anub'arak                   0    1
+Anubisath Sentinel          1    0
+Arathi Weaponsmith          1    5
+Arcane Blast               13   13
+Arcane Explosion            3    0
+Arcane Intellect           30   16
+Arcane Missiles            33    6
+Arcane Shot                 1    1
+Arcanite Reaper             3    5
+Arch-Thief Rafaam           0    3
+Archmage Antonidas          4    4
+Argent Commander            0    1
+Argent Horserider          12    4
+Argent Protector            1    2
+Argent Squire              25   23
+...                       ...  ...
+Unbound Elemental           1    0
+Undercity Huckster          5    7
+Unearthed Raptor            2    1
+Unleash the Hounds          9    6
+Upgrade!                    0    4
+Usher of Souls              2    1
+Vanish                      0    2
+Varian Wrynn                0    3
+Violet Teacher              9    7
+Voidwalker                 17   10
+Volcanic Drake              1    2
+Volcanic Lumberer           1    0
+Water Elemental            21   10
+Whirlwind                   3    5
+Wild Growth                18   10
+Wild Pyromancer             3    6
+Windfury                    0    1
+Wisps of the Old Gods       4    3
+Wobbling Runts              0    1
+Wolfrider                   1    0
+Worgen Infiltrator          2    0
+Wrath                      23   12
+Wyrmrest Agent              3    3
+Xaril, Poisoned Mind        5    2
+Y'Shaarj, Rage Unbound      1    0
+Yogg-Saron, Hope's End     10    8
+Young Priestess             1    0
+Youthful Brewmaster         1    1
+Ysera                       1    2
+Ysera Awakens               1    0
+
+[452 rows x 2 columns]
 #+end_example
 

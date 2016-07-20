@@ -108,12 +108,28 @@ class preordain_analyzer(object):
         decks['p_cards_played'] = decks['card_history'].map(lambda x: self._get_card_list(x, player='me'))
         decks['o_cards_played'] = decks['card_history'].map(lambda x: self._get_card_list(x, player='opponent'))
         self.games = decks
-        
+
         grouped = decks.groupby(["p_deck_type", "o_deck_type"]).agg({"coin": np.sum, "duration": [np.mean, np.std], "count": np.sum, "win": np.sum, "card_history": lambda x: tuple(x)})
         grouped['win%'] = grouped['win']['sum']/grouped['count']['sum']
         grouped = grouped[grouped['count']['sum'] > game_threshold]
         return grouped #note this returns a groupby, so a reset_index is necessary before pivoting/plotting
 
+    def generate_cards(self, filtered):
+        """
+        Generates a grouped win/loss count for specific cards
+        filtered should be a filtered subset of self.games, using some combination of rank/deck/hero
+        """
+        p_df = []
+        o_df = []
+        for r in zip(decks['p_cards_played'], decks['o_cards_played'], decks['result']):
+            for p_card in r[0]:
+                p_df.append({'card': p_card, 'win': 1, 'loss': 0} if r[2] == 'win' else {'card': p_card, 'win': 0, 'loss': 1})
+            for o_card in r[1]:
+                o_df.append({'card': o_card, 'win': 1, 'loss': 0} if r[2] == 'loss' else {'card': o_card, 'win': 0, 'loss': 1})
+
+        p_df = pd.DataFrame(p_df).groupby('card').agg(np.sum)
+        o_df = pd.DataFrame(o_df).groupby('card').agg(np.sum)
+        return p_df, o_df
 
 
 

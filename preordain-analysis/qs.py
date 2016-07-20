@@ -38,6 +38,9 @@ class preordain_analyzer(object):
               self.pull_data(username, api_key, page=data["meta"]["next_page"], force_update = force_update)
 
     def grab_data(self, username, api_key):
+        """
+        Use this method, pull_data and parse_data are both outdated and require mulitude of files
+        """
         url = "https://trackobot.com/profile/history.json?"
         auth = {"username": username, "token": api_key}
         req = requests.get(url, params=auth).json()

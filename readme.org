@@ -2,6 +2,7 @@
 
 Preordain is a python webapp that scrapes, analyzes, and produces digestable data using the [[https://github.com/stevschmid/track-o-bot][Track-o-Bot]] [[https://gist.github.com/stevschmid/120adcbc5f1f7cb31bc5][API]]. 
 
+
 ** References:
 *** https://github.com/danielyule/hearthbreaker
 

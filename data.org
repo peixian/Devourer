@@ -1,0 +1,2 @@
+* How data is stored:
+Data for predordain is stored in two files, a history.json file that's been stripped of metadata, and a hdf5 file that's stored for data analysis. Both of these files are stored in plaintext, and should have no identifible data besides the hash of your username and api_key.

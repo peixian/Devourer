@@ -4,7 +4,7 @@ import requests
 import pandas as pd
 import numpy as np
 import os.path
-import datetime 
+import datetime
 
 
 HS_JSON = "https://api.hearthstonejson.com/v1/latest/enUS/"
@@ -145,3 +145,16 @@ class preordain_analyzer(object):
         p_df = p_df.groupby('card').agg(np.sum)
         o_df = o_df.groupby('card').agg(np.sum)
         return p_df, o_df
+
+
+    def store_data(self, username, api_key):
+        """
+        Stores the python data by using the filename as the sha5 hash of the username and api_key -> hash is stored in a database for lookups later, data is stored using the hdf5 format
+        """
+        pass
+
+    def read_data(self, username, api_key):
+        """
+        Hashes the username + api_key, looks it up in the database, adds it if nonexistent, returns the names of the files
+        """
+        pass

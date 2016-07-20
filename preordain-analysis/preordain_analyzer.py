@@ -7,8 +7,9 @@ import os.path
 import datetime
 import sqlite3
 import hashlib
+from pandas import HDFStore
 
-DATA_PATH = '.' #TODO in current directory while testing, needs to be fixed before shipping!
+DATA_PATH = '../test_data/' #TODO in current directory while testing, needs to be fixed before shipping!
 
 HS_JSON = 'https://api.hearthstonejson.com/v1/latest/enUS/'
 HS_JSON_EXT = ['cardbacks.json', 'cards.collectible.json', 'cards.json']
@@ -43,7 +44,7 @@ class preordain_analyzer(object):
         auth = {'username': username, 'token': api_key}
         req = requests.get(url, params=auth).json()
         metadata = req['meta']
-        count, json_name, hdf5name = self.store_data(total_items)
+        user_hash, count, json_name, hdf5_name = self.store_data()
         #if it's not equal, repull
         if metadata['total_items'] != count:
             results = {'children': req['history']}
@@ -57,6 +58,7 @@ class preordain_analyzer(object):
             self.write_hdf5(hdf5_name)
             with open('{}{}'.format(DATA_PATH, json_name), "w") as outfile:
                 json.dump(results, outfile)
+            self.update_count(user_hash, metadata['total_items']) #once everything's been loaded and written, update the total_items count in the database
         else:
             results = self.read_data(json_name, hdf5_name)
         return results
@@ -81,9 +83,9 @@ class preordain_analyzer(object):
 
     def _make_dates(self):
         '''Internal method -- Converts the dates in self.games to separate columns for easier parsing, called by generate_decks'''
-        format_date = lambda x: datetime.datetime.strptime(x[:-5], '%Y-%m-%dT%H:%M:S')
+        format_date = lambda x: datetime.datetime.strptime(x[:-5], '%Y-%m-%dT%H:%M:%S')
         split_date = lambda x: {'year': x.year, 'month': x.month, 'day': x.day, 'hour': x.hour, 'minute': x.minute, 'second': x.second}
-        date_df = pd.DataFrame(list(map(lambda x: split_date(format_date(x)), self.gaes['added'])))
+        date_df = pd.DataFrame(list(map(lambda x: split_date(format_date(x)), self.games['added'])))
         self.games = self.games.join(date_df, how='outer')
 
     def _get_card_list(self, dict_list, player='me'):
@@ -162,31 +164,38 @@ class preordain_analyzer(object):
         '''
         self.games.to_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table', append = False)
 
-    def store_data(self, total_items):
+
+    def update_count(self, user_hash, total_items):
+        '''Updates the given total items count for the user with user_hash'''
+        conn = sqlite3.connect('{}/users.db'.format(DATA_PATH))
+        c = conn.cursor()
+        c.execute('UPDATE users SET total_items = ?', (total_items,))
+        conn.commit()
+        conn.close()
+
+    def store_data(self):
         '''
         Stores the python data by using the filename as the sha5 hash of the username and api_key -> hash is stored in a database for lookups later, data is stored using the hdf5 format
         Table is in the format of ['user_hash', 'total_items', 'json_name', 'hdf5_name']
-
-        Keyword arguments:
-        total_items -- int, total number of items given by the trackobot api
 
         Returns:
         user[1] -- int, total items
         user[2] -- str, json_name
         user[3] -- str, hdf5_name
         '''
-        user_hash = hashlib.sha1(b'{}{}'.format(self.username, self.api_key)).hexdigest()
-        conn = sqlite3.connect('{}/userdata.db'.format(DATA_PATH)) #TODO FIX THIS
+        user_hash = hashlib.sha1(('{}{}'.format(self.username, self.api_key)).encode()).hexdigest()
+        conn = sqlite3.connect('{}/users.db'.format(DATA_PATH)) #TODO FIX THIS
         c = conn.cursor()
-        if c.execute('SELECT (1) from users where user_hash=?', user_hash):
-            c.execute('SELECT * FROM users WHERE user_hash=?', user_hash)
-            user = c.fetchone()
+        c.execute('SELECT * FROM users WHERE user_hash = ?', (user_hash,))
+        data = c.fetchall()
+        if len(data) != 0:
+            user = data[0]
         else:
-            user = (user_hash, total_items, '{}_j.json'.format(user_hash), '{{}_h.hdf5}'.format(user_hash))
-            c.execute('INSERT INTO users VALUES ?', user)
+            user = (user_hash, 0, '{}_j.json'.format(user_hash), '{}_h.hdf5'.format(user_hash))
+            c.execute('INSERT INTO users VALUES (?, ?, ?, ?)', user)
         conn.commit()
         conn.close()
-        return user[1], user[2], user[3]
+        return user[0], user[1], user[2], user[3]
 
     def read_data(self, json_name, hdf5_name):
         '''
@@ -199,7 +208,9 @@ class preordain_analyzer(object):
         Returns:
         results -- dict, complete history of games and metadata
         '''
-        results = json.load('{}{}'.format(DATA_PATH, json_name))
+        with open("{}{}".format(DATA_PATH, json_name)) as json_data:
+            results = json.load(json_data)
         self.history = results
-        self.games = read_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table')
+        self.games = pd.read_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table')
         return results
+

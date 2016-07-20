@@ -1,5 +1,5 @@
 from flask import Flask, make_response
-from . import preordain_analyzer
+import preordain_analyzer
 
 app = Flask(__name__)
 
@@ -11,3 +11,4 @@ def index():
 def submit(username, api_key):
     scrape = preordain_analyzer.preordain_analyzer()
     scrape.grab_data(username, api_key)
+    return scrape.games.head().to_csv()

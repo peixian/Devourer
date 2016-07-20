@@ -5,7 +5,11 @@ import pandas as pd
 import numpy as np
 import os.path
 import datetime
+import sqlite3
+import hashlib
 
+
+DATA_PATH = "/"
 
 HS_JSON = "https://api.hearthstonejson.com/v1/latest/enUS/"
 HS_JSON_EXT = ["cardbacks.json", "cards.collectible.json", "cards.json"]
@@ -19,61 +23,35 @@ class preordain_analyzer(object):
     def __init__(self):
         self.total_pages = 0
         self.history = []
-
-    def pull_data(self, username, api_key, page=1, force_update = False):
-        """
-        Repulls the data using the Track-o-Bot API
-        """
-        if (force_update):
-            auth = {"username": username, "token": api_key, "page": page}
-            req = requests.get(URL, params=auth)
-            data = req.json()
-            print("Pulling page #{}".format(page))
-            print(req.url)
-
-            with open("history_{}.json".format(page), "w") as outfile:
-                json.dump(data, outfile)
-
-            if (data["meta"]["next_page"] != None):
-              self.pull_data(username, api_key, page=data["meta"]["next_page"], force_update = force_update)
+        self.username = ""
+        self.api_key = ""
+        self.new_data = False
 
     def grab_data(self, username, api_key):
         """
         Use this method, pull_data and parse_data are both outdated and require mulitude of files
         """
+        self.username = username
+        self.api_key = api_key
         url = "https://trackobot.com/profile/history.json?"
         auth = {"username": username, "token": api_key}
         req = requests.get(url, params=auth).json()
         metadata = req["meta"]
-        results = {'children': req['history']}
-        if metadata['total_pages'] != None:
-            for page_number in range(2, metadata['total_pages']+1):
-                auth['page'] = page_number
+        count, json_name, hdf5name = self.store_data()
+        #if it's not equal, repull
+        if metadata['total_items'] != count:
+            results = {'children': req['history']}
+            if metadata['total_pages'] != None:
+                for page_number in range(2, metadata['total_pages']+1):
+                    auth['page'] = page_number
                 results['children'].extend(requests.get(url, params=auth).json()['history'])
-        results['meta'] = {'total_items': metadata['total_items']}
-        self.history = results
+            results['meta'] = {'total_items': metadata['total_items']}
+            self.history = results
+            self.generate_decks()
+            self.write_hdf5(hdf5_name)
+        else:
+            results = self.read_data(json_name, hdf5_name)
         return results
-
-    def parse_data(self):
-        """
-        Parses the json from the pull_data, splits it into readable json object
-        """
-        with open("history_1.json", "r") as infile:
-            self.total_pages = json.load(infile)["meta"]["total_pages"]
-        history = []
-        meta = {}
-        for i in range(1, self.total_pages+1):
-            with open("history_{}.json".format(i), "r") as infile:
-                data = json.load(infile)["history"]
-
-                history.extend(data)
-
-        meta["total_items"] = len(history)
-        out = {"history": history, "meta": meta}
-        with open("history.json", "w") as outfile:
-            json.dump(out, outfile)
-        self.history = {'children': history, "meta": meta}
-        return history
 
     def generate_decks(self):
         """
@@ -86,6 +64,7 @@ class preordain_analyzer(object):
         self.games["o_deck_type"] = self.games["opponent_deck"].map(str) + "_" + self.games["opponent"]
 
         self._generate_cards_played()
+        self._make_dates()
         return self.games
 
 
@@ -146,15 +125,36 @@ class preordain_analyzer(object):
         o_df = o_df.groupby('card').agg(np.sum)
         return p_df, o_df
 
+    def write_hdf5(self, hdf5_name):
+        """
+        Writes out self.games into a hdf5_file
+        """
+        self.games.to_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table', append = False)
 
-    def store_data(self, username, api_key):
+    def store_data(self):
         """
         Stores the python data by using the filename as the sha5 hash of the username and api_key -> hash is stored in a database for lookups later, data is stored using the hdf5 format
+        Table is in the format of ['user_hash', 'total_items', 'json_name', 'hdf5_name']
         """
-        pass
 
-    def read_data(self, username, api_key):
+        user_hash = hashlib.sha1(b'{}{}'.format(self.username, self.api_key)).hexdigest()
+        conn = sqlite3.connect('~/userdata.db')
+        c = conn.cursor()
+        if c.execute("SELECT (1) from users where user_hash=?", user_hash):
+            c.execute('SELECT * FROM users WHERE user_hash=?', user_hash)
+            user = c.fetchone()
+        else:
+            user = (user_hash, history['meta']['total_items'], '{}_j.json'.format(user_hash), '{{}_h.hdf5}'.format(user_hash))
+            c.execute('INSERT INTO users VALUES ?', user)
+        conn.commit()
+        conn.close()
+        return user[1], user[2], user[3]
+
+    def read_data(self, json_name, hdf5_name):
         """
-        Hashes the username + api_key, looks it up in the database, adds it if nonexistent, returns the names of the files
+        Takes the names of the files and loads them into memory for processing
         """
-        pass
+        results = json.load("{}{}".format(DATA_PATH, json_name))
+        self.history = results
+        self.games = read_hdf("{}{}".format(DATA_PATH, hdf5_name), 'table')
+        return results

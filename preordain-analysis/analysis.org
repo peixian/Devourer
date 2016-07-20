@@ -14,7 +14,7 @@
 #+RESULTS:
 
 #+BEGIN_SRC ipython :session
-  import qs
+  import preordain_analyzer
 #+END_SRC
 
 #+RESULTS:
@@ -31,7 +31,7 @@
 #+RESULTS:
 
 #+BEGIN_SRC ipython :session 
-  nom = qs.preordain_analyzer()
+  nom = preordain_analyzer.preordain_analyzer()
   nom.pull_data(USERNAME, API_KEY, force_update = False)
   data = nom.parse_data()
 #+END_SRC
@@ -209,8 +209,8 @@ Zoo_Warlock     Midrange_Hunter   470.000000         NaN     1  1.0  1.0
 [[file:tmp/image.png]]
 
 #+BEGIN_SRC ipython :session
-  import qs
-  nom = qs.preordain_analyzer()
+  import preordain_analyzer
+  nom = preordain_analyzer.preordain_analyzer()
 #+END_SRC
 
 #+RESULTS:
@@ -479,7 +479,7 @@ C'Thun_Warrior Aggro_Paladin    0.0
 #+RESULTS:
 
 #+BEGIN_SRC ipython :session
-  import qs
+  import preordain_analyzer
 #+END_SRC
 
 #+RESULTS:
@@ -497,8 +497,8 @@ C'Thun_Warrior Aggro_Paladin    0.0
 
 
 #+BEGIN_SRC ipython :session
-  import qs
-  nom = qs.preordain_analyzer()
+  import preordain_analyzer
+  nom = preordain_analyzer.preordain_analyzer()
 #+END_SRC
 
 #+RESULTS:

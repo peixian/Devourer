@@ -46,12 +46,12 @@ class preordain_analyzer(object):
         metadata = req['meta']
         user_hash, count, json_name, hdf5_name = self.store_data()
         #if it's not equal, repull
-        if metadata['total_items'] != count:
+        if metadata['total_items'] != count or not self.check_data(json_name, hdf5_name):
             results = {'children': req['history']}
             if metadata['total_pages'] != None:
                 for page_number in range(2, metadata['total_pages']+1):
                     auth['page'] = page_number
-                results['children'].extend(requests.get(url, params=auth).json()['history'])
+                    results['children'].extend(requests.get(url, params=auth).json()['history'])
             results['meta'] = {'total_items': metadata['total_items']}
             self.history = results
             self.generate_decks()
@@ -78,6 +78,7 @@ class preordain_analyzer(object):
 
         self._generate_cards_played()
         self._make_dates()
+        self.games = self.games[self.games['card_history'].str.len() != 0]
         return self.games
 
 
@@ -214,3 +215,18 @@ class preordain_analyzer(object):
         self.games = pd.read_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table')
         return results
 
+    def check_data(self, json_name, hdf5_name):
+        '''
+        Checks for the existance of either file under the DATA_PATH, returns False if either is missing
+
+        Keyword arguments:
+        json_name -- str
+        hdf5 -- str
+
+        Returns:
+        bool -- False if either is missing, True otherwise
+        '''
+        if os.path.isfile("{}{}".format(DATA_PATH, json_name)) and os.path.isfile("{}{}".format(DATA_PATH, hdf5_name)):
+            return True
+        else:
+            return False

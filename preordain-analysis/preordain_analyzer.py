@@ -8,6 +8,7 @@ import datetime
 import sqlite3
 import hashlib
 from pandas import HDFStore
+import plotly
 
 DATA_PATH = '../test_data/' #TODO in current directory while testing, needs to be fixed before shipping!
 
@@ -26,6 +27,36 @@ class preordain_analyzer(object):
         self.username = ''
         self.api_key = ''
         self.new_data = False
+
+
+    def _open_collectobot_data(self, bot_data):
+        '''
+        Opens a json file created by collectobot
+
+        Keyword arguments:
+        bot_data -- str, location of the collectobot file
+        '''
+
+        with open("{}{}".format(DATA_PATH, bot_data)) as json_data:
+            results = json.load(json_data)
+        results = results['games']
+        self.history = {'children': results, 'meta': {'total_items': len(results)}}
+        self.generate_decks(dates = False)
+        return results
+
+    def _open_data(self, json_file):
+        '''
+        Opens a json file and loads it into the object, this method is meant for testing
+
+        Keyword arguments:
+        json_file -- str, location of the json file
+        '''
+        with open(json_file, "r") as infile:
+            results = json.loads(infile)
+        self.history = results
+        self.generate_decks()
+        return results
+
 
     def grab_data(self, username, api_key):
         '''
@@ -64,7 +95,7 @@ class preordain_analyzer(object):
             results = self.read_data(json_name, hdf5_name)
         return results
 
-    def generate_decks(self):
+    def generate_decks(self, dates = True):
         '''
         Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)
 
@@ -78,14 +109,15 @@ class preordain_analyzer(object):
         self.games['o_deck_type'] = self.games['opponent_deck'].map(str) + '_' + self.games['opponent']
 
         self._generate_cards_played()
-        self._make_dates()
+        if dates:
+            self._make_dates()
         self.games = self.games[self.games['card_history'].str.len() != 0]
         return self.games
 
 
     def _make_dates(self):
         '''Internal method -- Converts the dates in self.games to separate columns for easier parsing, called by generate_decks'''
-        format_date = lambda x: datetime.datetime.strptime(x[:-5], '%Y-%m-%dT%H:%M:%S')
+        format_date = lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%S.%fZ')
         split_date = lambda x: {'year': x.year, 'month': x.month, 'day': x.day, 'hour': x.hour, 'minute': x.minute, 'second': x.second}
         date_df = pd.DataFrame(list(map(lambda x: split_date(format_date(x)), self.games['added'])))
         self.games = self.games.join(date_df, how='outer')
@@ -128,9 +160,51 @@ class preordain_analyzer(object):
         decks['count'] = [1]*len(decks)
 
         grouped = decks.groupby(['p_deck_type', 'o_deck_type']).agg({'coin': np.sum, 'duration': [np.mean, np.std], 'count': np.sum, 'win': np.sum, 'card_history': lambda x: tuple(x)})
-        grouped['win%'] = grouped['win']['sum']/grouped['count']['sum']
+        grouped['win%'] = grouped['win']['sum']/grouped['count']['sum']*100
         grouped = grouped[grouped['count']['sum'] > game_threshold]
         return grouped #note this returns a groupby, so a reset_index is necessary before pivoting/plotting
+
+
+    def create_matchup_heatmap(self, game_mode = 'ranked', game_threshold = 0):
+        '''
+        Returns a list of one dictionary to be used with plotly's json renderr
+
+        Keyword arguments:
+        game_mode -- str, either 'ranked', 'casual', or 'both', default is ranked
+        game_threshold -- lowerbound for games played, any # of games lower than the threshold are not returned
+
+        Returns:
+        graphs -- a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder
+        '''
+        data = self.generate_matchups(game_mode, game_threshold).reset_index()
+        data = data[['p_deck_type', 'o_deck_type', 'win%']]
+        x_vals = data['o_deck_type'].map(lambda x: x.replace('_', ' '))
+        y_vals = data['p_deck_type'].map(lambda x: x.replace('_', ' '))
+        data = data.pivot('o_deck_type', 'p_deck_type')
+
+        graphs = [
+        dict(
+            data=[
+                dict(
+                    z = [data[x].values.tolist() for x in data.columns],
+                    y = y_vals,
+                    x = x_vals,
+                    type='heatmap',
+                    colorscale='Viridis'
+
+                )
+            ],
+            layout = dict(
+                margin = dict(
+                    l = 160,
+                    b = 160
+                ),
+                height = 900
+            )
+        )
+        ]
+
+        return graphs
 
     def generate_cards(self, filtered):
         '''

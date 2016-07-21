@@ -29,6 +29,7 @@ class preordain_analyzer(object):
 
     def grab_data(self, username, api_key):
         '''
+
         Grabs the data from the trackobot servers, writes it out to a new files and the database if it doesn't exist/outdated
 
         Keyword arguments:

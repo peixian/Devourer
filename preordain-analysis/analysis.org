@@ -591,3 +591,6 @@ C'Thun_Warrior Aggro_Paladin    0.0
 [5 rows x 26 columns]
 #+end_example
 
+#+BEGIN_SRC ipython :session
+  print(nom.generate_card_matchups().head())
+#+END_SRC

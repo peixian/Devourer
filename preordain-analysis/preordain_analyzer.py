@@ -9,6 +9,7 @@ import sqlite3
 import hashlib
 from pandas import HDFStore
 import plotly
+from collections import defaultdict
 
 DATA_PATH = '../test_data/' #TODO in current directory while testing, needs to be fixed before shipping!
 
@@ -30,12 +31,12 @@ class preordain_analyzer(object):
 
 
     def _open_collectobot_data(self, bot_data):
-        '''
+        """
         Opens a json file created by collectobot
 
         Keyword arguments:
         bot_data -- str, location of the collectobot file
-        '''
+        """
 
         with open("{}{}".format(DATA_PATH, bot_data)) as json_data:
             results = json.load(json_data)
@@ -45,12 +46,12 @@ class preordain_analyzer(object):
         return results
 
     def _open_data(self, json_file):
-        '''
+        """
         Opens a json file and loads it into the object, this method is meant for testing
 
         Keyword arguments:
         json_file -- str, location of the json file
-        '''
+        """
         with open(json_file, "r") as infile:
             results = json.loads(infile)
         self.history = results
@@ -59,7 +60,7 @@ class preordain_analyzer(object):
 
 
     def grab_data(self, username, api_key):
-        '''
+        """
 
         Grabs the data from the trackobot servers, writes it out to a new files and the database if it doesn't exist/outdated
 
@@ -69,7 +70,7 @@ class preordain_analyzer(object):
 
         Returns:
         The contents of the json_file (includes history & metadata)
-        '''
+        """
         self.username = username
         self.api_key = api_key
         url = 'https://trackobot.com/profile/history.json?'
@@ -96,12 +97,12 @@ class preordain_analyzer(object):
         return results
 
     def generate_decks(self, dates = True):
-        '''
+        """
         Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)
 
         Returns:
         Pandas dataframe with all the games
-        '''
+        """
         self.games = pd.DataFrame(self.history['children'])
         self.games.loc[self.games['hero_deck'].isnull(), 'hero_deck'] = 'Other'
         self.games.loc[self.games['opponent_deck'].isnull(), 'opponent_deck'] = 'Other'
@@ -116,14 +117,14 @@ class preordain_analyzer(object):
 
 
     def _make_dates(self):
-        '''Internal method -- Converts the dates in self.games to separate columns for easier parsing, called by generate_decks'''
+        """Internal method -- Converts the dates in self.games to separate columns for easier parsing, called by generate_decks"""
         format_date = lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%S.%fZ')
         split_date = lambda x: {'year': x.year, 'month': x.month, 'day': x.day, 'hour': x.hour, 'minute': x.minute, 'second': x.second}
         date_df = pd.DataFrame(list(map(lambda x: split_date(format_date(x)), self.games['added'])))
         self.games = self.games.join(date_df, how='outer')
 
     def _get_card_list(self, dict_list, player='me'):
-        '''
+        """
         Internal method -- Returns the list of cards that were played in a game, called by _generate_cards_played
 
         Keyword arguments:
@@ -132,18 +133,18 @@ class preordain_analyzer(object):
 
         Returns:
         p_card_list -- array of card names (str)
-        '''
+        """
         p_card_list = list(filter(None, map(lambda x: x['card']['name'] if x['player'] == player else None, dict_list)))
         return p_card_list
 
 
     def _generate_cards_played(self):
-        '''Internal method -- Generates a list of cards for player and opponent into the list ['p_cards_played'] and ['o_cards_played'], called by generate_decks'''
+        """Internal method -- Generates a list of cards for player and opponent into the list ['p_cards_played'] and ['o_cards_played'], called by generate_decks"""
         self.games['p_cards_played'] = self.games['card_history'].map(lambda x: self._get_card_list(x, player='me'))
         self.games['o_cards_played'] = self.games['card_history'].map(lambda x: self._get_card_list(x, player='opponent'))
 
     def generate_matchups(self, game_mode = 'ranked', game_threshold = 0):
-        '''
+        """
         Generates a pandas groupby table with duration, count, coin, win #, win%, and card_history
 
         Keyword arguments:
@@ -152,7 +153,7 @@ class preordain_analyzer(object):
 
         Returns:
         grouped -- pandas groupby object, indicies are player deck 'p_deck_type' then opponent 'o_deck_type'
-        '''
+        """
         decks = self.games
         if game_mode != 'both':
             decks = decks[decks['mode'] == game_mode]
@@ -166,7 +167,7 @@ class preordain_analyzer(object):
 
 
     def create_matchup_heatmap(self, game_mode = 'ranked', game_threshold = 0):
-        '''
+        """
         Returns a list of one dictionary to be used with plotly's json renderr
 
         Keyword arguments:
@@ -175,7 +176,7 @@ class preordain_analyzer(object):
 
         Returns:
         graphs -- a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder
-        '''
+        """
         data = self.generate_matchups(game_mode, game_threshold).reset_index()
         data = data[['p_deck_type', 'o_deck_type', 'win%']]
         x_vals = data['o_deck_type'].map(lambda x: x.replace('_', ' '))
@@ -183,31 +184,31 @@ class preordain_analyzer(object):
         data = data.pivot('o_deck_type', 'p_deck_type')
 
         graphs = [
-        dict(
-            data=[
-                dict(
-                    z = [data[x].values.tolist() for x in data.columns],
-                    y = y_vals,
-                    x = x_vals,
-                    type='heatmap',
-                    colorscale='Viridis'
+            dict(
+                data=[
+                    dict(
+                        z = [data[x].values.tolist() for x in data.columns],
+                        y = y_vals,
+                        x = x_vals,
+                        type='heatmap',
+                        colorscale='Viridis'
 
                 )
-            ],
-            layout = dict(
-                margin = dict(
-                    l = 160,
-                    b = 160
-                ),
-                height = 900
+                ],
+                layout = dict(
+                    margin = dict(
+                        l = 160,
+                        b = 160
+                    ),
+                    height = 900
+                )
             )
-        )
         ]
 
         return graphs
 
     def generate_cards(self, filtered):
-        '''
+        """
         Generates a grouped win/loss count for specific cards
 
         Keyword arguments:
@@ -216,7 +217,7 @@ class preordain_analyzer(object):
         Returns:
         p_df -- pandas groupby object, cards marked as 'me' for player, index is the card name ['card'], columns are win count and loss count ['win', 'loss']
         o_df -- pandas groupby object, cards marked as 'opponent' for player, index is the card name ['card'], columns are win count and loss count ['win', 'loss']
-        '''
+        """
         p_df = []
         o_df = []
         for r in zip(filtered['p_cards_played'], filtered['o_cards_played'], filtered['result']):
@@ -231,18 +232,30 @@ class preordain_analyzer(object):
         o_df = o_df.groupby('card').agg(np.sum)
         return p_df, o_df
 
+    def generate_card_matchups(self):
+        """
+        Generates a dataframe with a list of cards, and the matchups where the card won and lost in the format of: ['card', 'p_deck_type', 'winning_matchups', 'losing_matchups']
+        """
+        cards = []
+        for r in zip(self.games['p_cards_played'], self.games['result'], self.games['p_deck_type'], self.games['o_deck_type']):
+            for card in r[0]:
+               data = {'card': card, 'p_deck_type': r[2], 'o_deck_type': r[3], 'win': 1, 'loss': 0} if r[1] == 'win' else  {'card': card, 'o_deck_type': r[3], 'win': 0, 'loss': 1}
+        cards = pd.DataFrame(cards)
+        cards = cards.groupby('card', 'p_deck_type', 'o_deck_type').agg(np.sum)
+        return cards
+
     def write_hdf5(self, hdf5_name):
-        '''
+        """
         Writes out self.games into a hdf5_file
 
         Keyword arguments:
         hdf5_name -- str, name of the hdf5 file
-        '''
+        """
         self.games.to_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table', append = False)
 
 
     def update_count(self, user_hash, total_items):
-        '''Updates the given total items count for the user with user_hash'''
+        """Updates the given total items count for the user with user_hash"""
         conn = sqlite3.connect('{}/users.db'.format(DATA_PATH))
         c = conn.cursor()
         c.execute('UPDATE users SET total_items = ?', (total_items,))
@@ -250,7 +263,7 @@ class preordain_analyzer(object):
         conn.close()
 
     def store_data(self):
-        '''
+        """
         Stores the python data by using the filename as the sha5 hash of the username and api_key -> hash is stored in a database for lookups later, data is stored using the hdf5 format
         Table is in the format of ['user_hash', 'total_items', 'json_name', 'hdf5_name']
 
@@ -258,7 +271,7 @@ class preordain_analyzer(object):
         user[1] -- int, total items
         user[2] -- str, json_name
         user[3] -- str, hdf5_name
-        '''
+        """
         user_hash = hashlib.sha1(('{}{}'.format(self.username, self.api_key)).encode()).hexdigest()
         conn = sqlite3.connect('{}/users.db'.format(DATA_PATH)) #TODO FIX THIS
         c = conn.cursor()
@@ -274,7 +287,7 @@ class preordain_analyzer(object):
         return user[0], user[1], user[2], user[3]
 
     def read_data(self, json_name, hdf5_name):
-        '''
+        """
         Takes the names of the files and loads them into memory for processing
 
         Keyword arguments:
@@ -283,7 +296,7 @@ class preordain_analyzer(object):
 
         Returns:
         results -- dict, complete history of games and metadata
-        '''
+        """
         with open("{}{}".format(DATA_PATH, json_name)) as json_data:
             results = json.load(json_data)
         self.history = results
@@ -291,7 +304,7 @@ class preordain_analyzer(object):
         return results
 
     def check_data(self, json_name, hdf5_name):
-        '''
+        """
         Checks for the existance of either file under the DATA_PATH, returns False if either is missing
 
         Keyword arguments:
@@ -300,7 +313,7 @@ class preordain_analyzer(object):
 
         Returns:
         bool -- False if either is missing, True otherwise
-        '''
+        """
         if os.path.isfile("{}{}".format(DATA_PATH, json_name)) and os.path.isfile("{}{}".format(DATA_PATH, hdf5_name)):
             return True
         else:

@@ -27,7 +27,8 @@ def submit(username, api_key):
 def collectobot():
     scrape = preordain_analyzer.preordain_analyzer()
     scrape._open_collectobot_data('cbot_06.json')
-    graphs = scrape.create_matchup_heatmap(game_threshold=1)
+    #graphs = scrape.create_matchup_heatmap(game_threshold=1)
+    graphs = scrape.create_cards_heatmap('Zoo_Warlock', card_threshold = 5)
     ids, graphJSON = generate_graph(graphs)
     return render_template('matchups.html', ids=ids, graphJSON=graphJSON)
 
@@ -38,15 +39,15 @@ def matchups(username, api_key):
     ids, graphJSON = generate_graph(scrape.create_matchup_heatmap(game_threshold=1))
     return render_template('matchups.html', ids=ids, graphJSON=graphJSON)
 
-@app.route('best_cards/<username>/<api_key>')
+@app.route('/best_cards/<username>/<api_key>')
 def best_cards(username, api_key):
     scrape = preordain_analyzer.preordain_analyzer()
     scrape.grab_data(username, api_key)
-    ids, graph = generate_graph(scrape.create_cards_graph())
+    ids, graphJSON = generate_graph(scrape.create_cards_heatmap('Dragon_Warrior'))
     return render_template('matchups.html', ids=ids, graphJSON = graphJSON)
 
 
-def generate_graph(graph):
+def generate_graph(graphs):
     ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
     return ids, graphJSON

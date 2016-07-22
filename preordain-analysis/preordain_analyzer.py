@@ -34,7 +34,7 @@ class preordain_analyzer(object):
         """
         Opens a json file created by collectobot
 
-        Keyword arguments:
+        Keyword parameter:
         bot_data -- str, location of the collectobot file
         """
 
@@ -49,7 +49,7 @@ class preordain_analyzer(object):
         """
         Opens a json file and loads it into the object, this method is meant for testing
 
-        Keyword arguments:
+        Keyword parameter:
         json_file -- str, location of the json file
         """
         with open(json_file, "r") as infile:
@@ -64,7 +64,7 @@ class preordain_analyzer(object):
 
         Grabs the data from the trackobot servers, writes it out to a new files and the database if it doesn't exist/outdated
 
-        Keyword arguments:
+        Keyword parameter:
         username -- str, trackobot username
         api_key -- str, trackobot api_key
 
@@ -127,7 +127,7 @@ class preordain_analyzer(object):
         """
         Internal method -- Returns the list of cards that were played in a game, called by _generate_cards_played
 
-        Keyword arguments:
+        Keyword parameter:
         dict_list -- list of dictionaries from the ['card_history'] column in self.games for one particular game
         player -- the player to be parsing
 
@@ -147,7 +147,7 @@ class preordain_analyzer(object):
         """
         Generates a pandas groupby table with duration, count, coin, win #, win%, and card_history
 
-        Keyword arguments:
+        Keyword parameter:
         game_mode -- str, either 'ranked', 'casual', or 'both', default is ranked
         game_threshold -- lowerbound for games played, any # of games lower than the threshold are not returned
 
@@ -170,7 +170,7 @@ class preordain_analyzer(object):
         """
         Returns a list of one dictionary to be used with plotly's json renderr
 
-        Keyword arguments:
+        Keyword parameter:
         game_mode -- str, either 'ranked', 'casual', or 'both', default is ranked
         game_threshold -- lowerbound for games played, any # of games lower than the threshold are not returned
 
@@ -211,7 +211,7 @@ class preordain_analyzer(object):
         """
         Generates a grouped win/loss count for specific cards
 
-        Keyword arguments:
+        Keyword parameter:
         filtered -- pandas dataframe, should be a subset of self.games filtered somehow
 
         Returns:
@@ -232,23 +232,68 @@ class preordain_analyzer(object):
         o_df = o_df.groupby('card').agg(np.sum)
         return p_df, o_df
 
-    def generate_card_matchups(self):
+    def generate_card_matchups(self, game_mode = 'ranked', card_threshold = 2):
         """
         Generates a dataframe with a list of cards, and the matchups where the card won and lost in the format of: ['card', 'p_deck_type', 'winning_matchups', 'losing_matchups']
+
+        Keyword parameter:
+        game_mode -- str, game type
+        card_threshold -- int, the minimum amount of time the card has to show up
+
+        Returns:
+        cards -- pandas groupby object, with ['card', 'p_deck_type', 'o_deck_type', 'loss', 'win', 'win%']
         """
         cards = []
-        for r in zip(self.games['p_cards_played'], self.games['result'], self.games['p_deck_type'], self.games['o_deck_type']):
+        gs = self.games
+        if game_mode != 'both':
+           gs = gs[gs['mode'] == game_mode]
+        for r in zip(gs['p_cards_played'], gs['result'], gs['p_deck_type'], gs['o_deck_type']):
             for card in r[0]:
-               data = {'card': card, 'p_deck_type': r[2], 'o_deck_type': r[3], 'win': 1, 'loss': 0} if r[1] == 'win' else  {'card': card, 'o_deck_type': r[3], 'win': 0, 'loss': 1}
+                data = {'card': card, 'p_deck_type': r[2], 'o_deck_type': r[3], 'win': 1, 'loss': 0} if r[1] == 'win' else {'card': card, 'p_deck_type': r[2], 'o_deck_type': r[3], 'win': 0, 'loss': 1}
+                cards.append(data)
         cards = pd.DataFrame(cards)
-        cards = cards.groupby('card', 'p_deck_type', 'o_deck_type').agg(np.sum)
+        cards = cards.groupby(['card', 'p_deck_type', 'o_deck_type']).agg(np.sum)
+        cards = cards[cards['win'] + cards['loss'] > card_threshold]
+        cards['win%'] = cards['win']/(cards['win'] + cards['loss'])
         return cards
+
+    def create_cards_heatmap(self, p_deck_type, game_mode = 'ranked', card_threshold = 2):
+        data = self.generate_card_matchups(game_mode, card_threshold).reset_index()
+        data = data[data['p_deck_type'] == p_deck_type]
+        data = data[['card', 'o_deck_type', 'win%']]
+        x_vals = data['o_deck_type'].map(lambda x: x.replace('_', ' '))
+        y_vals = data['card']
+        data = data.pivot('o_deck_type', 'card')
+
+        graphs = [
+            dict(
+                data=[
+                    dict(
+                        z = [data[x].values.tolist() for x in data.columns],
+                        y = y_vals,
+                        x = x_vals,
+                        type='heatmap',
+                        colorscale='Viridis'
+
+                )
+                ],
+                layout = dict(
+                    margin = dict(
+                        l = 160,
+                        b = 160
+                    ),
+                    height = 900
+                )
+            )
+        ]
+
+        return graphs
 
     def write_hdf5(self, hdf5_name):
         """
         Writes out self.games into a hdf5_file
 
-        Keyword arguments:
+        Keyword parameter:
         hdf5_name -- str, name of the hdf5 file
         """
         self.games.to_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table', append = False)
@@ -290,7 +335,7 @@ class preordain_analyzer(object):
         """
         Takes the names of the files and loads them into memory for processing
 
-        Keyword arguments:
+        Keyword parameter:
         json_name -- str, name of the json file
         hdf5_name -- str, name of the hdf5 file
 
@@ -307,7 +352,7 @@ class preordain_analyzer(object):
         """
         Checks for the existance of either file under the DATA_PATH, returns False if either is missing
 
-        Keyword arguments:
+        Keyword parameter:
         json_name -- str
         hdf5 -- str
 

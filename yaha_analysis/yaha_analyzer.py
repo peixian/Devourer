@@ -20,7 +20,7 @@ USERNAME = 'ancient-molten-giant-2943'
 API_KEY = '-X_VZRijrHoV4qMZxfXq'
 URL = 'https://trackobot.com/profile/history.json?'
 
-class preordain_analyzer(object):
+class yaha_analyzer(object):
 
     def __init__(self):
         self.total_pages = 0

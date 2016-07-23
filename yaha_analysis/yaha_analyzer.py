@@ -12,6 +12,7 @@ import plotly
 from collections import defaultdict
 
 DATA_PATH = '../test_data/' #TODO in current directory while testing, needs to be fixed before shipping!
+HDF_NAME = '../test_data/cbot.hdf5'
 
 HS_JSON = 'https://api.hearthstonejson.com/v1/latest/enUS/'
 HS_JSON_EXT = ['cardbacks.json', 'cards.collectible.json', 'cards.json']
@@ -29,7 +30,6 @@ class yaha_analyzer(object):
         self.api_key = ''
         self.new_data = False
 
-
     def _open_collectobot_data(self, bot_data):
         """
         Opens a json file created by collectobot
@@ -43,7 +43,11 @@ class yaha_analyzer(object):
         results = results['games']
         self.history = {'children': results, 'meta': {'total_items': len(results)}}
         self.generate_decks(dates = False)
+        self.write_hdf5(HDF_NAME)
         return results
+
+    def _load_collectobot_data(self):
+        self.games = pd.read_hdf(HDF_NAME, 'table')
 
     def _open_data(self, json_file):
         """
@@ -115,6 +119,23 @@ class yaha_analyzer(object):
         self.games = self.games[self.games['card_history'].str.len() != 0]
         return self.games
 
+    def list_decks(self, game_mode='ranked', game_threshold = 5, formatted = True):
+        """
+        Returns a list with the unique decks for that game mode in self.games
+
+        Keyword parameters:
+        game_mode -- str, the game mode, 'ranked', 'casual', or 'both'
+
+        Returns
+        A list of unique p_deck_types
+        """
+        deck_types = self.generate_matchups(game_mode, game_threshold).reset_index()
+        deck_types = deck_types['p_deck_type'].unique()
+        if formatted:
+            return sorted(list(map(lambda x: x.replace("_", " "), deck_types)))
+        return deck_types
+
+
 
     def _make_dates(self):
         """Internal method -- Converts the dates in self.games to separate columns for easier parsing, called by generate_decks"""
@@ -127,7 +148,7 @@ class yaha_analyzer(object):
         """
         Internal method -- Returns the list of cards that were played in a game, called by _generate_cards_played
 
-        Keyword parameter:
+        Keyword parameters:
         dict_list -- list of dictionaries from the ['card_history'] column in self.games for one particular game
         player -- the player to be parsing
 
@@ -261,15 +282,28 @@ class yaha_analyzer(object):
         data = self.generate_card_matchups(game_mode, card_threshold).reset_index()
         data = data[data['p_deck_type'] == p_deck_type]
         data = data[['card', 'o_deck_type', 'win%']]
-        x_vals = data['o_deck_type'].map(lambda x: x.replace('_', ' '))
-        y_vals = data['card']
+        x_vals = data['o_deck_type'].map(lambda x: x.replace('_', ' ')).tolist()
+        y_vals = data['card'].tolist()
         data = data.pivot('o_deck_type', 'card')
-
+        data = [data[x].values.tolist() for x in data.columns]
+        # annotations = []
+        # for n, row in enumerate(data):
+        #     for m, val in enumerate(row):
+        #         var = data[n][m]
+        #         annotations.append(
+        #             dict(
+        #                 text = str(val),
+        #                 opponent = x_vals[m],
+        #                 card = y_vals[n],
+        #                 xref='x1', yref='y1',
+        #                 font=dict(color='white' if val > 0.5 else 'black'),
+        #                 showarrow=False
+        #             ))
         graphs = [
             dict(
                 data=[
                     dict(
-                        z = [data[x].values.tolist() for x in data.columns],
+                        z = data,
                         y = y_vals,
                         x = x_vals,
                         type='heatmap',
@@ -282,10 +316,13 @@ class yaha_analyzer(object):
                         l = 160,
                         b = 160
                     ),
+                    # annotations = annotations,
                     height = 900
                 )
             )
         ]
+
+
 
         return graphs
 

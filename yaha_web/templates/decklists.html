@@ -1,0 +1,12 @@
+{% extends 'index.html' %}
+
+
+{% block body %}
+
+<ul>
+{% for deck in deck_types %}
+    <li><a class="link button" href="/matchups/{{deck}}">{{deck}}</a></li>
+</ul>
+{% endfor %}
+
+{% endblock %}

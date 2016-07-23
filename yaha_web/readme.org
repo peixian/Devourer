@@ -1,2 +1,2 @@
-* Webapp for Preordain
- This is the python webapp for Preordain, utilizing [[http://getskeleton.com/][Skeleton]] for a template and D3.js to visualize it.
+* Webapp for Yaha
+ This is the python webapp for Yaha, utilizing [[http://getskeleton.com/][Skeleton]] for a template and D3.js to visualize it.

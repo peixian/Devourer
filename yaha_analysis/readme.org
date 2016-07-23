@@ -1,2 +1,2 @@
-* Preordain-Analysis
- Preordain utilizes pandas, scikit-learn, and gensim for it's analysis. The code for that can be found in the [[qs.py][qs.py]] file, while examples can be found in the [[analysis.org][analysis.org]] file.
+* Yaha-Analysis
+ Yaha utilizes pandas, scikit-learn, and gensim for it's analysis. The code for that can be found in the [[qs.py][qs.py]] file, while examples can be found in the [[analysis.org][analysis.org]] file.

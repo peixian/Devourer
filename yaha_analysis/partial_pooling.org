@@ -1,0 +1,10 @@
+#+BEGIN_SRC ipython :session  :results output
+  import itertools
+  import matplotlib.pyplot as plt
+  import numpy as np
+  import pymc3 as pm
+  import scipy
+  import scipy.stats as stats
+  import seaborn.apionly as sns
+  %matplotlib inline
+#+END_SRC

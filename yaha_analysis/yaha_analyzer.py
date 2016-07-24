@@ -29,7 +29,7 @@ class yaha_analyzer(object):
         self.username = ''
         self.api_key = ''
         self.new_data = False
-
+        
     def _open_collectobot_data(self, bot_data):
         """
         Opens a json file created by collectobot

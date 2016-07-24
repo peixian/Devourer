@@ -4,6 +4,7 @@ import urllib.request
 import subprocess
 import sqlite3
 import zipfile
+import os
 
 URL = 'http://files.hearthscry.com/collectobot/'
 
@@ -32,7 +33,7 @@ def pull_data():
                 raise
         if date.date() not in error_dates:
             with zipfile.ZipFile('collectobot_data/{}.zip'.format(date.date())) as zip_ref:
-                zip_ref.extractall()
+                zip_ref.extractall('collectobot_data/')
             with open('{}.json'.format(date.date())) as infile:
                 data = infile.readlines()
                 data = ''.join(data)
@@ -41,5 +42,7 @@ def pull_data():
     conn.commit()
     conn.close()
 
-
+    for date in times:
+        os.remove('collectobot_data/{}.zip'.format(date.date()))
+        os.remove('collectobot_data/{}.json'.format(date.date()))
 pull_data()

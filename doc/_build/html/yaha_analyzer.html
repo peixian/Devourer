@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>yaha_analyzer module &mdash; Yaha - Yet Another Hearthstone Analyzer 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Yaha - Yet Another Hearthstone Analyzer 0.0.1 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-yaha_analyzer">
+<span id="yaha-analyzer-module"></span><h1>yaha_analyzer module<a class="headerlink" href="#module-yaha_analyzer" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="yaha_analyzer.yaha_analyzer">
+<em class="property">class </em><code class="descclassname">yaha_analyzer.</code><code class="descname">yaha_analyzer</code><a class="headerlink" href="#yaha_analyzer.yaha_analyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.check_data">
+<code class="descname">check_data</code><span class="sig-paren">(</span><em>json_name</em>, <em>hdf5_name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.check_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for the existance of either file under the DATA_PATH, returns False if either is missing</p>
+<p>Keyword parameter:
+json_name &#8211; str
+hdf5 &#8211; str</p>
+<p>Returns:
+bool &#8211; False if either is missing, True otherwise</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.create_cards_heatmap">
+<code class="descname">create_cards_heatmap</code><span class="sig-paren">(</span><em>p_deck_type</em>, <em>game_mode='ranked'</em>, <em>card_threshold=2</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_cards_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a heatmap for a specific deck type</p>
+<p>Keyword parameters:
+p_deck_type &#8211; str, the deck type
+game_mode &#8211; str, &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both&#8217;
+card_threshold &#8211; the minimum amount of games to be qualified</p>
+<p>Returns:
+graphs &#8211; a dict to be sent to the plotly graph</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.create_matchup_heatmap">
+<code class="descname">create_matchup_heatmap</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=0</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_matchup_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of one dictionary to be used with plotly&#8217;s json renderr</p>
+<p>Keyword parameter:
+game_mode &#8211; str, either &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both&#8217;, default is ranked
+game_threshold &#8211; lowerbound for games played, any # of games lower than the threshold are not returned</p>
+<p>Returns:
+graphs &#8211; a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.generate_card_matchups">
+<code class="descname">generate_card_matchups</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>card_threshold=2</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_card_matchups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a dataframe with a list of cards, and the matchups where the card won and lost in the format of: [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;winning_matchups&#8217;, &#8216;losing_matchups&#8217;]</p>
+<p>Keyword parameter:
+game_mode &#8211; str, game type
+card_threshold &#8211; int, the minimum amount of time the card has to show up</p>
+<p>Returns:
+cards &#8211; pandas groupby object, with [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;o_deck_type&#8217;, &#8216;loss&#8217;, &#8216;win&#8217;, &#8216;win%&#8217;]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.generate_card_stats">
+<code class="descname">generate_card_stats</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>card_threshold=2</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_card_stats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.generate_cards">
+<code class="descname">generate_cards</code><span class="sig-paren">(</span><em>filtered</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_cards" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a grouped win/loss count for specific cards</p>
+<p>Keyword parameter:
+filtered &#8211; pandas dataframe, should be a subset of self.games filtered somehow</p>
+<p>Returns:
+p_df &#8211; pandas groupby object, cards marked as &#8216;me&#8217; for player, index is the card name [&#8216;card&#8217;], columns are win count and loss count [&#8216;win&#8217;, &#8216;loss&#8217;]
+o_df &#8211; pandas groupby object, cards marked as &#8216;opponent&#8217; for player, index is the card name [&#8216;card&#8217;], columns are win count and loss count [&#8216;win&#8217;, &#8216;loss&#8217;]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.generate_decks">
+<code class="descname">generate_decks</code><span class="sig-paren">(</span><em>dates=True</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_decks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)</p>
+<p>Returns:
+Pandas dataframe with all the games</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.generate_matchups">
+<code class="descname">generate_matchups</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=0</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_matchups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a pandas groupby table with duration, count, coin, win #, win%, and card_history</p>
+<p>Keyword parameter:
+game_mode &#8211; str, either &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both&#8217;, default is ranked
+game_threshold &#8211; lowerbound for games played, any # of games lower than the threshold are not returned</p>
+<p>Returns:
+grouped &#8211; pandas groupby object, indicies are player deck &#8216;p_deck_type&#8217; then opponent &#8216;o_deck_type&#8217;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.pull_data">
+<code class="descname">pull_data</code><span class="sig-paren">(</span><em>username</em>, <em>api_key</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.pull_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grabs the data from the trackobot servers, writes it out to a new files and the database if it doesn&#8217;t exist/outdated</p>
+<p>Keyword parameter:
+username &#8211; str, trackobot username
+api_key &#8211; str, trackobot api_key</p>
+<p>Returns:
+The contents of the json_file (includes history &amp; metadata)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.read_data">
+<code class="descname">read_data</code><span class="sig-paren">(</span><em>json_name</em>, <em>hdf5_name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.read_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes the names of the files and loads them into memory for processing</p>
+<p>Keyword parameter:
+json_name &#8211; str, name of the json file
+hdf5_name &#8211; str, name of the hdf5 file</p>
+<p>Returns:
+results &#8211; dict, complete history of games and metadata</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.store_data">
+<code class="descname">store_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.store_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores the python data by using the filename as the sha5 hash of the username and api_key -&gt; hash is stored in a database for lookups later, data is stored using the hdf5 format
+Table is in the format of [&#8216;user_hash&#8217;, &#8216;total_items&#8217;, &#8216;json_name&#8217;, &#8216;hdf5_name&#8217;]</p>
+<p>Returns:
+user[1] &#8211; int, total items
+user[2] &#8211; str, json_name
+user[3] &#8211; str, hdf5_name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.unique_decks">
+<code class="descname">unique_decks</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=5</em>, <em>formatted=True</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.unique_decks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list with the unique decks for that game mode in self.games</p>
+<p>Keyword parameters:
+game_mode &#8211; str, the game mode, &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both&#8217;</p>
+<p>Returns
+A list of unique p_deck_types</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.update_count">
+<code class="descname">update_count</code><span class="sig-paren">(</span><em>user_hash</em>, <em>total_items</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.update_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the given total items count for the user with user_hash</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.write_hdf5">
+<code class="descname">write_hdf5</code><span class="sig-paren">(</span><em>hdf5_name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.write_hdf5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes out self.games into a hdf5_file</p>
+<p>Keyword parameter:
+hdf5_name &#8211; str, name of the hdf5 file</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/yaha_analyzer.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Peixian Wang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/yaha_analyzer.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

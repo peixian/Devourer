@@ -29,8 +29,8 @@ class yaha_analyzer(object):
         self.username = ''
         self.api_key = ''
         self.new_data = False
-        
-    def _open_collectobot_data(self, bot_data):
+
+    def _open_collectobot_data(self, bot_data): #TODO: Call the collectobot file, not this
         """
         Opens a json file created by collectobot
 
@@ -46,10 +46,10 @@ class yaha_analyzer(object):
         self.write_hdf5(HDF_NAME)
         return results
 
-    def _load_collectobot_data(self):
+    def _load_collectobot_data(self): #TODO: Change this to the loading from the collectobot database
         self.games = pd.read_hdf(HDF_NAME, 'table')
 
-    def _open_data(self, json_file):
+    def _load_json_data(self, json_file):
         """
         Opens a json file and loads it into the object, this method is meant for testing
 
@@ -63,7 +63,7 @@ class yaha_analyzer(object):
         return results
 
 
-    def grab_data(self, username, api_key):
+    def pull_data(self, username, api_key):
         """
 
         Grabs the data from the trackobot servers, writes it out to a new files and the database if it doesn't exist/outdated
@@ -119,7 +119,7 @@ class yaha_analyzer(object):
         self.games = self.games[self.games['card_history'].str.len() != 0]
         return self.games
 
-    def list_decks(self, game_mode='ranked', game_threshold = 5, formatted = True):
+    def unique_decks(self, game_mode='ranked', game_threshold = 5, formatted = True):
         """
         Returns a list with the unique decks for that game mode in self.games
 
@@ -278,6 +278,29 @@ class yaha_analyzer(object):
         cards['win%'] = cards['win']/(cards['win'] + cards['loss'])
         return cards
 
+
+    def generate_card_stats(self, game_mode='ranked', card_threshold = 2):
+        cards = []
+        gs = self.games
+        if game_mode != 'both':
+            gs = gs[gs['mode'] == game_mode]
+
+        for r in zip(gs['card_history'], gs['result'], gs['p_deck_type'], gs['o_deck_type']):
+            for play in r[0]:
+                card = play['card']['name']
+                player = play['player']
+                turn = play['turn']
+                result = {'win': 1, 'loss': 0} if r[1] == 'win' else {'win': 0, 'loss': 1}
+                card_data = {'card': card,  'player': player, 'turn': turn}
+                player_data = {'p_deck_type': r[2], 'o_deck_type': r[3]} if player == 'me' else {'p_deck_type': r[3], 'o_deck_type': r[2]}
+                data = result.copy()
+                data.update(card_data)
+                data.update(player_data)
+                cards.append(data)
+
+        cards = pd.DataFrame(cards)
+        cards = cards.groupby(['card', 'p_deck_type', 'o_deck_type', 'turn'])
+        return cards
     def create_cards_heatmap(self, p_deck_type, game_mode = 'ranked', card_threshold = 2):
         """
         Generates a heatmap for a specific deck type

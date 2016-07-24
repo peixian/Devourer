@@ -9,7 +9,7 @@ import os
 URL = 'http://files.hearthscry.com/collectobot/'
 
 def pull_data():
-    conn = sqlite3.connect('collectobot_data/collectobot.db')
+    conn = sqlite3.connect('./collectobot_data/collectobot.db')
     c = conn.cursor()
     c.execute('SELECT max(id) FROM collectobot')
     max_id = c.fetchone()[0]
@@ -25,15 +25,15 @@ def pull_data():
     error_dates = []
     for date in times:
         try:
-            urllib.request.urlretrieve('{}{}.zip'.format(URL, date.date().strftime('%Y-%m-%d')), 'collectobot_data/{}.zip'.format(date.date()))
+            urllib.request.urlretrieve('{}{}.zip'.format(URL, date.date().strftime('%Y-%m-%d')), './collectobot_data/{}.zip'.format(date.date()))
         except urllib.request.HTTPError as err:
             if err.code == 404:
                 error_dates.append(date.date())
             else:
                 raise
         if date.date() not in error_dates:
-            with zipfile.ZipFile('collectobot_data/{}.zip'.format(date.date())) as zip_ref:
-                zip_ref.extractall('collectobot_data/')
+            with zipfile.ZipFile('./collectobot_data/{}.zip'.format(date.date())) as zip_ref:
+                zip_ref.extractall('./collectobot_data/')
             with open('{}.json'.format(date.date())) as infile:
                 data = infile.readlines()
                 data = ''.join(data)

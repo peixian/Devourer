@@ -22,7 +22,7 @@ app = Flask(__name__)
 def index():
     scrape = yaha_analyzer.yaha_analyzer()
     scrape._open_collectobot_data('cbot_06.json')
-    deck_types = scrape.list_decks()
+    deck_types = scrape.unique_decks()
     return render_template('decklists.html', deck_types = deck_types)
 
 

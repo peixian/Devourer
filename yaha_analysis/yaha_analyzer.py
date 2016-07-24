@@ -279,6 +279,18 @@ class yaha_analyzer(object):
         return cards
 
     def create_cards_heatmap(self, p_deck_type, game_mode = 'ranked', card_threshold = 2):
+        """
+        Generates a heatmap for a specific deck type
+
+        Keyword parameters:
+        p_deck_type -- str, the deck type
+        game_mode -- str, 'ranked', 'casual', or 'both'
+        card_threshold -- the minimum amount of games to be qualified
+
+        Returns:
+        graphs -- a dict to be sent to the plotly graph
+
+        """
         data = self.generate_card_matchups(game_mode, card_threshold).reset_index()
         data = data[data['p_deck_type'] == p_deck_type]
         data = data[['card', 'o_deck_type', 'win%']]
@@ -308,7 +320,6 @@ class yaha_analyzer(object):
                         x = x_vals,
                         type='heatmap',
                         colorscale='Viridis'
-
                 )
                 ],
                 layout = dict(

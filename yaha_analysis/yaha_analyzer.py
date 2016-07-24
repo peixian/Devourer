@@ -299,7 +299,8 @@ class yaha_analyzer(object):
                 cards.append(data)
 
         cards = pd.DataFrame(cards)
-        cards = cards.groupby(['card', 'p_deck_type', 'o_deck_type', 'turn'])
+        cards = cards.groupby(['card', 'p_deck_type', 'o_deck_type', 'turn']).agg(np.sum)
+        cards = cards[cards['win'] + cards['loss'] > card_threshold]
         return cards
     def create_cards_heatmap(self, p_deck_type, game_mode = 'ranked', card_threshold = 2):
         """

@@ -696,3 +696,5 @@ Bash                   Control_Warrior Aggro_Shaman        2    3  0.600000
 #+BEGIN_SRC ipython :session
   print(nom.generate_card_matchups().head())
 #+END_SRC
+
+

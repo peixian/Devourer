@@ -182,4 +182,3 @@ Yogg-Saron, Hope's End Other_Mage    Other_Warrior 10       5    6
 
 #+RESULTS:
 [[file:/tmp/images.png]]
-

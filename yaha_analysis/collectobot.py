@@ -5,6 +5,7 @@ import subprocess
 import sqlite3
 import zipfile
 import os
+import json
 
 URL = 'http://files.hearthscry.com/collectobot/'
 DATABASE = './collectobot_data/collectobot.db'
@@ -64,5 +65,26 @@ def add_june_2016():
 
     conn.commit()
     conn.close()
+
+
+
+def aggregate(start_date = '2016-06-30', end_date = pd.to_datetime('today').strftime('%Y-%m-%d')):
+    """
+    Grabs and writes out a giant list of dicts for the range [date_start, date_end]. If the date_end isn't within the last date, it uses the last date possible.
+
+    Keyword parameters:
+    start_date -- str, formatted in the manner YY-mm-dd
+    end_date str, formatted in the manner YY-mm-dd
+    """
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT json FROM collectobot WHERE date(date) BETWEEN date(?) AND date(?)', (start_date, end_date))
+    date_list = c.fetchall()
+    data = []
+    for game_data in date_list:
+        date = json.loads(game_data[0])
+        data.append(date['games'])
+    conn.close()
+    return data
 
 

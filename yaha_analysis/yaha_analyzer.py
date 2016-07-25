@@ -10,6 +10,7 @@ import hashlib
 from pandas import HDFStore
 import plotly
 from collections import defaultdict
+import collectobot
 
 DATA_PATH = '../test_data/' #TODO in current directory while testing, needs to be fixed before shipping!
 HDF_NAME = '../test_data/cbot.hdf5'
@@ -30,7 +31,7 @@ class yaha_analyzer(object):
         self.api_key = ''
         self.new_data = False
 
-    def _open_collectobot_data(self, bot_data): #TODO: Call the collectobot file, not this
+    def _open_collectobot_data(self): #TODO: Call the collectobot file, not this
         """
         Opens a json file created by collectobot
 
@@ -38,9 +39,7 @@ class yaha_analyzer(object):
         bot_data -- str, location of the collectobot file
         """
 
-        with open("{}{}".format(DATA_PATH, bot_data)) as json_data:
-            results = json.load(json_data)
-        results = results['games']
+        results = collectobot.aggregate()
         self.history = {'children': results, 'meta': {'total_items': len(results)}}
         self.generate_decks(dates = False)
         self.write_hdf5(HDF_NAME)
@@ -108,8 +107,8 @@ class yaha_analyzer(object):
         Pandas dataframe with all the games
         """
         self.games = pd.DataFrame(self.history['children'])
-        self.games.loc[self.games['hero_deck'].isnull(), 'hero_deck'] = 'Other'
-        self.games.loc[self.games['opponent_deck'].isnull(), 'opponent_deck'] = 'Other'
+        #self.games.loc[self.games['hero_deck'].isnull(), 'hero_deck'] = 'Other'
+        #self.games.loc[self.games['opponent_deck'].isnull(), 'opponent_deck'] = 'Other'
         self.games['p_deck_type'] = self.games['hero_deck'].map(str) + '_' +  self.games['hero']
         self.games['o_deck_type'] = self.games['opponent_deck'].map(str) + '_' + self.games['opponent']
 
@@ -280,6 +279,15 @@ class yaha_analyzer(object):
 
 
     def generate_card_stats(self, game_mode='ranked', card_threshold = 2):
+        """
+        Returns a groupby object with ['card', 'p_deck_type', 'o_deck_type', 'turn', 'loss', 'win'] as [str, str, str, int, int, int]
+        Keyword parameters:
+        game_mode -- str, the game type
+        card_threshold -- str, the minimum amount of time the card has to show up
+
+        Returns:
+        cards -- pandas groupby object
+        """
         cards = []
         gs = self.games
         if game_mode != 'both':

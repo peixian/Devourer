@@ -135,6 +135,15 @@
 </dd></dl>
 
 <dl class="function">
+<dt id="collectobot.aggregate">
+<code class="descclassname">collectobot.</code><code class="descname">aggregate</code><span class="sig-paren">(</span><em>start_date='2016-06-30'</em>, <em>end_date='2016-07-25'</em><span class="sig-paren">)</span><a class="headerlink" href="#collectobot.aggregate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grabs and writes out a giant list of dicts for the range [date_start, date_end]. If the date_end isn&#8217;t within the last date, it uses the last date possible.</p>
+<p>Keyword parameters:
+start_date &#8211; str, formatted in the manner YY-mm-dd
+end_date str, formatted in the manner YY-mm-dd</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="collectobot.pull_data">
 <code class="descclassname">collectobot.</code><code class="descname">pull_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#collectobot.pull_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pulls all the collect-o-bot data from: <a class="reference external" href="http://www.hearthscry.com/CollectOBot">http://www.hearthscry.com/CollectOBot</a> and stores them into DATABASE

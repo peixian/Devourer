@@ -9,7 +9,6 @@ import sqlite3
 import hashlib
 from pandas import HDFStore
 import plotly
-from collections import defaultdict
 import collectobot
 
 DATA_PATH = '../test_data/' #TODO in current directory while testing, needs to be fixed before shipping!
@@ -31,9 +30,9 @@ class yaha_analyzer(object):
         self.api_key = ''
         self.new_data = False
 
-    def _load_collectobot_data(self):
+    def generate_collectobot_data(self):
         """
-        Loads collect-o-bot data from the database
+        Generates collect-o-bot data from the database, writes it to a hdf5 file
         """
         results = collectobot.aggregate()
         self.games = results
@@ -41,6 +40,13 @@ class yaha_analyzer(object):
         self.generate_decks(dates = False)
         self.write_hdf5(HDF_NAME)
         return results
+
+
+    def open_collectobot_data(self):
+        """
+        Loads the collectobot data from a hdf5 file
+        """
+        self.read_data(hdf5_name=HDF_NAME)
 
     def _load_json_data(self, json_file):
         """
@@ -52,7 +58,7 @@ class yaha_analyzer(object):
         with open(json_file, "r") as infile:
             results = json.load(infile)
         self.history = results
-        #self.generate_decks()
+        self.generate_decks()
         return results
 
     def pull_data(self, username, api_key):
@@ -60,7 +66,7 @@ class yaha_analyzer(object):
 
         Grabs the data from the trackobot servers, writes it out to a new files and the database if it doesn't exist/outdated
 
-        Keyword parameter:
+        Keyword parameters:
         username -- str, trackobot username
         api_key -- str, trackobot api_key
 
@@ -127,7 +133,10 @@ class yaha_analyzer(object):
             return sorted(list(map(lambda x: x.replace("_", " "), deck_types)))
         return deck_types
 
-
+    def unique_cards(self, game_mode='ranked', game_threshold = 5, formatted = True):
+        cards = self.generate_card_matchups(game_mode, game_threshold).reset_index()
+        cards = cards['card'].unique().tolist()
+        return cards
 
     def _make_dates(self):
         """Internal method -- Converts the dates in self.games to separate columns for easier parsing, called by generate_decks"""
@@ -181,7 +190,7 @@ class yaha_analyzer(object):
 
     def create_matchup_heatmap(self, game_mode = 'ranked', game_threshold = 0):
         """
-        Returns a list of one dictionary to be used with plotly's json renderr
+        Returns a list of one dictionary to be used with plotly's json render
 
         Keyword parameter:
         game_mode -- str, either 'ranked', 'casual', or 'both', default is ranked
@@ -303,6 +312,7 @@ class yaha_analyzer(object):
         cards = cards.groupby(['card', 'p_deck_type', 'o_deck_type', 'turn']).agg(np.sum)
         cards = cards[cards['win'] + cards['loss'] > card_threshold]
         return cards
+
     def create_cards_heatmap(self, p_deck_type, game_mode = 'ranked', card_threshold = 2):
         """
         Generates a heatmap for a specific deck type
@@ -323,19 +333,6 @@ class yaha_analyzer(object):
         y_vals = data['card'].tolist()
         data = data.pivot('o_deck_type', 'card')
         data = [data[x].values.tolist() for x in data.columns]
-        # annotations = []
-        # for n, row in enumerate(data):
-        #     for m, val in enumerate(row):
-        #         var = data[n][m]
-        #         annotations.append(
-        #             dict(
-        #                 text = str(val),
-        #                 opponent = x_vals[m],
-        #                 card = y_vals[n],
-        #                 xref='x1', yref='y1',
-        #                 font=dict(color='white' if val > 0.5 else 'black'),
-        #                 showarrow=False
-        #             ))
         graphs = [
             dict(
                 data=[
@@ -352,13 +349,53 @@ class yaha_analyzer(object):
                         l = 160,
                         b = 160
                     ),
-                    # annotations = annotations,
                     height = 900
                 )
             )
         ]
 
+        return graphs
 
+
+    def create_heatmap(x, y, z, df, layout = None):
+        """
+        Creates a heatmap x, y, and z
+
+        Keyword parameters:
+        x -- str, name of the x value column
+        y -- str, name of the y value column
+        z -- str, name of the z value column
+
+        Returns:
+        graphs -- a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder
+        """
+
+        data = df
+        data = data[[x, y, z]]
+        data = data.pivot(x, y)
+
+        if layout == None:
+            layout = dict(
+                margin = dict(
+                    l = 160,
+                    b = 160
+                ),
+                height = 900
+            )
+        graphs = [
+            dict(
+                data = [
+                    dict(
+                        z = [data[x].values.tolist() for x in data.columns],
+                        y = y,
+                        x = x,
+                        type = 'heatmap',
+                        colorscale = 'Viridis'
+                    )
+                ],
+                layout = layout
+            )
+        ]
 
         return graphs
 
@@ -404,7 +441,7 @@ class yaha_analyzer(object):
         conn.close()
         return user[0], user[1], user[2], user[3]
 
-    def read_data(self, json_name, hdf5_name):
+    def read_data(self, json_name = None, hdf5_name = None):
         """
         Takes the names of the files and loads them into memory for processing
 
@@ -415,11 +452,12 @@ class yaha_analyzer(object):
         Returns:
         results -- dict, complete history of games and metadata
         """
-        with open("{}{}".format(DATA_PATH, json_name)) as json_data:
-            results = json.load(json_data)
-        self.history = results
-        self.games = pd.read_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table')
-        return results
+        if json_name:
+            with open("{}{}".format(DATA_PATH, json_name)) as json_data:
+                results = json.load(json_data)
+                self.history = results
+        if hdf5_name:
+            self.games = pd.read_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table')
 
     def check_data(self, json_name, hdf5_name):
         """
@@ -436,3 +474,5 @@ class yaha_analyzer(object):
             return True
         else:
             return False
+
+

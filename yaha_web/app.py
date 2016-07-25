@@ -4,7 +4,8 @@ import plotly.plotly as py
 import plotly
 import plotly.graph_objs as go
 import json
-
+import sys
+import collectobot
 CSV_HEADER = 'Content-Disposition'
 
 app = Flask(__name__)
@@ -21,21 +22,26 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     scrape = yaha_analyzer.yaha_analyzer()
-    scrape._open_collectobot_data('cbot_06.json')
-    deck_types = scrape.unique_decks()
-    return render_template('decklists.html', deck_types = deck_types)
+    scrape.open_collectobot_data()
+    deck_data = scrape.unique_decks()
+    card_data = scrape.unique_cards()
+    game_count = len(scrape.games['hero'])
+    return render_template('front.html', deck_data = deck_data, card_data = card_data, game_count = game_count)
 
 
 @app.route('/matchups/<deck>')
 def matchups(deck):
     deck = deck.replace(' ', '_')
-    print(deck)
     scrape = yaha_analyzer.yaha_analyzer()
-    scrape._load_collectobot_data()
+    scrape.open_collectobot_data()
     graphs = scrape.create_cards_heatmap(deck, card_threshold=3)
     ids, graphJSON = generate_graph(graphs)
-    return render_template('matchups.html', ids=ids, graphJSON=graphJSON)
 
+    game_count = len(scrape.games['hero'])
+    return render_template('matchups.html', ids=ids, graphJSON=graphJSON, game_count = game_count)
+
+#@app.route('/card/<card_name>')
+#def card(card_name):
 
 
 

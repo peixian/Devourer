@@ -4,9 +4,11 @@
 {% block body %}
 
 <ul>
-{% for deck in deck_types %}
+    {% for deck in deck_types %}
     <li><a class="link button" href="/matchups/{{deck}}">{{deck}}</a></li>
+    {% endfor %}
 </ul>
-{% endfor %}
+
+
 
 {% endblock %}

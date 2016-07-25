@@ -83,7 +83,7 @@ def aggregate(start_date = '2016-06-30', end_date = pd.to_datetime('today').strf
     data = []
     for game_data in date_list:
         date = json.loads(game_data[0])
-        data.append(date['games'])
+        data.extend(date['games'])
     conn.close()
     return data
 

@@ -1,4 +1,4 @@
-#+BEGIN_SRC ipython :session  :results output
+#+BEGIN_SRC ipython :session
   import itertools
   import matplotlib.pyplot as plt
   import numpy as np
@@ -9,29 +9,22 @@
   %matplotlib inline
 #+END_SRC
 
-#+RESULTS:
-
-
-#+BEGIN_SRC ipython :session
-  import yaha_analyzer
-#+END_SRC
-
-#+RESULTS:
-
 #+BEGIN_SRC ipython :session :results output
+  import yaha_analyzer
   nom = yaha_analyzer.yaha_analyzer()
   nom._load_collectobot_data()
   print(nom.games.head())
+  print(len(nom.games['hero_deck']))
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
                    added                                       card_history  \
-10  2016-06-28T17:57:45Z  [{'card': {'mana': 1, 'name': 'Tunnel Trogg', ...   
-11  2016-06-28T17:44:53Z  [{'card': {'mana': None, 'name': 'The Coin', '...   
-12  2016-06-28T17:36:41Z  [{'card': {'mana': 1, 'name': 'N'Zoth's First ...   
-13  2016-06-28T17:28:55Z  [{'card': {'mana': 1, 'name': 'N'Zoth's First ...   
-14  2016-06-28T17:20:01Z  [{'card': {'mana': 1, 'name': 'Fiery Bat', 'id...   
+10  2016-06-28T17:57:45Z  [{'player': 'opponent', 'card': {'name': 'Tunn...   
+11  2016-06-28T17:44:53Z  [{'player': 'me', 'card': {'name': 'The Coin',...   
+12  2016-06-28T17:36:41Z  [{'player': 'me', 'card': {'name': 'N'Zoth's F...   
+13  2016-06-28T17:28:55Z  [{'player': 'me', 'card': {'name': 'N'Zoth's F...   
+14  2016-06-28T17:20:01Z  [{'player': 'opponent', 'card': {'name': 'Fier...   
 
      coin  duration     hero hero_deck        id  legend    mode  note  \
 10   True     761.0  Warrior    Dragon  33262529     NaN  ranked  None   
@@ -67,102 +60,99 @@
 12  [Innervate, Twilight Elder, Beckoner of Evil, ...  
 13  [Argent Squire, The Coin, Darkshire Councilman...  
 14  [Fiery Bat, The Coin, Animal Companion, Eagleh...  
+13522
 #+end_example
 
 #+BEGIN_SRC ipython :session :results output
-  cards = nom.generate_card_stats(card_threshold=10)
-  cards = cards.agg(np.sum)
-  cards = cards[cards['win'] + cards['loss'] > 10]
+  cards = nom.generate_card_stats(card_threshold=2)
+  print(cards)
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-                                                         loss  win
-card                   p_deck_type   o_deck_type   turn           
-Abusive Sergeant       Aggro_Shaman  Zoo_Warlock   2        7    4
-                       Other_Shaman  Other_Hunter  3        7    4
-                                                   4        7    7
-                                                   5        5    7
-                                                   6        4    7
-                                     Other_Warrior 3       12    7
-                                                   4        6   11
-                                                   6        7   10
-                       Other_Warlock Other_Druid   3       10   11
-                                                   4        7   11
-                                                   5        6   10
-                                                   6        4    7
-                                                   7        6    6
-                                     Other_Hunter  2        9    6
-                                                   3       11    9
-                                                   4       16   14
-                                                   5       10    7
-                                                   6        7   13
-                                                   7       10   10
-                                                   8        9    2
-                                     Other_Mage    4        6    5
-                                     Other_Rogue   5       10    4
-                                     Other_Shaman  2        5   16
-                                                   3        9   16
-                                                   4        8   10
-                                                   5        8    6
-                                                   6        8    7
-                                                   7        9    4
-                                                   8        7    6
-                                                   9        7    5
-...                                                       ...  ...
-Wrath                  Other_Druid   Other_Hunter  2       11   13
-                                                   3        7   16
-                                                   4        9    7
-                                                   5        5   13
-                                                   6       11    8
-                                                   7        6    6
-                                                   8        9    4
-                                     Other_Mage    3        6    5
-                                     Other_Shaman  2        7    7
-                                                   3       13    9
-                                                   4       10   10
-                                                   5       10   10
-                                                   6        8    6
-                                     Other_Warlock 2       10    8
-                                                   3        9   14
-                                                   4       11    9
-                                                   5        5    8
-                                                   7        5    7
-                                                   9        3    9
-                                     Other_Warrior 2       10    2
-                                                   3        6   15
-                                                   4       21   19
-                                                   5       15   18
-                                                   6       13   19
-                                                   7       11   20
-                                                   8       11   11
-                                                   9        8   11
-                                                   10       6    7
-Xaril, Poisoned Mind   Other_Rogue   Other_Warrior 7        6    6
-Yogg-Saron, Hope's End Other_Mage    Other_Warrior 10       5    6
+                                                           loss  win
+card                   p_deck_type   o_deck_type     turn           
+Abusive Sergeant       Aggro_Shaman  Aggro_Shaman    4       10    1
+                                     Dragon_Warrior  6        9   10
+                                     Zoo_Warlock     2        8    5
+                                                     3        5   10
+                                                     4        6    7
+                       Other_Shaman  Other_Hunter    3        7    4
+                                                     4        7    7
+                                                     5        5    7
+                                                     6        4    7
+                                     Other_Warrior   3       12    7
+                                                     4        6   13
+                                                     6        7   10
+                       Other_Warlock Other_Druid     3       10   11
+                                                     4        7   11
+                                                     5        6   10
+                                                     6        4    7
+                                                     7        6    6
+                                     Other_Hunter    2        9    6
+                                                     3       11    9
+                                                     4       16   14
+                                                     5       10    7
+                                                     6        7   13
+                                                     7       10   12
+                                                     8        9    2
+                                     Other_Mage      4        6    5
+                                     Other_Rogue     5       10    4
+                                     Other_Shaman    2        5   16
+                                                     3        9   16
+                                                     4        8   10
+                                                     5        8    6
+...                                                         ...  ...
+Wrath                  Other_Druid   Other_Warlock   5        5    8
+                                                     7        5    7
+                                                     9        3    9
+                                     Other_Warrior   2       10    2
+                                                     3        6   15
+                                                     4       21   19
+                                                     5       16   18
+                                                     6       13   20
+                                                     7       11   20
+                                                     8       13   11
+                                                     9        8   11
+                                                     10       7    7
+                       Token_Druid   C'Thun_Warrior  7        5    6
+                                                     9        6    5
+                                     Dragon_Warrior  3        9    7
+                                                     4        6    8
+                                                     5       10    8
+                                                     6       15   13
+                                                     7        1   13
+                                                     8        9    4
+                                                     10       5    7
+                                     Midrange_Hunter 3        9    7
+                                                     4        5    7
+                                     Midrange_Shaman 5        7    4
+                                     Token_Druid     6        5    6
+                                                     8        5    6
+                                     Zoo_Warlock     5        7    7
+Xaril, Poisoned Mind   Other_Rogue   Other_Warrior   7        6    6
+Yogg-Saron, Hope's End Other_Mage    Other_Warrior   10       5    6
+                       Tempo_Mage    Dragon_Warrior  10       9    9
 
-[2635 rows x 2 columns]
+[4410 rows x 2 columns]
 #+end_example
 
 #+BEGIN_SRC ipython :session :results output
   card_stats = cards.reset_index()
-  abusive_stats = card_stats[(card_stats['card'] == 'Abusive Sergeant') & (card_stats['p_deck_type'] == 'Other_Warlock') & (card_stats['o_deck_type'] == 'Other_Warrior')]
-  print(abusive_stats)
+  #stats = card_stats[(card_stats['card'] == 'Tunnel Trogg')]
+  stats = card_stats[card_stats['p_deck_type'] == 'Dragon_Warrior']
+  print(stats)
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-                card    p_deck_type    o_deck_type  turn  loss  win
-35  Abusive Sergeant  Other_Warlock  Other_Warrior     2    12   23
-36  Abusive Sergeant  Other_Warlock  Other_Warrior     3    19   21
-37  Abusive Sergeant  Other_Warlock  Other_Warrior     4    22   26
-38  Abusive Sergeant  Other_Warlock  Other_Warrior     5    12   19
-39  Abusive Sergeant  Other_Warlock  Other_Warrior     6    17   18
-40  Abusive Sergeant  Other_Warlock  Other_Warrior     7     9   14
-41  Abusive Sergeant  Other_Warlock  Other_Warrior     8    16   11
-42  Abusive Sergeant  Other_Warlock  Other_Warrior     9     5    7
-43  Abusive Sergeant  Other_Warlock  Other_Warrior    10     7    7
-#+end_example
+:                         card     p_deck_type      o_deck_type  turn  loss  win
+: 83    Alexstrasza's Champion  Dragon_Warrior      Zoo_Warlock     2     7    6
+: 252              Azure Drake  Dragon_Warrior      Zoo_Warlock     7     7    4
+: 320      Blackwing Corruptor  Dragon_Warrior  Midrange_Hunter     5     7    4
+: 321      Blackwing Corruptor  Dragon_Warrior      Zoo_Warlock     5     2   14
+: 924            Fiery War Axe  Dragon_Warrior  Midrange_Hunter     2     7   12
+: 2473       Twilight Guardian  Dragon_Warrior  Midrange_Hunter     4     4    8
+: 2474       Twilight Guardian  Dragon_Warrior      Zoo_Warlock     4     5    7
 
 #+BEGIN_SRC ipython :session :file /tmp/image.png :exports both
   dist = []
@@ -176,7 +166,7 @@ Yogg-Saron, Hope's End Other_Mage    Other_Warrior 10       5    6
 [[file:/tmp/image.png]]
 
 #+BEGIN_SRC ipython :session :file /tmp/images.png :exports both
-  g = sns.JointGrid(x='turn', y='win', hue='p_deck_type', data=card_stats[card_stats['card'] == 'Abusive Sergeant'])
+  g = sns.JointGrid(x='turn', y='win', data=card_stats[card_stats['card'] == 'Abusive Sergeant'])
   g = g.plot(sns.regplot, sns.distplot)
 #+END_SRC
 

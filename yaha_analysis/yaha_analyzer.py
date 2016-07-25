@@ -31,22 +31,16 @@ class yaha_analyzer(object):
         self.api_key = ''
         self.new_data = False
 
-    def _open_collectobot_data(self): #TODO: Call the collectobot file, not this
+    def _load_collectobot_data(self):
         """
-        Opens a json file created by collectobot
-
-        Keyword parameter:
-        bot_data -- str, location of the collectobot file
+        Loads collect-o-bot data from the database
         """
-
         results = collectobot.aggregate()
+        self.games = results
         self.history = {'children': results, 'meta': {'total_items': len(results)}}
         self.generate_decks(dates = False)
         self.write_hdf5(HDF_NAME)
         return results
-
-    def _load_collectobot_data(self): #TODO: Change this to the loading from the collectobot database
-        self.games = pd.read_hdf(HDF_NAME, 'table')
 
     def _load_json_data(self, json_file):
         """
@@ -56,11 +50,10 @@ class yaha_analyzer(object):
         json_file -- str, location of the json file
         """
         with open(json_file, "r") as infile:
-            results = json.loads(infile)
+            results = json.load(infile)
         self.history = results
-        self.generate_decks()
+        #self.generate_decks()
         return results
-
 
     def pull_data(self, username, api_key):
         """
@@ -107,8 +100,8 @@ class yaha_analyzer(object):
         Pandas dataframe with all the games
         """
         self.games = pd.DataFrame(self.history['children'])
-        #self.games.loc[self.games['hero_deck'].isnull(), 'hero_deck'] = 'Other'
-        #self.games.loc[self.games['opponent_deck'].isnull(), 'opponent_deck'] = 'Other'
+        self.games.loc[self.games['hero_deck'].isnull(), 'hero_deck'] = 'Other'
+        self.games.loc[self.games['opponent_deck'].isnull(), 'opponent_deck'] = 'Other'
         self.games['p_deck_type'] = self.games['hero_deck'].map(str) + '_' +  self.games['hero']
         self.games['o_deck_type'] = self.games['opponent_deck'].map(str) + '_' + self.games['opponent']
 

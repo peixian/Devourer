@@ -157,3 +157,5 @@ flycheck_*.el
 .projectile
 
 /test_data
+
+/yaha_analysis/collectobot_data/

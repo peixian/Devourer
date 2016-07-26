@@ -314,49 +314,7 @@ class yaha_analyzer(object):
         cards.loc[:, 'win%'] = cards['win']/(cards['win'] + cards['loss'])
         return cards
 
-    def create_decklist_heatmap(self, p_deck_type, game_mode = 'ranked', card_threshold = 2):
-        """
-        Generates a heatmap for a specific deck type
-
-        Keyword parameters:
-        p_deck_type -- str, the deck type
-        game_mode -- str, 'ranked', 'casual', or 'both'
-        card_threshold -- the minimum amount of games to be qualified
-
-        Returns:
-        graphs -- a dict to be sent to the plotly graph
-        """
-        data = self.generate_decklist_matchups(game_mode, card_threshold).reset_index()
-        data = data[data['p_deck_type'] == p_deck_type]
-        data = data[['card', 'o_deck_type', 'win%']]
-        x_vals = data['o_deck_type'].map(lambda x: x.replace('_', ' ')).tolist()
-        y_vals = sorted(data['card'].tolist())
-        data = data.pivot('o_deck_type', 'card')
-        data = [data[x].values.tolist() for x in data.columns]
-        graphs = [
-            dict(
-                data=[
-                    dict(
-                        z = data,
-                        y = y_vals,
-                        x = x_vals,
-                        type='heatmap',
-                        colorscale='Viridis'
-                )
-                ],
-                layout = dict(
-                    margin = dict(
-                        l = 160,
-                        b = 160
-                    ),
-                    height = 900
-                )
-            )
-        ]
-
-        return graphs
-
-
+ 
     def create_heatmap(self, x, y, z, df, title, layout = None):
         """
         Creates a heatmap x, y, and z

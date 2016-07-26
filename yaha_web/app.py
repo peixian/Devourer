@@ -50,3 +50,6 @@ def generate_graph(graphs):
     ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
     return ids, graphJSON
+
+def remove_underscore(names):
+    return list(map(lambda x: x.replace('_', ' '), names))

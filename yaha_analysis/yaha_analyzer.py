@@ -314,7 +314,6 @@ class yaha_analyzer(object):
         cards.loc[:, 'win%'] = cards['win']/(cards['win'] + cards['loss'])
         return cards
 
- 
     def create_heatmap(self, x, y, z, df, title, layout = None):
         """
         Creates a heatmap x, y, and z
@@ -331,6 +330,8 @@ class yaha_analyzer(object):
         data = data[[x, y, z]]
         x_vals = sorted(data[x].unique())
         y_vals = sorted(data[y].unique())
+        x_vals = list(map(lambda x: x.replace('_', ' '), x_vals))
+        y_vals = list(map(lambda x: x.replace('_', ' '), y_vals))
         data = data.pivot(x, y)
         z_vals = [data[x].values.tolist() for x in data.columns]
         titles = self.title_format(x, y, z)

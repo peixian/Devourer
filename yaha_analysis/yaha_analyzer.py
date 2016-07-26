@@ -134,7 +134,7 @@ class yaha_analyzer(object):
         return deck_types
 
     def unique_cards(self, game_mode='ranked', game_threshold = 5, formatted = True):
-        cards = self.generate_card_matchups(game_mode, game_threshold).reset_index()
+        cards = self.generate_decklist_matchups(game_mode, game_threshold).reset_index()
         cards = cards['card'].unique().tolist()
         return cards
 
@@ -179,8 +179,8 @@ class yaha_analyzer(object):
         decks = self.games
         if game_mode != 'both':
             decks = decks[decks['mode'] == game_mode]
-        decks['win'] = decks['result'].map(lambda x: True if x == 'win' else False)
-        decks['count'] = [1]*len(decks)
+        decks.loc[:, 'win'] = decks['result'].map(lambda x: True if x == 'win' else False)
+        decks.loc[:, 'count'] = [1]*len(decks)
 
         grouped = decks.groupby(['p_deck_type', 'o_deck_type']).agg({'coin': np.sum, 'duration': [np.mean, np.std], 'count': np.sum, 'win': np.sum, 'card_history': lambda x: tuple(x)})
         grouped['win%'] = grouped['win']['sum']/grouped['count']['sum']*100
@@ -254,7 +254,7 @@ class yaha_analyzer(object):
         o_df = o_df.groupby('card').agg(np.sum)
         return p_df, o_df
 
-    def generate_card_matchups(self, game_mode = 'ranked', card_threshold = 2):
+    def generate_decklist_matchups(self, game_mode = 'ranked', card_threshold = 2):
         """
         Generates a dataframe with a list of cards, and the matchups where the card won and lost in the format of: ['card', 'p_deck_type', 'winning_matchups', 'losing_matchups']
 
@@ -276,7 +276,7 @@ class yaha_analyzer(object):
         cards = pd.DataFrame(cards)
         cards = cards.groupby(['card', 'p_deck_type', 'o_deck_type']).agg(np.sum)
         cards = cards[cards['win'] + cards['loss'] > card_threshold]
-        cards['win%'] = cards['win']/(cards['win'] + cards['loss'])
+        cards.loc[:, 'win%'] = cards['win']/(cards['win'] + cards['loss'])
         return cards
 
 
@@ -311,9 +311,10 @@ class yaha_analyzer(object):
         cards = pd.DataFrame(cards)
         cards = cards.groupby(['card', 'p_deck_type', 'o_deck_type', 'turn']).agg(np.sum)
         cards = cards[cards['win'] + cards['loss'] > card_threshold]
+        cards.loc[:, 'win%'] = cards['win']/(cards['win'] + cards['loss'])
         return cards
 
-    def create_cards_heatmap(self, p_deck_type, game_mode = 'ranked', card_threshold = 2):
+    def create_decklist_heatmap(self, p_deck_type, game_mode = 'ranked', card_threshold = 2):
         """
         Generates a heatmap for a specific deck type
 
@@ -324,13 +325,12 @@ class yaha_analyzer(object):
 
         Returns:
         graphs -- a dict to be sent to the plotly graph
-
         """
-        data = self.generate_card_matchups(game_mode, card_threshold).reset_index()
+        data = self.generate_decklist_matchups(game_mode, card_threshold).reset_index()
         data = data[data['p_deck_type'] == p_deck_type]
         data = data[['card', 'o_deck_type', 'win%']]
         x_vals = data['o_deck_type'].map(lambda x: x.replace('_', ' ')).tolist()
-        y_vals = data['card'].tolist()
+        y_vals = sorted(data['card'].tolist())
         data = data.pivot('o_deck_type', 'card')
         data = [data[x].values.tolist() for x in data.columns]
         graphs = [
@@ -357,7 +357,7 @@ class yaha_analyzer(object):
         return graphs
 
 
-    def create_heatmap(x, y, z, df, layout = None):
+    def create_heatmap(self, x, y, z, df, title, layout = None):
         """
         Creates a heatmap x, y, and z
 
@@ -369,26 +369,54 @@ class yaha_analyzer(object):
         Returns:
         graphs -- a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder
         """
-
-        data = df
+        data = df.reset_index()
         data = data[[x, y, z]]
+        x_vals = sorted(data[x].unique())
+        y_vals = sorted(data[y].unique())
         data = data.pivot(x, y)
-
+        z_vals = [data[x].values.tolist() for x in data.columns]
+        titles = self.title_format(x, y, z)
+        print(data)
+        print(x_vals)
+        print(y_vals)
         if layout == None:
+            annotations = []
+            for n, row in enumerate(z_vals):
+                for m, val in enumerate(row):
+                    var = z_vals[n][m]
+                    annotations.append(
+                        dict(
+                            text = '{:.2f}'.format(val) if not pd.isnull(val) else '',
+                            x = x_vals[m],
+                            y = y_vals[n],
+                            showarrow = False,
+                            font = dict(color='white' if val < 0.7 else 'black')
+                        )
+                    )
+
             layout = dict(
                 margin = dict(
                     l = 160,
                     b = 160
                 ),
-                height = 900
+                height = 900,
+                xaxis = dict(
+                    title = titles[0]
+                ),
+                yaxis = dict(
+                    title = titles[1]
+                ),
+                title = title,
+                annotations = annotations
             )
+
         graphs = [
             dict(
                 data = [
                     dict(
-                        z = [data[x].values.tolist() for x in data.columns],
-                        y = y,
-                        x = x,
+                        z = z_vals,
+                        y = y_vals,
+                        x = x_vals,
                         type = 'heatmap',
                         colorscale = 'Viridis'
                     )
@@ -397,6 +425,38 @@ class yaha_analyzer(object):
             )
         ]
 
+        return graphs
+
+    def create_stacked_chart(self, iter_column, x_col, y_col, df, layout = None):
+        """
+        Creates a stacked chart from a cards groupby object
+        """
+        if layout == None:
+            layout = dict(
+                margin = dict(
+                    l = 160,
+                    b = 160
+                ),
+                height = 900
+            )
+        x_vals = []
+        y_vals = []
+        for uniq_value in data.index.get_level_values(iter_column).tolist():
+            x_vals.append(data.loc[uniq_value][x_col])
+            y_vals.append(data.loc[uniq_value][y_col])
+        data = []
+        for i in zip(x_vals, y_vals):
+            scatter = dict(
+                x = i[0],
+                y = i[1],
+                fill='tozeroy'
+            )
+            data.append(scatter)
+        graphs = [
+            dict(
+                data = data,
+                layout = layout)
+        ]
         return graphs
 
     def write_hdf5(self, hdf5_name):
@@ -476,3 +536,22 @@ class yaha_analyzer(object):
             return False
 
 
+    def title_format(self, *titles):
+        """
+        Formats the titles
+
+        Keyword parameter:
+        *titles -- titles to be replaced
+
+        Returns:
+        titles_list -- list of replaced titles
+        """
+        titles_list = []
+        for title in titles:
+            if title == 'p_deck_type':
+                titles_list.append('Player Deck Name')
+            if title == 'o_deck_type':
+                titles_list.append('Opponent Deck Name')
+            if title == 'win%':
+                titles_list.append('Win %')
+        return titles_list

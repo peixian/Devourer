@@ -64,7 +64,7 @@
 #+end_example
 
 #+BEGIN_SRC ipython :session :results output
-  cards = nom.generate_card_stats(card_threshold=2)
+  cards = nom.generate_card_stats(card_threshold=5)
   print(cards)
 #+END_SRC
 
@@ -141,76 +141,79 @@ Zombie Chow            Other_Priest  Other_Mage      1        2    1
   #card_stats = cards.reset_index()
   #stats = card_stats[card_stats['card'] == 'Fiery War Axe']
   #print(stats)
-  print(cards.loc['Fiery War Axe', 'Dragon_Warrior'])
+  #print(cards.loc['Fiery War Axe', 'Dragon_Warrior'])
+  card_stats = cards.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc['Fiery War Axe']
+  #print(card_stats)
+  print(cards
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-                     loss  win
-o_deck_type    turn           
-Aggro_Paladin  2        5    2
-               4        2    1
-               5        1    2
-               7        2    2
-Aggro_Shaman   1        4    5
-               2       10    9
-               3        6   11
-               4        2    7
-               5        5    1
-               6        6    7
-               7        3    6
-               8        7    2
-               9        2    1
-               10       2    3
-C'Thun_Druid   2        8    6
-               3        2    3
-               5        4    3
-               6        3    2
-               7        2    4
-               8        2    3
-C'Thun_Priest  2        0    3
-C'Thun_Warrior 2       16    9
-               3        3    7
-               4        2    8
-               5        4    4
-               6        5    5
-               7        8    6
-               8        4    2
-               9        3    5
-               10       2    2
-...                   ...  ...
-Tempo_Mage     9        1    5
-               10       3    2
-               11       1    2
-               12       2    2
-               13       2    2
-Tempo_Warrior  2        1    2
-               3        1    3
-               4        2    2
-               7        1    2
-Token_Druid    2        8    9
-               3        7    8
-               4        4    6
-               5        5    4
-               6        2   10
-               7        6    7
-               8        2    4
-               9        2    1
-               10       2    3
-               11       0    4
-               12       2    2
-               13       0    3
-Zoo_Warlock    1        3    9
-               2       15   16
-               3       10   10
-               4        7    7
-               5        4    8
-               6        4    8
-               7        9    4
-               8        6    6
-               9        1    4
+                                 loss  win
+p_deck_type     o_deck_type               
+C'Thun_Warrior  Aggro_Paladin       6    0
+                Aggro_Shaman       28   31
+                C'Thun_Druid        5    4
+                C'Thun_Priest       3    2
+                C'Thun_Warrior     21   27
+                Dragon_Warrior     49   57
+                Midrange_Hunter    32   36
+                Midrange_Shaman    18   14
+                Miracle_Rogue       7    9
+                N'Zoth_Paladin      5    1
+                N'Zoth_Rogue        1    2
+                Other_Hunter        2    1
+                Other_Shaman        2    2
+                Other_Warrior       6    6
+                Reno_Warlock        7    9
+                Tempo_Mage         21   20
+                Tempo_Warrior       5    3
+                Token_Druid        28   22
+                Zoo_Warlock        42   31
+Control_Warrior Aggro_Shaman        9    6
+                C'Thun_Warrior      6    1
+                Dragon_Warrior     13   18
+                Midrange_Hunter     2   11
+                Miracle_Rogue       2    2
+                Tempo_Mage          1    3
+                Token_Druid         4    4
+                Zoo_Warlock        13   11
+Dragon_Warrior  Aggro_Paladin      10    7
+                Aggro_Shaman       47   52
+                C'Thun_Druid       21   21
+...                               ...  ...
+Other_Warrior   Other_Paladin      31   49
+                Other_Priest       49   46
+                Other_Rogue        63   64
+                Other_Shaman      202  179
+                Other_Warlock     149  180
+                Other_Warrior     305  248
+                Reno_Warlock        3   11
+                Tempo_Mage         26   12
+                Tempo_Warrior       5    4
+                Token_Druid        12   25
+                Zoo_Warlock        34   35
+Pirate_Warrior  Dragon_Warrior      5    9
+                Midrange_Hunter     2    1
+                Midrange_Shaman     2    5
+                Miracle_Rogue       2    1
+                Tempo_Mage          1    2
+                Zoo_Warlock         7    6
+Tempo_Warrior   Aggro_Shaman        9    8
+                C'Thun_Druid        3    0
+                C'Thun_Priest       2    1
+                C'Thun_Warrior      7    4
+                Dragon_Warrior      6   11
+                Midrange_Hunter    14   16
+                Midrange_Shaman     5    3
+                Miracle_Rogue       2    1
+                Other_Warrior       2    2
+                Reno_Warlock        2    5
+                Tempo_Mage          7    8
+                Token_Druid         2    6
+                Zoo_Warlock        21   18
 
-[161 rows x 2 columns]
+[102 rows x 2 columns]
 #+end_example
 
 #+BEGIN_SRC ipython :session :file /tmp/image.png :exports both

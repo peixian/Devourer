@@ -34,7 +34,22 @@ def matchups(deck):
     deck = deck.replace(' ', '_')
     scrape = yaha_analyzer.yaha_analyzer()
     scrape.open_collectobot_data()
-    graphs = scrape.create_cards_heatmap(deck, card_threshold=3)
+    data = scrape.generate_decklist_matchups(card_threshold = 3).reset_index()
+    data = data[data['p_deck_type'] == deck]
+    graphs = scrape.create_heatmap('o_deck_type', 'card', 'win%', data, 'Win % of Cards in {}'.format(deck))
+    ids, graphJSON = generate_graph(graphs)
+
+    game_count = len(scrape.games['hero'])
+    return render_template('matchups.html', ids=ids, graphJSON=graphJSON, game_count = game_count)
+
+@app.route('/card/<card_name>')
+def card(card_name):
+    scrape = yaha_analyzer.yaha_analyzer()
+    scrape.open_collectobot_data()
+    data = scrape.generate_card_stats(card_threshold = 3)
+    data = data.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc[card_name]
+    data.loc[:, 'win%'] = data['win']/(data['loss'] + data['win'])
+    graphs = scrape.create_heatmap('o_deck_type', 'p_deck_type', 'win%', data, 'Win % of {}'.format(card_name))
     ids, graphJSON = generate_graph(graphs)
 
     game_count = len(scrape.games['hero'])

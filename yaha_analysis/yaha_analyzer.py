@@ -111,14 +111,16 @@ class yaha_analyzer(object):
         self.games = self.games[self.games['card_history'].str.len() != 0]
         return self.games
 
-    def unique_decks(self, game_mode='ranked', game_threshold = 5, formatted = True):
+    def _unique_decks(self, game_mode='ranked', game_threshold = 5, formatted = True):
         """
         Returns a list with the unique decks for that game mode in self.games
+        >> Don't actually use this, call the database instead
 
         Keyword parameters:
         game_mode -- str, the game mode, 'ranked', 'casual', or 'both'
+        game_threshold -- int, the minimum amount of games the deck has to show up
 
-        Returns
+        Returns:
         A list of unique p_deck_types
         """
         deck_types = self.generate_matchups(game_mode, game_threshold).reset_index()
@@ -127,7 +129,18 @@ class yaha_analyzer(object):
             return sorted(list(map(lambda x: x.replace("_", " "), deck_types)))
         return deck_types
 
-    def unique_cards(self, game_mode='ranked', game_threshold = 5, formatted = True):
+    def _unique_cards(self, game_mode='ranked', game_threshold = 5, formatted = True):
+        """
+        Returns a list with the unique cards for that game mode in self.games
+        >> Don't actually use this, call the database instead
+
+        Keyword parameters:
+        game_mode -- str, the game mode, 'ranked', 'casual', or 'both'
+        game_threshold -- int, the minimum amount of games the deck has to show up
+
+        Returns:
+        A list of unique card names
+        """
         cards = self.generate_card_stats(game_mode, game_threshold).reset_index()
         cards = cards['card'].unique().tolist()
         return cards
@@ -507,6 +520,13 @@ class yaha_analyzer(object):
         return titles_list
 
     def get_name_list(self):
+        """
+        Iterates through the database and creates a list of strings for deck names and card names
+
+        Returns:
+        deck_data -- list of str's, deck names
+        card_data -- list of str's, card names
+        """
         conn = sqlite3.connect(GRAPH_DATABASE)
         c = conn.cursor()
         c.execute('SELECT name, type FROM graphs')
@@ -522,12 +542,15 @@ class yaha_analyzer(object):
         conn.close()
         return deck_data, card_data
 
-    def make_graph_data(self):
+    def make_graph_data(self): #TODO: multithread this at some point & change to update instead of insert
+        """
+        Iterates through all the cards & decks above the game threshold, makes plotly json for each one
+        """
         game_threshold = 5
         conn = sqlite3.connect(GRAPH_DATABASE)
         c = conn.cursor()
         graph_id = 0
-        decks = map(lambda x: x.replace(' ', '_'), self.unique_decks())
+        decks = map(lambda x: x.replace(' ', '_'), self._unique_decks())
         for deck in decks:
             data = self.generate_decklist_matchups(game_threshold = game_threshold).reset_index()
             data = data[data['p_deck_type'] == deck]
@@ -537,7 +560,7 @@ class yaha_analyzer(object):
             c.execute('INSERT INTO graphs VALUES(?, ?, ?, ?)', (graph_id, graph_name, graph_json, 'deck'))
             graph_id += 1
         conn.commit()
-        cards = self.unique_cards()
+        cards = self._unique_cards()
         for card in cards:
             data = self.generate_card_stats(game_threshold = game_threshold)
             data = data.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc[card]
@@ -551,6 +574,15 @@ class yaha_analyzer(object):
         conn.close()
 
     def get_graph_data(self, name):
+        """
+        Returns plotly json for the specified name
+
+        Keyword parameter:
+        name -- str, name to match in the database
+
+        Return:
+        data -- str, plotly json data
+        """
         conn = sqlite3.connect(GRAPH_DATABASE)
         c = conn.cursor()
         print(name)

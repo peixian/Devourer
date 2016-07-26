@@ -144,21 +144,21 @@ bool &#8211; False if either is missing, True otherwise</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="yaha_analyzer.yaha_analyzer.create_cards_heatmap">
-<code class="descname">create_cards_heatmap</code><span class="sig-paren">(</span><em>p_deck_type</em>, <em>game_mode='ranked'</em>, <em>card_threshold=2</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_cards_heatmap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates a heatmap for a specific deck type</p>
+<dt id="yaha_analyzer.yaha_analyzer.create_heatmap">
+<code class="descname">create_heatmap</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>z</em>, <em>df</em>, <em>title</em>, <em>layout=None</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_heatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a heatmap x, y, and z</p>
 <p>Keyword parameters:
-p_deck_type &#8211; str, the deck type
-game_mode &#8211; str, &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both&#8217;
-card_threshold &#8211; the minimum amount of games to be qualified</p>
+x &#8211; str, name of the x value column
+y &#8211; str, name of the y value column
+z &#8211; str, name of the z value column</p>
 <p>Returns:
-graphs &#8211; a dict to be sent to the plotly graph</p>
+graphs &#8211; a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.create_matchup_heatmap">
 <code class="descname">create_matchup_heatmap</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=0</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_matchup_heatmap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of one dictionary to be used with plotly&#8217;s json renderr</p>
+<dd><p>Returns a list of one dictionary to be used with plotly&#8217;s json render</p>
 <p>Keyword parameter:
 game_mode &#8211; str, either &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both&#8217;, default is ranked
 game_threshold &#8211; lowerbound for games played, any # of games lower than the threshold are not returned</p>
@@ -167,19 +167,14 @@ graphs &#8211; a list of one dictionary to be used with plotly.utils.PlotlyJSONE
 </dd></dl>
 
 <dl class="method">
-<dt id="yaha_analyzer.yaha_analyzer.generate_card_matchups">
-<code class="descname">generate_card_matchups</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>card_threshold=2</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_card_matchups" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates a dataframe with a list of cards, and the matchups where the card won and lost in the format of: [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;winning_matchups&#8217;, &#8216;losing_matchups&#8217;]</p>
-<p>Keyword parameter:
-game_mode &#8211; str, game type
-card_threshold &#8211; int, the minimum amount of time the card has to show up</p>
-<p>Returns:
-cards &#8211; pandas groupby object, with [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;o_deck_type&#8217;, &#8216;loss&#8217;, &#8216;win&#8217;, &#8216;win%&#8217;]</p>
+<dt id="yaha_analyzer.yaha_analyzer.create_stacked_chart">
+<code class="descname">create_stacked_chart</code><span class="sig-paren">(</span><em>iter_column</em>, <em>x_col</em>, <em>y_col</em>, <em>df</em>, <em>layout=None</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_stacked_chart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a stacked chart from a cards groupby object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.generate_card_stats">
-<code class="descname">generate_card_stats</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>card_threshold=2</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_card_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate_card_stats</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=2</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_card_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a groupby object with [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;o_deck_type&#8217;, &#8216;turn&#8217;, &#8216;loss&#8217;, &#8216;win&#8217;] as [str, str, str, int, int, int]
 Keyword parameters:
 game_mode &#8211; str, the game type
@@ -197,6 +192,23 @@ filtered &#8211; pandas dataframe, should be a subset of self.games filtered som
 <p>Returns:
 p_df &#8211; pandas groupby object, cards marked as &#8216;me&#8217; for player, index is the card name [&#8216;card&#8217;], columns are win count and loss count [&#8216;win&#8217;, &#8216;loss&#8217;]
 o_df &#8211; pandas groupby object, cards marked as &#8216;opponent&#8217; for player, index is the card name [&#8216;card&#8217;], columns are win count and loss count [&#8216;win&#8217;, &#8216;loss&#8217;]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.generate_collectobot_data">
+<code class="descname">generate_collectobot_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_collectobot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates collect-o-bot data from the database, writes it to a hdf5 file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.generate_decklist_matchups">
+<code class="descname">generate_decklist_matchups</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=2</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_decklist_matchups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a dataframe with a list of cards, and the matchups where the card won and lost in the format of: [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;winning_matchups&#8217;, &#8216;losing_matchups&#8217;]</p>
+<p>Keyword parameter:
+game_mode &#8211; str, game type
+card_threshold &#8211; int, the minimum amount of time the card has to show up</p>
+<p>Returns:
+cards &#8211; pandas groupby object, with [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;o_deck_type&#8217;, &#8216;loss&#8217;, &#8216;win&#8217;, &#8216;win%&#8217;]</p>
 </dd></dl>
 
 <dl class="method">
@@ -219,10 +231,41 @@ grouped &#8211; pandas groupby object, indicies are player deck &#8216;p_deck_ty
 </dd></dl>
 
 <dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.get_graph_data">
+<code class="descname">get_graph_data</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.get_graph_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns plotly json for the specified name</p>
+<p>Keyword parameter:
+name &#8211; str, name to match in the database</p>
+<p>Return:
+data &#8211; str, plotly json data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.get_name_list">
+<code class="descname">get_name_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.get_name_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through the database and creates a list of strings for deck names and card names</p>
+<p>Returns:
+deck_data &#8211; list of str&#8217;s, deck names
+card_data &#8211; list of str&#8217;s, card names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.make_graph_data">
+<code class="descname">make_graph_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.make_graph_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates through all the cards &amp; decks above the game threshold, makes plotly json for each one</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.open_collectobot_data">
+<code class="descname">open_collectobot_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.open_collectobot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the collectobot data from a hdf5 file</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.pull_data">
 <code class="descname">pull_data</code><span class="sig-paren">(</span><em>username</em>, <em>api_key</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.pull_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grabs the data from the trackobot servers, writes it out to a new files and the database if it doesn&#8217;t exist/outdated</p>
-<p>Keyword parameter:
+<p>Keyword parameters:
 username &#8211; str, trackobot username
 api_key &#8211; str, trackobot api_key</p>
 <p>Returns:
@@ -231,7 +274,7 @@ The contents of the json_file (includes history &amp; metadata)</p>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.read_data">
-<code class="descname">read_data</code><span class="sig-paren">(</span><em>json_name</em>, <em>hdf5_name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.read_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_data</code><span class="sig-paren">(</span><em>json_name=None</em>, <em>hdf5_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.read_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes the names of the files and loads them into memory for processing</p>
 <p>Keyword parameter:
 json_name &#8211; str, name of the json file
@@ -252,13 +295,13 @@ user[3] &#8211; str, hdf5_name</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="yaha_analyzer.yaha_analyzer.unique_decks">
-<code class="descname">unique_decks</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=5</em>, <em>formatted=True</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.unique_decks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list with the unique decks for that game mode in self.games</p>
-<p>Keyword parameters:
-game_mode &#8211; str, the game mode, &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both&#8217;</p>
-<p>Returns
-A list of unique p_deck_types</p>
+<dt id="yaha_analyzer.yaha_analyzer.title_format">
+<code class="descname">title_format</code><span class="sig-paren">(</span><em>*titles</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.title_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats the titles</p>
+<p>Keyword parameter:
+<a href="#id1"><span class="problematic" id="id2">*</span></a>titles &#8211; titles to be replaced</p>
+<p>Returns:
+titles_list &#8211; list of replaced titles</p>
 </dd></dl>
 
 <dl class="method">

@@ -1,28 +1,5 @@
 {% extends 'index.html' %}
 
-
-{% block style %}
-<style>
- .clusterize, input {
-     width: 300px !important;
-     border: .5px solid gray;
- }
-
- table {
-    width: 100%;
-     margin-bottom: 0;
- }
-
- body {
-    margin: 20px;
- }
- .clusterize-scroll {
-     max-height:300px;
-     overflow: auto;
- }
-</style>
-{% endblock %}
-
 {% block body %}
 
 <div class="container">
@@ -71,7 +48,7 @@
      rows.push({
          value: deck_data[i].toLowerCase(),
          markup: '<tr>' +
-                 '<td>' + '<a class="link" href="/matchups/' + deck_data[i] + '">' + deck_data[i] + '</a>' + '</td>' +
+                 '<td>' + '<a class="link" href="/deck/' + deck_data[i] + '">' + deck_data[i] + '</a>' + '</td>' +
                  '</tr>',
          active: true
      });

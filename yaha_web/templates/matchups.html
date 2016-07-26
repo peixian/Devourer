@@ -3,22 +3,19 @@
 
 
 {% block body %}
-        {% for id in ids %}
-        <h3>{{id}}</h3>
-        <div id="{{id}}"></div>
-        {% endfor %}
+        <h3>{{name}}</h3>
+        <div id="graph"></div>
 {% endblock%}
 
 
 {% block footer %}
         <!-- Plotly.js -->
-        <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
+        <script src="{{url_for('static', filename='bower_components/plotlyjs/plotly.js')}} "> </script>
 
         <script type="text/javascript">
          var graphs = {{graphJSON | safe}};
-         var ids = {{ids | safe}};
          for(var i in graphs) {
-             Plotly.plot(ids[i], // the ID of the div, created above
+             Plotly.plot(graph, // the ID of the div, created above
                          graphs[i].data,
                          graphs[i].layout || {});
          }

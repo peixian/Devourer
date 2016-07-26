@@ -13,13 +13,7 @@ import collectobot
 
 DATA_PATH = '../test_data/' #TODO in current directory while testing, needs to be fixed before shipping!
 HDF_NAME = '../test_data/cbot.hdf5'
-
-HS_JSON = 'https://api.hearthstonejson.com/v1/latest/enUS/'
-HS_JSON_EXT = ['cardbacks.json', 'cards.collectible.json', 'cards.json']
-
-USERNAME = 'ancient-molten-giant-2943'
-API_KEY = '-X_VZRijrHoV4qMZxfXq'
-URL = 'https://trackobot.com/profile/history.json?'
+GRAPH_DATABASE = '../test_data/graph.db'
 
 class yaha_analyzer(object):
 
@@ -134,7 +128,7 @@ class yaha_analyzer(object):
         return deck_types
 
     def unique_cards(self, game_mode='ranked', game_threshold = 5, formatted = True):
-        cards = self.generate_decklist_matchups(game_mode, game_threshold).reset_index()
+        cards = self.generate_card_stats(game_mode, game_threshold).reset_index()
         cards = cards['card'].unique().tolist()
         return cards
 
@@ -254,7 +248,7 @@ class yaha_analyzer(object):
         o_df = o_df.groupby('card').agg(np.sum)
         return p_df, o_df
 
-    def generate_decklist_matchups(self, game_mode = 'ranked', card_threshold = 2):
+    def generate_decklist_matchups(self, game_mode = 'ranked', game_threshold = 2):
         """
         Generates a dataframe with a list of cards, and the matchups where the card won and lost in the format of: ['card', 'p_deck_type', 'winning_matchups', 'losing_matchups']
 
@@ -275,12 +269,12 @@ class yaha_analyzer(object):
                 cards.append(data)
         cards = pd.DataFrame(cards)
         cards = cards.groupby(['card', 'p_deck_type', 'o_deck_type']).agg(np.sum)
-        cards = cards[cards['win'] + cards['loss'] > card_threshold]
+        cards = cards[(cards['win'] + cards['loss']) > game_threshold]
         cards.loc[:, 'win%'] = cards['win']/(cards['win'] + cards['loss'])
         return cards
 
 
-    def generate_card_stats(self, game_mode='ranked', card_threshold = 2):
+    def generate_card_stats(self, game_mode='ranked', game_threshold = 2):
         """
         Returns a groupby object with ['card', 'p_deck_type', 'o_deck_type', 'turn', 'loss', 'win'] as [str, str, str, int, int, int]
         Keyword parameters:
@@ -310,7 +304,7 @@ class yaha_analyzer(object):
 
         cards = pd.DataFrame(cards)
         cards = cards.groupby(['card', 'p_deck_type', 'o_deck_type', 'turn']).agg(np.sum)
-        cards = cards[cards['win'] + cards['loss'] > card_threshold]
+        cards = cards[cards['win'] + cards['loss'] > game_threshold]
         cards.loc[:, 'win%'] = cards['win']/(cards['win'] + cards['loss'])
         return cards
 
@@ -335,9 +329,6 @@ class yaha_analyzer(object):
         data = data.pivot(x, y)
         z_vals = [data[x].values.tolist() for x in data.columns]
         titles = self.title_format(x, y, z)
-        print(data)
-        print(x_vals)
-        print(y_vals)
         if layout == None:
             annotations = []
             for n, row in enumerate(z_vals):
@@ -514,3 +505,58 @@ class yaha_analyzer(object):
             if title == 'win%':
                 titles_list.append('Win %')
         return titles_list
+
+    def get_name_list(self):
+        conn = sqlite3.connect(GRAPH_DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT name, type FROM graphs')
+        data = c.fetchall()
+        deck_data = []
+        card_data = []
+        for row in data:
+            print(row)
+            if row[1] == 'deck':
+                deck_data.append(row[0])
+            elif row[1] == 'card':
+                card_data.append(row[0])
+        conn.close()
+        return deck_data, card_data
+
+    def make_graph_data(self):
+        game_threshold = 5
+        conn = sqlite3.connect(GRAPH_DATABASE)
+        c = conn.cursor()
+        graph_id = 0
+        decks = map(lambda x: x.replace(' ', '_'), self.unique_decks())
+        for deck in decks:
+            data = self.generate_decklist_matchups(game_threshold = game_threshold).reset_index()
+            data = data[data['p_deck_type'] == deck]
+            graphs = self.create_heatmap('o_deck_type', 'card', 'win%', data, 'Win % of Cards in {}'.format(deck))
+            graph_json = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+            graph_name = deck
+            c.execute('INSERT INTO graphs VALUES(?, ?, ?, ?)', (graph_id, graph_name, graph_json, 'deck'))
+            graph_id += 1
+        conn.commit()
+        cards = self.unique_cards()
+        for card in cards:
+            data = self.generate_card_stats(game_threshold = game_threshold)
+            data = data.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc[card]
+            data.loc[:, 'win%'] = data['win']/(data['loss'] + data['win'])
+            graphs = self.create_heatmap('o_deck_type', 'p_deck_type', 'win%', data, 'Win % of {}'.format(card))
+            graph_json = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+            graph_name = card
+            c.execute('INSERT INTO graphs VALUES(?, ?, ?, ?)', (graph_id, graph_name, graph_json, 'card'))
+            graph_id += 1
+        conn.commit()
+        conn.close()
+
+    def get_graph_data(self, name):
+        conn = sqlite3.connect(GRAPH_DATABASE)
+        c = conn.cursor()
+        print(name)
+        c.execute('SELECT json FROM graphs WHERE name = ?', (name,))
+        data = c.fetchall()
+        print(data)
+        data = data[0][0]
+        conn.close()
+        return data

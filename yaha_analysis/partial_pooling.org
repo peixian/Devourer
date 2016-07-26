@@ -9,10 +9,12 @@
   %matplotlib inline
 #+END_SRC
 
+#+RESULTS:
+
 #+BEGIN_SRC ipython :session :results output
   import yaha_analyzer
   nom = yaha_analyzer.yaha_analyzer()
-  nom._load_collectobot_data()
+  nom.open_collectobot_data()
   print(nom.games.head())
   print(len(nom.games['hero_deck']))
 #+END_SRC
@@ -20,11 +22,11 @@
 #+RESULTS:
 #+begin_example
                    added                                       card_history  \
-10  2016-06-28T17:57:45Z  [{'player': 'opponent', 'card': {'name': 'Tunn...   
-11  2016-06-28T17:44:53Z  [{'player': 'me', 'card': {'name': 'The Coin',...   
-12  2016-06-28T17:36:41Z  [{'player': 'me', 'card': {'name': 'N'Zoth's F...   
-13  2016-06-28T17:28:55Z  [{'player': 'me', 'card': {'name': 'N'Zoth's F...   
-14  2016-06-28T17:20:01Z  [{'player': 'opponent', 'card': {'name': 'Fier...   
+10  2016-06-28T17:57:45Z  [{'card': {'name': 'Tunnel Trogg', 'id': 'LOE_...   
+11  2016-06-28T17:44:53Z  [{'card': {'name': 'The Coin', 'id': 'GAME_005...   
+12  2016-06-28T17:36:41Z  [{'card': {'name': 'N'Zoth's First Mate', 'id'...   
+13  2016-06-28T17:28:55Z  [{'card': {'name': 'N'Zoth's First Mate', 'id'...   
+14  2016-06-28T17:20:01Z  [{'card': {'name': 'Fiery Bat', 'id': 'OG_179'...   
 
      coin  duration     hero hero_deck        id  legend    mode  note  \
 10   True     761.0  Warrior    Dragon  33262529     NaN  ranked  None   
@@ -64,78 +66,14 @@
 #+end_example
 
 #+BEGIN_SRC ipython :session :results output
-  cards = nom.generate_card_stats(card_threshold=5)
-  print(cards)
+  cards = nom.generate_card_stats(game_threshold=5)
+  print(cards.loc['Acidic Swamp Ooze'])
 #+END_SRC
 
 #+RESULTS:
-#+begin_example
-                                                           loss  win
-card                   p_deck_type   o_deck_type     turn           
-Abusive Sergeant       Aggro_Paladin C'Thun_Druid    8        0    3
-                                     C'Thun_Warrior  4        2    1
-                                     Dragon_Warrior  3        3    3
-                                                     5        1    3
-                                                     7        3    0
-                                                     9        0    3
-                                     Midrange_Hunter 2        2    1
-                                                     5        2    1
-                                                     6        3    3
-                                     Midrange_Shaman 2        1    2
-                                     Token_Druid     6        2    2
-                                                     7        4    0
-                                                     9        1    3
-                                     Zoo_Warlock     3        2    1
-                                                     4        1    2
-                                                     7        3    0
-                       Aggro_Shaman  Aggro_Shaman    2        2    6
-                                                     3        4    6
-                                                     4       10    1
-                                                     5        2    3
-                                                     6        2    2
-                                                     7        2    5
-                                                     8        0    3
-                                     C'Thun_Druid    2        0    3
-                                                     4        0    3
-                                                     5        3    0
-                                                     6        2    3
-                                                     7        1    6
-                                     C'Thun_Warrior  1        3    0
-                                                     2        3    2
-...                                                         ...  ...
-Yogg-Saron, Hope's End Tempo_Mage    Zoo_Warlock     10       3    3
-                       Token_Druid   C'Thun_Druid    9        2    1
-                                     C'Thun_Warrior  10       3    0
-                                                     12       3    1
-                                                     13       5    2
-                                                     14       2    1
-                                     Dragon_Warrior  7        3    3
-                                                     8        2    2
-                                                     9        3    3
-                                                     10       6    2
-                                                     11       2    1
-                                                     12       2    1
-                                     Midrange_Hunter 9        2    2
-                                                     10       4    0
-                                     Other_Warrior   10       2    1
-                                     Reno_Warlock    16       0    3
-                                     Token_Druid     8        2    2
-                                                     9        1    4
-                                                     10       2    3
-                                                     11       4    1
-                                     Zoo_Warlock     8        1    2
-Ysera                  Other_Priest  Other_Mage      9        1    2
-                                     Other_Paladin   9        1    2
-                                                     10       1    2
-                                     Other_Warrior   14       3    0
-                       Other_Warrior Other_Warrior   10       1    3
-                                                     11       3    0
-                                                     14       1    2
-Zombie Chow            Other_Priest  Other_Mage      1        2    1
-                                     Other_Warlock   19       0    3
-
-[31122 rows x 2 columns]
-#+end_example
+: Empty DataFrame
+: Columns: [loss, win, win%]
+: Index: []
 
 #+BEGIN_SRC ipython :session :results output
   #card_stats = cards.reset_index()

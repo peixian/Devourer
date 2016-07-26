@@ -534,7 +534,6 @@ class yaha_analyzer(object):
         deck_data = []
         card_data = []
         for row in data:
-            print(row)
             if row[1] == 'deck':
                 deck_data.append(row[0])
             elif row[1] == 'card':
@@ -585,10 +584,8 @@ class yaha_analyzer(object):
         """
         conn = sqlite3.connect(GRAPH_DATABASE)
         c = conn.cursor()
-        print(name)
         c.execute('SELECT json FROM graphs WHERE name = ?', (name,))
         data = c.fetchall()
-        print(data)
         data = data[0][0]
         conn.close()
         return data

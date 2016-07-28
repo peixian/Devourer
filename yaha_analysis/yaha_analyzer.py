@@ -535,7 +535,7 @@ class yaha_analyzer(object):
         card_data = []
         for row in data:
             if row[1] == 'deck':
-                deck_data.append(row[0])
+                deck_data.append(row[0].replace('_', ' '))
             elif row[1] == 'card':
                 card_data.append(row[0])
         conn.close()

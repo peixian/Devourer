@@ -1,43 +1,117 @@
 <!DOCTYPE html>
-<head>
+<html lang="en">
+  <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}">
+
     <title>Yaha</title>
-    <link rel="stylesheet", type="text/css" href="{{url_for('static', filename='bower_components/skeleton/css/normalize.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='bower_components/skeleton/css/skeleton.css')}}">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.css')}}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{{url_for('static', filename='style.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='bower_components/font-awesome/css/font-awesome.min.css')}}" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='main.css')}}">
     <script src="{{url_for('static', filename='bower_components/jquery/dist/jquery.min.js')}}" async></script>
     <script src="{{url_for('static', filename='bower_components/d3/d3.min.js')}}" async></script>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
 
+    <!-- <script src="{{url_for('static', filename='bower_components/modernizr/src/Modernizr.js')}}"></script> -->
     {% block style %} {% endblock %}
-</head>
-<body>
-    <header>
-        <nav class="navbar">
-            <div class="nav-container">
-                <ul class="navbar-list">
-                    <li class="navbar-item"><a href="/">Home</a></li>
-                    <li class="navbar-item"><a href="/decks">Decks</a></li>
-                    <li class="navbar-item"><a href="/cards">Cards</a></li>
-                    <li class="navbar-item"><a href="/random">Random</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+  </head>
 
+  <body>
 
-    {% block body %} {% endblock %}
+    <!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Yaha - Yet Another Hearthstone Analyzer</a>
+        </div>
+        <div class="navbar-collapse collapse navbar-right">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="index.html">HOME</a></li>
+            <li><a href="/decks">DECKS</a></li>
+            <li><a href="/cards">CARDS</a></li>
+            <li><a href="/random">RANDOM</a></li>
+            <!-- <li class="dropdown">
+                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">PAGES <b class="caret"></b></a>
+                 <ul class="dropdown-menu">
+                 <li><a href="blog.html">BLOG</a></li>
+                 <li><a href="single-post.html">SINGLE POST</a></li>
+                 <li><a href="portfolio.html">PORTFOLIO</a></li>
+                 <li><a href="single-project.html">SINGLE PROJECT</a></li>
+                 </	 		ul>
+                 </li> -->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
 
+	 <div class="container mtb">
+	 	   <div class="row">
+           {% block body %} {% endblock %}
+	 	   </div><! --/row -->
+	 </div><! --/container -->
 
+	 <div id="footerwrap">
+	 	<div class="container">
+		 	<div class="row">
+		 		<div class="col-lg-6">
+		 			<h4>About</h4>
+		 			<div class="hline-w"></div>
+		 			<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.</p>
+		 		</div>
+		 		<!-- <div class="col-lg-4">
+		 			   <h4>Social Links</h4>
+		 			   <div class="hline-w"></div>
+		 			   <p>
+		 				 <a href="#"><i class="fa fa-dribbble"></i></a>
+		 				 <a href="#"><i class="fa fa-facebook"></i></a>
+		 				 <a href="#"><i class="fa fa-twitter"></i></a>
+		 				 <a href="#"><i class="fa fa-instagram"></i></a>
+		 				 <a href="#"><i class="fa fa-tumblr"></i></a>
+		 			   </p>
+		 		     </div> -->
+		 		<div class="col-lg-6">
+		 			<h4>Our Bunker</h4>
+		 			<div class="hline-w"></div>
+		 			<p>
+		 				Some Ave, 987,<br/>
+		 				23890, New York,<br/>
+		 				United States.<br/>
+		 			</p>
+		 		</div>
+		 	</div><! --/row -->
+	 	</div><! --/container -->
+	 </div><! --/footerwrap -->
 
-    <footer class="row">
-        <div class="one-third column filler"></div>
-        <div id="gameCount" class="one-third column">Games analyzed: {{game_count}}</div>
-        {% block footer %} {% endblock %}
-        <div class="one-third column filler"></div>
-    </footer>
-
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+   <script src="{{url_for('static', filename='bower_components/bootstrap/dist/js/bootstrap.js')}}"></script>
+	 <!-- <script src="assets/js/retina-1.1.0.js"></script>
+	      <script src="assets/js/jquery.hoverdir.js"></script>
+	      <script src="assets/js/jquery.hoverex.min.js"></script>
+	      <script src="assets/js/jquery.prettyPhoto.js"></script>
+        <script src="assets/js/jquery.isotope.min.js"></script>
+        <script src="assets/js/custom.js"></script> -->
+   {% block scripts %} {% endblock %}
 
 </body>
-
 </html>

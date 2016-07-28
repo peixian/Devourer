@@ -1,52 +1,89 @@
-.navbar {
-    display: block;
-    width: 100%;
-    heigh: 3.5rem;
-    z-index:99;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
-    float: left;
-}
-
-.navbar-list {
-    list-style: none;
-    display: block;
-}
-
-.navbar-item {
-    position: relative;
-    float: left;
-    margin-bottom: 0;
-}
-.navbar-item a {
-    text-transform: uppercase;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .2rem;
-    text-decoration: none;
-    line-height: 3.5rem;
-    margin-right: 35px;
-    color: #222;
-}
-
-.filler {
-    display: none;
-}
-
- .clusterize, input {
-     width: 300px !important;
-     border: .5px solid gray;
- }
-
- table {
-    width: 100%;
-     margin-bottom: 0;
- }
-
- body {
-    margin: 20px;
- }
  .clusterize-scroll {
-     max-height:300px;
+     max-height:800px;
      overflow: auto;
- }
+}
+
+.rwd-table {
+  margin: 1em 0;
+  min-width: 300px; // adjust to your needs
+  
+  tr {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    display: none;
+  }
+  
+  td {
+    display: block; 
+    
+    &:first-child {
+      padding-top: .5em;
+    }
+    &:last-child {
+      padding-bottom: .5em;
+    }
+
+    &:before {
+      font-weight: bold;
+
+      // optional stuff to make it look nicer
+      width: 6.5em; // magic number :( adjust according to your own content
+      display: inline-block;
+      // end options
+      
+      @media (min-width: $breakpoint-alpha) {
+        display: none;
+      }
+    }
+  }
+  
+  th, td {
+    text-align: left;
+    
+    @media (min-width: $breakpoint-alpha) {
+      display: table-cell;
+      padding: .25em .5em;
+      
+      &:first-child {
+        padding-left: 0;
+      }
+      
+      &:last-child {
+        padding-right: 0;
+      }
+    }
+
+  }
+  
+  
+}
+
+
+
+h1 {
+  font-weight: normal;
+  letter-spacing: -1px;
+  color: #34495E;
+}
+
+.rwd-table {
+  background: #34495E;
+  color: #fff;
+  border-radius: .4em;
+  overflow: hidden;
+  tr {
+    border-color: lighten(#34495E, 10%);
+  }
+  th, td {
+    margin: .5em 1em;
+    @media (min-width: $breakpoint-alpha) { 
+      padding: 1em !important; 
+    }
+  }
+  th, td:before {
+    color: #dd5;
+  }
+}

@@ -33,6 +33,16 @@ def return_deck(deck):
     return render_template('matchups.html', graphJSON = graphJSON, game_count = game_count, name=deck)
 
 
+@app.route('/rebuild')
+def rebuild():
+    scrape = yaha_analyzer.yaha_analyzer()
+    scrape.rebuild_and_update()
+
+@app.route('/remake')
+def remake():
+    scrape = yaha_analyzer.yaha_analyzer()
+    scrape.remake_graphs()
+
 def generate_graph(graphs):
     ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)

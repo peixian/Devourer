@@ -27,6 +27,9 @@ class yaha_analyzer(object):
     def generate_collectobot_data(self):
         """
         Generates collect-o-bot data from the database, writes it to a hdf5 file
+
+        :return: list of games
+        :rtype: pandas dataframe
         """
         results = collectobot.aggregate()
         self.games = results
@@ -46,8 +49,11 @@ class yaha_analyzer(object):
         """
         Opens a json file and loads it into the object, this method is meant for testing
 
-        Keyword parameter:
-        json_file -- str, location of the json file
+        :param json_file: location of the json file
+        :type json_file: string
+
+        :return: list of games
+        :rtype: pandas dataframe
         """
         with open(json_file, "r") as infile:
             results = json.load(infile)
@@ -60,12 +66,13 @@ class yaha_analyzer(object):
 
         Grabs the data from the trackobot servers, writes it out to a new files and the database if it doesn't exist/outdated
 
-        Keyword parameters:
-        username -- str, trackobot username
-        api_key -- str, trackobot api_key
+        :param username: trackobot username
+        :param api_key: trackobot api key
+        :type username: string
+        :type api_key: string
 
-        Returns:
-        The contents of the json_file (includes history & metadata)
+        :return: contents of the json_files
+        :rtype: dictionary
         """
         self.username = username
         self.api_key = api_key
@@ -96,8 +103,11 @@ class yaha_analyzer(object):
         """
         Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)
 
-        Returns:
-        Pandas dataframe with all the games
+        :param dates: generate specific dates into their own columns
+        :type dates: bool
+
+        :return: list of games
+        :rtype: pandas dataframe
         """
         self.games = pd.DataFrame(self.history['children'])
         self.games.loc[self.games['hero_deck'].isnull(), 'hero_deck'] = 'Other'
@@ -116,12 +126,13 @@ class yaha_analyzer(object):
         Returns a list with the unique decks for that game mode in self.games
         >> Don't actually use this, call the database instead
 
-        Keyword parameters:
-        game_mode -- str, the game mode, 'ranked', 'casual', or 'both'
-        game_threshold -- int, the minimum amount of games the deck has to show up
+        :param game_mode: the game mode, 'ranked', 'casual', or 'both
+        :param game_threshold: the minimum amount of games the deck has to show up
+        :type game_mode: string
+        :type game_threshold: int
 
-        Returns:
-        A list of unique p_deck_types
+        :returns: list of unique p_deck_types
+        :rtype: list of strings
         """
         deck_types = self.generate_matchups(game_mode, game_threshold).reset_index()
         deck_types = deck_types['p_deck_type'].unique()
@@ -134,12 +145,13 @@ class yaha_analyzer(object):
         Returns a list with the unique cards for that game mode in self.games
         >> Don't actually use this, call the database instead
 
-        Keyword parameters:
-        game_mode -- str, the game mode, 'ranked', 'casual', or 'both'
-        game_threshold -- int, the minimum amount of games the deck has to show up
+        :param game_mode: the game mode, 'ranked', 'casual', or 'both
+        :param game_threshold: the minimum amount of games the deck has to show up
+        :type game_mode: string
+        :type game_threshold: int
 
-        Returns:
-        A list of unique card names
+        :return: a list of cards
+        :rtype: list of strings
         """
         cards = self.generate_card_stats(game_mode, game_threshold).reset_index()
         cards = cards['card'].unique().tolist()
@@ -176,13 +188,14 @@ class yaha_analyzer(object):
         """
         Generates a pandas groupby table with duration, count, coin, win #, win%, and card_history
 
-        Keyword parameter:
-        game_mode -- str, either 'ranked', 'casual', or 'both', default is ranked
-        game_threshold -- lowerbound for games played, any # of games lower than the threshold are not returned
+        :param game_mode: the game mode, 'ranked', 'casual', or 'both
+        :param game_threshold: the minimum amount of games the deck has to show up
+        :type game_mode: string
+        :type game_threshold: int
 
-        Returns:
-        grouped -- pandas groupby object, indicies are player deck 'p_deck_type' then opponent 'o_deck_type'
-        """
+        :return: grouped, indicies are player 'p_deck_type' then opponent 'o_deck_type'
+        :rtype: pandas groupby
+         """
         decks = self.games
         if game_mode != 'both':
             decks = decks[decks['mode'] == game_mode]
@@ -195,57 +208,15 @@ class yaha_analyzer(object):
         return grouped #note this returns a groupby, so a reset_index is necessary before pivoting/plotting
 
 
-    def create_matchup_heatmap(self, game_mode = 'ranked', game_threshold = 0):
-        """
-        Returns a list of one dictionary to be used with plotly's json render
-
-        Keyword parameter:
-        game_mode -- str, either 'ranked', 'casual', or 'both', default is ranked
-        game_threshold -- lowerbound for games played, any # of games lower than the threshold are not returned
-
-        Returns:
-        graphs -- a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder
-        """
-        data = self.generate_matchups(game_mode, game_threshold).reset_index()
-        data = data[['p_deck_type', 'o_deck_type', 'win%']]
-        x_vals = data['o_deck_type'].map(lambda x: x.replace('_', ' '))
-        y_vals = data['p_deck_type'].map(lambda x: x.replace('_', ' '))
-        data = data.pivot('o_deck_type', 'p_deck_type')
-
-        graphs = [
-            dict(
-                data=[
-                    dict(
-                        z = [data[x].values.tolist() for x in data.columns],
-                        y = y_vals,
-                        x = x_vals,
-                        type='heatmap',
-                        colorscale='Viridis'
-
-                )
-                ],
-                layout = dict(
-                    margin = dict(
-                        l = 160,
-                        b = 160
-                    ),
-                    height = 900
-                )
-            )
-        ]
-
-        return graphs
-
     def generate_cards(self, filtered):
         """
         Generates a grouped win/loss count for specific cards
 
-        Keyword parameter:
-        filtered -- pandas dataframe, should be a subset of self.games filtered somehow
+        :param filtered: subset of self.games filtered
+        :type filtered: pandas dataframe
 
-        Returns:
-        p_df -- pandas groupby object, cards marked as 'me' for player, index is the card name ['card'], columns are win count and loss count ['win', 'loss']
-        o_df -- pandas groupby object, cards marked as 'opponent' for player, index is the card name ['card'], columns are win count and loss count ['win', 'loss']
+        :return: p_df, o_df -- cards marked as 'me' for player, index is the card name ['card'], columns are win count and loss count ['win', 'loss'], cards marked as 'opponent' for player, index is the card name ['card'], columns are win count and loss count ['win', 'loss']
+        :rtype: pandas groupby, pandas groupby
         """
         p_df = []
         o_df = []
@@ -265,12 +236,13 @@ class yaha_analyzer(object):
         """
         Generates a dataframe with a list of cards, and the matchups where the card won and lost in the format of: ['card', 'p_deck_type', 'winning_matchups', 'losing_matchups']
 
-        Keyword parameter:
-        game_mode -- str, game type
-        card_threshold -- int, the minimum amount of time the card has to show up
+        :param game_mode: the game mode, 'ranked', 'casual', or 'both
+        :param game_threshold: the minimum amount of games the deck has to show up
+        :type game_mode: string
+        :type game_threshold: int
 
-        Returns:
-        cards -- pandas groupby object, with ['card', 'p_deck_type', 'o_deck_type', 'loss', 'win', 'win%']
+        :return: cards with ['card', 'p_deck_type', 'o_deck_type', 'loss', 'win', 'win%']
+        :rtype: pandas groupby
         """
         cards = []
         gs = self.games
@@ -448,8 +420,8 @@ class yaha_analyzer(object):
         """
         Writes out self.games into a hdf5_file
 
-        Keyword parameter:
-        hdf5_name -- str, name of the hdf5 file
+        :param hdf5_name: name of the hdf5 file
+        :type hdf5_name: string
         """
         self.games.to_hdf('{}{}'.format(DATA_PATH, hdf5_name), 'table', append = False)
 
@@ -467,10 +439,9 @@ class yaha_analyzer(object):
         Stores the python data by using the filename as the sha5 hash of the username and api_key -> hash is stored in a database for lookups later, data is stored using the hdf5 format
         Table is in the format of ['user_hash', 'total_items', 'json_name', 'hdf5_name']
 
-        Returns:
-        user[1] -- int, total items
-        user[2] -- str, json_name
-        user[3] -- str, hdf5_name
+
+        :return: total items, json_name, and hdf5_name
+        :rtype: [int, string, string]
         """
         user_hash = hashlib.sha1(('{}{}'.format(self.username, self.api_key)).encode()).hexdigest()
         conn = sqlite3.connect('{}/users.db'.format(DATA_PATH)) #TODO FIX THIS
@@ -490,12 +461,13 @@ class yaha_analyzer(object):
         """
         Takes the names of the files and loads them into memory for processing
 
-        Keyword parameter:
-        json_name -- str, name of the json file
-        hdf5_name -- str, name of the hdf5 file
+        :param hdf5_name: name of the hdf5 file
+        :type hdf5_name: string
+        :param json_name: name of the json file
+        :type json_name: string
 
-        Returns:
-        results -- dict, complete history of games and metadata
+        :return: complete history of games and metadata
+        :rtype: dictionary
         """
         if json_name:
             with open("{}{}".format(DATA_PATH, json_name)) as json_data:
@@ -508,12 +480,13 @@ class yaha_analyzer(object):
         """
         Checks for the existance of either file under the DATA_PATH, returns False if either is missing
 
-        Keyword parameter:
-        json_name -- str
-        hdf5 -- str
+        :param hdf5_name: name of the hdf5 file
+        :type hdf5_name: string
+        :param json_name: name of the json file
+        :type json_name: string
 
-        Returns:
-        bool -- False if either is missing, True otherwise
+        :return: False if either is missing, True otherwise
+        :rtype: bool
         """
         if os.path.isfile("{}{}".format(DATA_PATH, json_name)) and os.path.isfile("{}{}".format(DATA_PATH, hdf5_name)):
             return True
@@ -525,11 +498,11 @@ class yaha_analyzer(object):
         """
         Formats the titles
 
-        Keyword parameter:
-        *titles -- titles to be replaced
+        :param titles: titles to be replaced
+        :type titles: list of strings
 
-        Returns:
-        titles_list -- list of replaced titles
+        :return: list of replaced titles
+        :rtype: list of strings
         """
         titles_list = []
         for title in titles:
@@ -545,9 +518,8 @@ class yaha_analyzer(object):
         """
         Iterates through the database and creates a list of strings for deck names and card names
 
-        Returns:
-        deck_data -- list of str's, deck names
-        card_data -- list of str's, card names
+        :return: list of deck and card names
+        :rtype: (list, list)
         """
         conn = sqlite3.connect(GRAPH_DATABASE)
         c = conn.cursor()
@@ -613,11 +585,11 @@ class yaha_analyzer(object):
         """
         Returns plotly json for the specified name
 
-        Keyword parameter:
-        name -- str, name to match in the database
+        :param name: name to match in the database
+        :type name: string
 
-        Return:
-        data -- str, plotly json data
+        :return: plotly json data
+        :rtype: string
         """
         conn = sqlite3.connect(GRAPH_DATABASE)
         c = conn.cursor()

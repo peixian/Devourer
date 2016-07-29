@@ -1,6 +1,7 @@
 .clusterize-scroll {
      max-height:800px;
      overflow: auto;
+     width: 100%
 }
 .clusterize {
     background-color: #34495E;
@@ -12,8 +13,19 @@
 }
 
 .clusterize-scroll td a {
-    font-size: 1em;
+    font-size: 4em;
     margin: 1em;
     color: white;
 }
-
+.clusterize-scroll table {
+    width: 100%;
+}
+#search {
+    width: 100%;
+    margin-top: 3em;
+    margin-bottom: 3em;
+}
+.clusterize-content {
+    text-align: center;
+    width: 100%;
+}

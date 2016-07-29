@@ -136,11 +136,24 @@
 <dt id="yaha_analyzer.yaha_analyzer.check_data">
 <code class="descname">check_data</code><span class="sig-paren">(</span><em>json_name</em>, <em>hdf5_name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.check_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks for the existance of either file under the DATA_PATH, returns False if either is missing</p>
-<p>Keyword parameter:
-json_name &#8211; str
-hdf5 &#8211; str</p>
-<p>Returns:
-bool &#8211; False if either is missing, True otherwise</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>hdf5_name</strong> (<em>string</em>) &#8211; name of the hdf5 file</li>
+<li><strong>json_name</strong> (<em>string</em>) &#8211; name of the json file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">False if either is missing, True otherwise</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -173,17 +186,6 @@ bool &#8211; False if either is missing, True otherwise</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="yaha_analyzer.yaha_analyzer.create_matchup_heatmap">
-<code class="descname">create_matchup_heatmap</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=0</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_matchup_heatmap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of one dictionary to be used with plotly&#8217;s json render</p>
-<p>Keyword parameter:
-game_mode &#8211; str, either &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both&#8217;, default is ranked
-game_threshold &#8211; lowerbound for games played, any # of games lower than the threshold are not returned</p>
-<p>Returns:
-graphs &#8211; a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.create_stacked_chart">
 <code class="descname">create_stacked_chart</code><span class="sig-paren">(</span><em>iter_column</em>, <em>x_col</em>, <em>y_col</em>, <em>df</em>, <em>layout=None</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_stacked_chart" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a stacked chart from a cards groupby object</p>
@@ -213,66 +215,134 @@ graphs &#8211; a list of one dictionary to be used with plotly.utils.PlotlyJSONE
 <dt id="yaha_analyzer.yaha_analyzer.generate_cards">
 <code class="descname">generate_cards</code><span class="sig-paren">(</span><em>filtered</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_cards" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a grouped win/loss count for specific cards</p>
-<p>Keyword parameter:
-filtered &#8211; pandas dataframe, should be a subset of self.games filtered somehow</p>
-<p>Returns:
-p_df &#8211; pandas groupby object, cards marked as &#8216;me&#8217; for player, index is the card name [&#8216;card&#8217;], columns are win count and loss count [&#8216;win&#8217;, &#8216;loss&#8217;]
-o_df &#8211; pandas groupby object, cards marked as &#8216;opponent&#8217; for player, index is the card name [&#8216;card&#8217;], columns are win count and loss count [&#8216;win&#8217;, &#8216;loss&#8217;]</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filtered</strong> (<em>pandas dataframe</em>) &#8211; subset of self.games filtered</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">p_df, o_df &#8211; cards marked as &#8216;me&#8217; for player, index is the card name [&#8216;card&#8217;], columns are win count and loss count [&#8216;win&#8217;, &#8216;loss&#8217;], cards marked as &#8216;opponent&#8217; for player, index is the card name [&#8216;card&#8217;], columns are win count and loss count [&#8216;win&#8217;, &#8216;loss&#8217;]</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas groupby, pandas groupby</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.generate_collectobot_data">
 <code class="descname">generate_collectobot_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_collectobot_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates collect-o-bot data from the database, writes it to a hdf5 file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of games</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">pandas dataframe</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.generate_decklist_matchups">
 <code class="descname">generate_decklist_matchups</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=2</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_decklist_matchups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a dataframe with a list of cards, and the matchups where the card won and lost in the format of: [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;winning_matchups&#8217;, &#8216;losing_matchups&#8217;]</p>
-<p>Keyword parameter:
-game_mode &#8211; str, game type
-card_threshold &#8211; int, the minimum amount of time the card has to show up</p>
-<p>Returns:
-cards &#8211; pandas groupby object, with [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;o_deck_type&#8217;, &#8216;loss&#8217;, &#8216;win&#8217;, &#8216;win%&#8217;]</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>game_mode</strong> (<em>string</em>) &#8211; the game mode, &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both</li>
+<li><strong>game_threshold</strong> (<em>int</em>) &#8211; the minimum amount of games the deck has to show up</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">cards with [&#8216;card&#8217;, &#8216;p_deck_type&#8217;, &#8216;o_deck_type&#8217;, &#8216;loss&#8217;, &#8216;win&#8217;, &#8216;win%&#8217;]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas groupby</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.generate_decks">
 <code class="descname">generate_decks</code><span class="sig-paren">(</span><em>dates=True</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_decks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Differentiates between the different deck types, and sorts them into their individual lists (history is a massive array, transform into a pandas dataframe for processing)</p>
-<p>Returns:
-Pandas dataframe with all the games</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dates</strong> (<em>bool</em>) &#8211; generate specific dates into their own columns</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of games</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pandas dataframe</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.generate_matchups">
 <code class="descname">generate_matchups</code><span class="sig-paren">(</span><em>game_mode='ranked'</em>, <em>game_threshold=0</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.generate_matchups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a pandas groupby table with duration, count, coin, win #, win%, and card_history</p>
-<p>Keyword parameter:
-game_mode &#8211; str, either &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both&#8217;, default is ranked
-game_threshold &#8211; lowerbound for games played, any # of games lower than the threshold are not returned</p>
-<p>Returns:
-grouped &#8211; pandas groupby object, indicies are player deck &#8216;p_deck_type&#8217; then opponent &#8216;o_deck_type&#8217;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>game_mode</strong> (<em>string</em>) &#8211; the game mode, &#8216;ranked&#8217;, &#8216;casual&#8217;, or &#8216;both</li>
+<li><strong>game_threshold</strong> (<em>int</em>) &#8211; the minimum amount of games the deck has to show up</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">grouped, indicies are player &#8216;p_deck_type&#8217; then opponent &#8216;o_deck_type&#8217;</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas groupby</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.get_graph_data">
 <code class="descname">get_graph_data</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.get_graph_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns plotly json for the specified name</p>
-<p>Keyword parameter:
-name &#8211; str, name to match in the database</p>
-<p>Return:
-data &#8211; str, plotly json data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>string</em>) &#8211; name to match in the database</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">plotly json data</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.get_name_list">
 <code class="descname">get_name_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.get_name_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Iterates through the database and creates a list of strings for deck names and card names</p>
-<p>Returns:
-deck_data &#8211; list of str&#8217;s, deck names
-card_data &#8211; list of str&#8217;s, card names</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of deck and card names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(list, list)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -291,22 +361,48 @@ card_data &#8211; list of str&#8217;s, card names</p>
 <dt id="yaha_analyzer.yaha_analyzer.pull_data">
 <code class="descname">pull_data</code><span class="sig-paren">(</span><em>username</em>, <em>api_key</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.pull_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grabs the data from the trackobot servers, writes it out to a new files and the database if it doesn&#8217;t exist/outdated</p>
-<p>Keyword parameters:
-username &#8211; str, trackobot username
-api_key &#8211; str, trackobot api_key</p>
-<p>Returns:
-The contents of the json_file (includes history &amp; metadata)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<em>string</em>) &#8211; trackobot username</li>
+<li><strong>api_key</strong> (<em>string</em>) &#8211; trackobot api key</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">contents of the json_files</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dictionary</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.read_data">
 <code class="descname">read_data</code><span class="sig-paren">(</span><em>json_name=None</em>, <em>hdf5_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.read_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes the names of the files and loads them into memory for processing</p>
-<p>Keyword parameter:
-json_name &#8211; str, name of the json file
-hdf5_name &#8211; str, name of the hdf5 file</p>
-<p>Returns:
-results &#8211; dict, complete history of games and metadata</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>hdf5_name</strong> (<em>string</em>) &#8211; name of the hdf5 file</li>
+<li><strong>json_name</strong> (<em>string</em>) &#8211; name of the json file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">complete history of games and metadata</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dictionary</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -324,20 +420,34 @@ results &#8211; dict, complete history of games and metadata</p>
 <code class="descname">store_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.store_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores the python data by using the filename as the sha5 hash of the username and api_key -&gt; hash is stored in a database for lookups later, data is stored using the hdf5 format
 Table is in the format of [&#8216;user_hash&#8217;, &#8216;total_items&#8217;, &#8216;json_name&#8217;, &#8216;hdf5_name&#8217;]</p>
-<p>Returns:
-user[1] &#8211; int, total items
-user[2] &#8211; str, json_name
-user[3] &#8211; str, hdf5_name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">total items, json_name, and hdf5_name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">[int, string, string]</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.title_format">
 <code class="descname">title_format</code><span class="sig-paren">(</span><em>*titles</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.title_format" title="Permalink to this definition">¶</a></dt>
 <dd><p>Formats the titles</p>
-<p>Keyword parameter:
-<a href="#id1"><span class="problematic" id="id2">*</span></a>titles &#8211; titles to be replaced</p>
-<p>Returns:
-titles_list &#8211; list of replaced titles</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>titles</strong> (<em>list of strings</em>) &#8211; titles to be replaced</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of replaced titles</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of strings</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -350,8 +460,14 @@ titles_list &#8211; list of replaced titles</p>
 <dt id="yaha_analyzer.yaha_analyzer.write_hdf5">
 <code class="descname">write_hdf5</code><span class="sig-paren">(</span><em>hdf5_name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.write_hdf5" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes out self.games into a hdf5_file</p>
-<p>Keyword parameter:
-hdf5_name &#8211; str, name of the hdf5 file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hdf5_name</strong> (<em>string</em>) &#8211; name of the hdf5 file</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

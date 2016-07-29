@@ -546,19 +546,19 @@ class yaha_analyzer(object):
         Iterates through all the cards & decks above the game threshold, makes plotly json for each one
         """
         game_threshold = 5
-        conn = sqlite3.connect(GRAPH_DATABASE)
-        c = conn.cursor()
         graph_id = 0
+        sql_data = []
         decks = map(lambda x: x.replace(' ', '_'), self._unique_decks())
         for deck in decks:
             data = self.generate_decklist_matchups(game_threshold = game_threshold).reset_index()
             data = data[data['p_deck_type'] == deck]
             graphs = self.create_heatmap('o_deck_type', 'card', 'win%', data, 'Win % of Cards in {}'.format(deck))
             graph_json = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-            graph_name = deck
-            c.execute('INSERT INTO graphs VALUES(?, ?, ?, ?)', (graph_id, graph_name, graph_json, 'deck'))
+            sql_data.append((graph_id, deck, graph_json, 'deck'))
             graph_id += 1
-        conn.commit()
+        self._update_graph_data(sql_data)
+
+        sql_data = []
         cards = self._unique_cards()
         for card in cards:
             data = self.generate_card_stats(game_threshold = game_threshold)
@@ -567,8 +567,23 @@ class yaha_analyzer(object):
             graphs = self.create_heatmap('o_deck_type', 'p_deck_type', 'win%', data, 'Win % of {}'.format(card))
             graph_json = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
             graph_name = card
-            c.execute('INSERT INTO graphs VALUES(?, ?, ?, ?)', (graph_id, graph_name, graph_json, 'card'))
+            sql_data.append((graph_id, card, graph_json, 'card'))
             graph_id += 1
+        self._update_graph_data(sql_data)
+
+    def _update_graph_data(self, graph_sql):
+        """
+        Updates the graph database, if the row doesn't already exist, then insert
+        :param: graph_sql -- list of tuples in the fasion (graph_id, graph_name, graph_json, graph_type)
+        """
+        conn = sqlite3.connect(GRAPH_DATABASE)
+        c = conn.cursor()
+        for graph_id, graph_name, graph_json, graph_type in graph_sql:
+            exists = c.execute('SELECT id FROM graphs WHERE name = ? AND type = ?', (graph_name, graph_type))
+            if exists:
+                c.execute('UPDATE graphs name = ?, json = ?, type = ? WHERE name = ? AND type = ?', (graph_name, graph_json, graph_type, graph_name, graph_type))
+            else:
+                c.execute('INSERT INTO graphs VALUES(?, ?, ?, ?)', (graph_id, graph_name, graph_json, graph_type))
         conn.commit()
         conn.close()
 
@@ -589,3 +604,7 @@ class yaha_analyzer(object):
         data = data[0][0]
         conn.close()
         return data
+
+    def rebuild_and_update(self):
+        self.generate_collectobot_data()
+        self.make_graph_data()

@@ -175,7 +175,7 @@
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">one dictionary to be used with plotly.utils.PlotlyJSONEncoder</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
@@ -189,6 +189,26 @@
 <dt id="yaha_analyzer.yaha_analyzer.create_stacked_chart">
 <code class="descname">create_stacked_chart</code><span class="sig-paren">(</span><em>iter_column</em>, <em>x_col</em>, <em>y_col</em>, <em>df</em>, <em>layout=None</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_stacked_chart" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a stacked chart from a cards groupby object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="yaha_analyzer.yaha_analyzer.create_stacked_histogram">
+<code class="descname">create_stacked_histogram</code><span class="sig-paren">(</span><em>df</em>, <em>card_name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_stacked_histogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a stacked histogram of the card for it&#8217;s win counts
+:param df: the card dataframe to generate a histogram for
+:type df: pandas dataframe
+:param card_name: the card name for the title
+:type card_name: string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">one dictionary to be used with plotly.utils.PlotlyJSONEncoder</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dictionary</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">

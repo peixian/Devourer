@@ -10,6 +10,7 @@ import hashlib
 from pandas import HDFStore
 import plotly
 import collectobot
+import plotly.graph_objs as go
 
 DATA_PATH = '../test_data/' #TODO in current directory while testing, needs to be fixed before shipping!
 HDF_NAME = '../test_data/cbot.hdf5'
@@ -315,7 +316,7 @@ class yaha_analyzer(object):
         :type layout: dictionary
         :type text: string
 
-        :return: a list of one dictionary to be used with plotly.utils.PlotlyJSONEncoder
+        :return: one dictionary to be used with plotly.utils.PlotlyJSONEncoder
         :rtype: list
         """
         data = df.reset_index()
@@ -366,8 +367,7 @@ class yaha_analyzer(object):
                 annotations = annotations
             )
 
-        graphs = [
-            dict(
+        graphs = dict(
                 data = [
                     dict(
                         z = z_vals,
@@ -380,7 +380,7 @@ class yaha_analyzer(object):
                 ],
                 layout = layout
             )
-        ]
+
 
         return graphs
 
@@ -415,6 +415,44 @@ class yaha_analyzer(object):
                 layout = layout)
         ]
         return graphs
+
+
+    def create_stacked_histogram(self, df, card_name):
+        """
+        Creates a stacked histogram of the card for it's win counts
+        :param df: the card dataframe to generate a histogram for
+        :type df: pandas dataframe
+        :param card_name: the card name for the title
+        :type card_name: string
+
+        :return: one dictionary to be used with plotly.utils.PlotlyJSONEncoder
+        :rtype: dictionary
+        """
+        stats = df.reset_index().groupby(['p_deck_type', 'turn']).agg({'win': np.sum})
+        hist_data = []
+        for deck_type, new_df in stats.groupby(level=0):
+            df = new_df.reset_index()
+            dist = []
+            for r in zip(df['turn'], df['win']):
+                dist.extend([r[0]]*r[1])
+            hist_data.append(dist)
+        groups = stats.index.get_level_values(0).unique()
+        traces = []
+        for i, group in enumerate(groups):
+            trace = go.Histogram(
+                x = hist_data[i],
+                opacity = .75,
+                name = group
+            )
+            traces.append(trace)
+        layout = go.Layout(
+            barmode='stack',
+            xaxis = dict(title='Turn #'),
+            yaxis = dict(title='Win Count'),
+            title = 'Win Counts for {}'.format(card_name)
+        )
+        return go.Figure(data = traces, layout=layout)
+
 
     def write_hdf5(self, hdf5_name):
         """
@@ -535,7 +573,7 @@ class yaha_analyzer(object):
         conn.close()
         return deck_data, card_data
 
-    def make_graph_data(self): #TODO: multithread this at some point & change to update instead of insert
+    def make_graph_data(self): #TODO: multithread this at some point
         """
         Iterates through all the cards & decks above the game threshold, makes plotly json for each one
         """
@@ -556,10 +594,11 @@ class yaha_analyzer(object):
         cards = self._unique_cards()
         for card in cards:
             data = self.generate_card_stats(game_threshold = game_threshold)
-            data = data.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc[card]
-            data.loc[:, 'win%'] = data['win']/(data['loss'] + data['win'])
-            graphs = self.create_heatmap(x = 'o_deck_type',y = 'p_deck_type',z = 'win%', df = data, title = 'Win % of {}'.format(card), text='total_games')
-            graph_json = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+            h_data = data.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc[card]
+            h_data.loc[:, 'win%'] = data['win']/(data['loss'] + data['win'])
+            heatmap = self.create_heatmap(x = 'o_deck_type',y = 'p_deck_type',z = 'win%', df = h_data, title = 'Win % of {}'.format(card), text='total_games')
+            distplot = self.create_stacked_histogram(df = data.loc[card], card_name = card)
+            graph_json = json.dumps([heatmap, distplot], cls=plotly.utils.PlotlyJSONEncoder)
             graph_name = card
             sql_data.append((graph_id, card, graph_json, 'card'))
             graph_id += 1

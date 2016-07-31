@@ -22,11 +22,11 @@
 #+RESULTS:
 #+begin_example
                    added                                       card_history  \
-10  2016-06-28T17:57:45Z  [{'card': {'name': 'Tunnel Trogg', 'id': 'LOE_...   
-11  2016-06-28T17:44:53Z  [{'card': {'name': 'The Coin', 'id': 'GAME_005...   
-12  2016-06-28T17:36:41Z  [{'card': {'name': 'N'Zoth's First Mate', 'id'...   
-13  2016-06-28T17:28:55Z  [{'card': {'name': 'N'Zoth's First Mate', 'id'...   
-14  2016-06-28T17:20:01Z  [{'card': {'name': 'Fiery Bat', 'id': 'OG_179'...   
+10  2016-06-28T17:57:45Z  [{'turn': 1, 'player': 'opponent', 'card': {'n...   
+11  2016-06-28T17:44:53Z  [{'turn': 1, 'player': 'me', 'card': {'name': ...   
+12  2016-06-28T17:36:41Z  [{'turn': 1, 'player': 'me', 'card': {'name': ...   
+13  2016-06-28T17:28:55Z  [{'turn': 1, 'player': 'me', 'card': {'name': ...   
+14  2016-06-28T17:20:01Z  [{'turn': 1, 'player': 'opponent', 'card': {'n...   
 
      coin  duration     hero hero_deck        id  legend    mode  note  \
 10   True     761.0  Warrior    Dragon  33262529     NaN  ranked  None   
@@ -67,108 +67,288 @@
 
 #+BEGIN_SRC ipython :session :results output
   cards = nom.generate_card_stats(game_threshold=5)
-  print(cards.loc['Acidic Swamp Ooze'])
+  print(cards)
 #+END_SRC
 
 #+RESULTS:
-: Empty DataFrame
-: Columns: [loss, win, win%]
-: Index: []
+#+begin_example
+                                                           loss  win  \
+card                   p_deck_type   o_deck_type     turn              
+Abusive Sergeant       Aggro_Paladin Dragon_Warrior  3        3    3   
+                                     Midrange_Hunter 6        3    3   
+                       Aggro_Shaman  Aggro_Shaman    2        2    6   
+                                                     3        4    6   
+                                                     4       10    1   
+                                                     7        2    5   
+                                     C'Thun_Druid    7        1    6   
+                                     C'Thun_Warrior  3        6    2   
+                                                     4        3    4   
+                                                     7        1    5   
+                                     Dragon_Warrior  1        1    5   
+                                                     2        5    5   
+                                                     3        3    4   
+                                                     4        4    4   
+                                                     5        8    1   
+                                                     6        9   10   
+                                                     7        4    5   
+                                                     8        4    2   
+                                     Midrange_Hunter 1        3    5   
+                                                     2        4    6   
+                                                     3        2    5   
+                                                     4        3    3   
+                                                     6        4    6   
+                                                     7        6    4   
+                                                     8        4    2   
+                                     Midrange_Shaman 4        4    3   
+                                     Other_Druid     6        2    4   
+                                     Token_Druid     2        5    1   
+                                                     3        3    5   
+                                                     5        4    4   
+...                                                         ...  ...   
+Wrath                  Token_Druid   Token_Druid     4        4    3   
+                                                     5        2    6   
+                                                     6        5    6   
+                                                     7        5    2   
+                                                     8        5    6   
+                                                     9        4    3   
+                                     Zoo_Warlock     2        5    5   
+                                                     3        3    3   
+                                                     4        4    6   
+                                                     5        7    7   
+                                                     6        6    4   
+                                                     7        5    3   
+Wyrmrest Agent         Dragon_Priest Midrange_Shaman 2        5    2   
+                       Other_Priest  Other_Druid     2        4    2   
+                                     Other_Shaman    2        4    2   
+                                     Other_Warrior   2        4    2   
+Xaril, Poisoned Mind   Other_Rogue   Other_Druid     4        4    2   
+                                     Other_Warrior   4        1    7   
+                                                     7        6    6   
+Yogg-Saron, Hope's End Other_Druid   Other_Warrior   9        4    2   
+                                                     10       1    5   
+                       Other_Mage    Other_Warrior   10       5    6   
+                       Tempo_Mage    C'Thun_Druid    10       4    2   
+                                     Dragon_Warrior  10       9    9   
+                                     Midrange_Hunter 10       2    5   
+                                     Zoo_Warlock     10       3    3   
+                       Token_Druid   C'Thun_Warrior  13       5    2   
+                                     Dragon_Warrior  7        3    3   
+                                                     9        3    3   
+                                                     10       6    2   
+
+                                                               win%  \
+card                   p_deck_type   o_deck_type     turn             
+Abusive Sergeant       Aggro_Paladin Dragon_Warrior  3     0.500000   
+                                     Midrange_Hunter 6     0.500000   
+                       Aggro_Shaman  Aggro_Shaman    2     0.750000   
+                                                     3     0.600000   
+                                                     4     0.090909   
+                                                     7     0.714286   
+                                     C'Thun_Druid    7     0.857143   
+                                     C'Thun_Warrior  3     0.250000   
+                                                     4     0.571429   
+                                                     7     0.833333   
+                                     Dragon_Warrior  1     0.833333   
+                                                     2     0.500000   
+                                                     3     0.571429   
+                                                     4     0.500000   
+                                                     5     0.111111   
+                                                     6     0.526316   
+                                                     7     0.555556   
+                                                     8     0.333333   
+                                     Midrange_Hunter 1     0.625000   
+                                                     2     0.600000   
+                                                     3     0.714286   
+                                                     4     0.500000   
+                                                     6     0.600000   
+                                                     7     0.400000   
+                                                     8     0.333333   
+                                     Midrange_Shaman 4     0.428571   
+                                     Other_Druid     6     0.666667   
+                                     Token_Druid     2     0.166667   
+                                                     3     0.625000   
+                                                     5     0.500000   
+...                                                             ...   
+Wrath                  Token_Druid   Token_Druid     4     0.428571   
+                                                     5     0.750000   
+                                                     6     0.545455   
+                                                     7     0.285714   
+                                                     8     0.545455   
+                                                     9     0.428571   
+                                     Zoo_Warlock     2     0.500000   
+                                                     3     0.500000   
+                                                     4     0.600000   
+                                                     5     0.500000   
+                                                     6     0.400000   
+                                                     7     0.375000   
+Wyrmrest Agent         Dragon_Priest Midrange_Shaman 2     0.285714   
+                       Other_Priest  Other_Druid     2     0.333333   
+                                     Other_Shaman    2     0.333333   
+                                     Other_Warrior   2     0.333333   
+Xaril, Poisoned Mind   Other_Rogue   Other_Druid     4     0.333333   
+                                     Other_Warrior   4     0.875000   
+                                                     7     0.500000   
+Yogg-Saron, Hope's End Other_Druid   Other_Warrior   9     0.333333   
+                                                     10    0.833333   
+                       Other_Mage    Other_Warrior   10    0.545455   
+                       Tempo_Mage    C'Thun_Druid    10    0.333333   
+                                     Dragon_Warrior  10    0.500000   
+                                     Midrange_Hunter 10    0.714286   
+                                     Zoo_Warlock     10    0.500000   
+                       Token_Druid   C'Thun_Warrior  13    0.285714   
+                                     Dragon_Warrior  7     0.500000   
+                                                     9     0.500000   
+                                                     10    0.250000   
+
+                                                           total_games  
+card                   p_deck_type   o_deck_type     turn               
+Abusive Sergeant       Aggro_Paladin Dragon_Warrior  3               6  
+                                     Midrange_Hunter 6               6  
+                       Aggro_Shaman  Aggro_Shaman    2               8  
+                                                     3              10  
+                                                     4              11  
+                                                     7               7  
+                                     C'Thun_Druid    7               7  
+                                     C'Thun_Warrior  3               8  
+                                                     4               7  
+                                                     7               6  
+                                     Dragon_Warrior  1               6  
+                                                     2              10  
+                                                     3               7  
+                                                     4               8  
+                                                     5               9  
+                                                     6              19  
+                                                     7               9  
+                                                     8               6  
+                                     Midrange_Hunter 1               8  
+                                                     2              10  
+                                                     3               7  
+                                                     4               6  
+                                                     6              10  
+                                                     7              10  
+                                                     8               6  
+                                     Midrange_Shaman 4               7  
+                                     Other_Druid     6               6  
+                                     Token_Druid     2               6  
+                                                     3               8  
+                                                     5               8  
+...                                                                ...  
+Wrath                  Token_Druid   Token_Druid     4               7  
+                                                     5               8  
+                                                     6              11  
+                                                     7               7  
+                                                     8              11  
+                                                     9               7  
+                                     Zoo_Warlock     2              10  
+                                                     3               6  
+                                                     4              10  
+                                                     5              14  
+                                                     6              10  
+                                                     7               8  
+Wyrmrest Agent         Dragon_Priest Midrange_Shaman 2               7  
+                       Other_Priest  Other_Druid     2               6  
+                                     Other_Shaman    2               6  
+                                     Other_Warrior   2               6  
+Xaril, Poisoned Mind   Other_Rogue   Other_Druid     4               6  
+                                     Other_Warrior   4               8  
+                                                     7              12  
+Yogg-Saron, Hope's End Other_Druid   Other_Warrior   9               6  
+                                                     10              6  
+                       Other_Mage    Other_Warrior   10             11  
+                       Tempo_Mage    C'Thun_Druid    10              6  
+                                     Dragon_Warrior  10             18  
+                                     Midrange_Hunter 10              7  
+                                     Zoo_Warlock     10              6  
+                       Token_Druid   C'Thun_Warrior  13              7  
+                                     Dragon_Warrior  7               6  
+                                                     9               6  
+                                                     10              8  
+
+[11846 rows x 4 columns]
+#+end_example
 
 #+BEGIN_SRC ipython :session :results output
   #card_stats = cards.reset_index()
   #stats = card_stats[card_stats['card'] == 'Fiery War Axe']
   #print(stats)
   #print(cards.loc['Fiery War Axe', 'Dragon_Warrior'])
-  card_stats = cards.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc['Fiery War Axe']
+  card_stats = cards.loc['Fiery War Axe'].reset_index().groupby(['turn']).agg({'loss': np.sum, 'win': np.sum, 'win%': np.mean, 'total_games': np.sum})
   #print(card_stats)
-  print(cards
+  print(card_stats)
 #+END_SRC
 
 #+RESULTS:
 #+begin_example
-                                 loss  win
-p_deck_type     o_deck_type               
-C'Thun_Warrior  Aggro_Paladin       6    0
-                Aggro_Shaman       28   31
-                C'Thun_Druid        5    4
-                C'Thun_Priest       3    2
-                C'Thun_Warrior     21   27
-                Dragon_Warrior     49   57
-                Midrange_Hunter    32   36
-                Midrange_Shaman    18   14
-                Miracle_Rogue       7    9
-                N'Zoth_Paladin      5    1
-                N'Zoth_Rogue        1    2
-                Other_Hunter        2    1
-                Other_Shaman        2    2
-                Other_Warrior       6    6
-                Reno_Warlock        7    9
-                Tempo_Mage         21   20
-                Tempo_Warrior       5    3
-                Token_Druid        28   22
-                Zoo_Warlock        42   31
-Control_Warrior Aggro_Shaman        9    6
-                C'Thun_Warrior      6    1
-                Dragon_Warrior     13   18
-                Midrange_Hunter     2   11
-                Miracle_Rogue       2    2
-                Tempo_Mage          1    3
-                Token_Druid         4    4
-                Zoo_Warlock        13   11
-Dragon_Warrior  Aggro_Paladin      10    7
-                Aggro_Shaman       47   52
-                C'Thun_Druid       21   21
-...                               ...  ...
-Other_Warrior   Other_Paladin      31   49
-                Other_Priest       49   46
-                Other_Rogue        63   64
-                Other_Shaman      202  179
-                Other_Warlock     149  180
-                Other_Warrior     305  248
-                Reno_Warlock        3   11
-                Tempo_Mage         26   12
-                Tempo_Warrior       5    4
-                Token_Druid        12   25
-                Zoo_Warlock        34   35
-Pirate_Warrior  Dragon_Warrior      5    9
-                Midrange_Hunter     2    1
-                Midrange_Shaman     2    5
-                Miracle_Rogue       2    1
-                Tempo_Mage          1    2
-                Zoo_Warlock         7    6
-Tempo_Warrior   Aggro_Shaman        9    8
-                C'Thun_Druid        3    0
-                C'Thun_Priest       2    1
-                C'Thun_Warrior      7    4
-                Dragon_Warrior      6   11
-                Midrange_Hunter    14   16
-                Midrange_Shaman     5    3
-                Miracle_Rogue       2    1
-                Other_Warrior       2    2
-                Reno_Warlock        2    5
-                Tempo_Mage          7    8
-                Token_Druid         2    6
-                Zoo_Warlock        21   18
-
-[102 rows x 2 columns]
+      win      win%  loss  total_games
+turn                                  
+1      76  0.580470    65          141
+2     668  0.540351   612         1280
+3     185  0.511997   194          379
+4     199  0.540398   179          378
+5     213  0.501844   198          411
+6     208  0.556884   172          380
+7     172  0.521753   167          339
+8     100  0.498364    98          198
+9      75  0.507004    80          155
+10     49  0.612082    34           83
+11     35  0.558939    23           58
+12     17  0.562500    15           32
+13      7  0.583333     5           12
+14     10  0.535714     9           19
 #+end_example
 
 #+BEGIN_SRC ipython :session :file /tmp/image.png :exports both
+  stats = card_stats.reset_index()
   dist = []
   for r in zip(stats['turn'], stats['win']):
       dist.extend([r[0]]*r[1])
-  sns.distplot(dist)
+  sns.distplot(dist, rug=True)
   sns.plt.show()
 #+END_SRC
 
 #+RESULTS:
 [[file:/tmp/image.png]]
 
-#+BEGIN_SRC ipython :session :file /tmp/images.png :exports both
-  g = sns.JointGrid(x='turn', y='win', data=cards.loc['Fiery War Axe', 'Dragon_Warrior'].reset_index())
-  g = g.plot(sns.regplot, sns.distplot)
+
+#+BEGIN_SRC ipython :session :exports both
+  import plotly.plotly as py
+  import plotly.graph_objs as go
+  from plotly.tools import FigureFactory as FF
+
+  stats = cards.loc['Fiery War Axe'].reset_index().groupby(['p_deck_type', 'turn']).agg({'loss': np.sum, 'win': np.sum, 'win%': np.mean, 'total_games': np.sum})
+  hist_data = []
+  for deck_type, new_df in stats.groupby(level=0):
+      dist = []
+      df = new_df.reset_index()
+      for r in zip(df['turn'], df['win']):
+          dist.extend([r[0]]*r[1])
+      hist_data.append(dist)
+  groups = stats.index.get_level_values(0).unique()
+  traces = []
+  for i, group in enumerate(groups):
+      trace = go.Histogram(
+          x = hist_data[i],
+          opacity = .75,
+          name = group
+      )
+      traces.append(trace)
+  layout = go.Layout(
+      barmode='stack', 
+      title = 'Win counts for Fiery War Axe',
+      xaxis = dict(title='Win Count'),
+      yaxis = dict(title='Turn #')
+  )
+  fig = go.Figure(data=traces, layout=layout) #go.Figure generates a json layout
+  py.plot(fig)
+  #print(fig)
 #+END_SRC
 
 #+RESULTS:
-[[file:/tmp/images.png]]
+: 'https://plot.ly/~sekki/14'
+
+
+
+
+
+
+

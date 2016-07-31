@@ -581,22 +581,22 @@ class yaha_analyzer(object):
         graph_id = 0
         sql_data = []
         decks = map(lambda x: x.replace(' ', '_'), self._unique_decks())
+        data = self.generate_decklist_matchups(game_threshold = game_threshold).reset_index()
         for deck in decks:
-            data = self.generate_decklist_matchups(game_threshold = game_threshold).reset_index()
-            data = data[data['p_deck_type'] == deck]
-            graphs = self.create_heatmap(x = 'o_deck_type', y = 'card', z = 'win%', df = data, title = 'Win % of Cards in {}'.format(deck), text='total_games')
-            graph_json = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
+            d_data = data[data['p_deck_type'] == deck]
+            graphs = self.create_heatmap(x = 'o_deck_type', y = 'card', z = 'win%', df = d_data, title = 'Win % of Cards in {}'.format(deck), text='total_games')
+            graph_json = json.dumps([graphs], cls=plotly.utils.PlotlyJSONEncoder)
             sql_data.append((graph_id, deck, graph_json, 'deck'))
             graph_id += 1
         self._update_graph_data(sql_data)
 
         sql_data = []
         cards = self._unique_cards()
+        data = self.generate_card_stats(game_threshold = game_threshold)
         for card in cards:
-            data = self.generate_card_stats(game_threshold = game_threshold)
             h_data = data.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc[card]
-            h_data.loc[:, 'win%'] = data['win']/(data['loss'] + data['win'])
-            heatmap = self.create_heatmap(x = 'o_deck_type',y = 'p_deck_type',z = 'win%', df = h_data, title = 'Win % of {}'.format(card), text='total_games')
+            h_data.loc[:, 'win%'] = h_data['win']/(h_data['loss'] + h_data['win'])
+            heatmap = self.create_heatmap(x = 'o_deck_type', y = 'p_deck_type',z = 'win%', df = h_data, title = 'Win % of {}'.format(card), text='total_games')
             distplot = self.create_stacked_histogram(df = data.loc[card], card_name = card)
             graph_json = json.dumps([heatmap, distplot], cls=plotly.utils.PlotlyJSONEncoder)
             graph_name = card

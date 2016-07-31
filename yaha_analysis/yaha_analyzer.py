@@ -344,11 +344,14 @@ class yaha_analyzer(object):
                     var = z_vals[n][m]
                     annotations.append(
                         dict(
-                            text = '{:.2f}'.format(val) if not pd.isnull(val) else '',
+                            text = '{:.2f}%'.format(val) if not pd.isnull(val) else '',
                             x = x_vals[m],
                             y = y_vals[n],
                             showarrow = False,
-                            font = dict(color='white' if val < 0.7 else 'black')
+                            font = dict(
+                                color='white' if val > 70 else 'black',
+                                size = 8
+                            )
                         )
                     )
 
@@ -376,7 +379,8 @@ class yaha_analyzer(object):
                         x = x_vals,
                         type = 'heatmap',
                         text = hover_text,
-                        colorscale = 'Viridis'
+                        colorscale=[[0.0, 'rgb(165,0,38)'], [0.1111111111111111, 'rgb(215,48,39)'], [0.2222222222222222, 'rgb(244,109,67)'], [0.3333333333333333, 'rgb(253,174,97)'], [0.4444444444444444, 'rgb(254,224,144)'], [0.5555555555555556, 'rgb(224,243,248)'], [0.6666666666666666, 'rgb(171,217,233)'], [0.7777777777777778, 'rgb(116,173,209)'], [0.8888888888888888, 'rgb(69,117,180)'], [1.0, 'rgb(49,54,149)']]
+
                     )
                 ],
                 layout = layout
@@ -418,7 +422,7 @@ class yaha_analyzer(object):
         return graphs
 
 
-    def create_stacked_histogram(self, df, card_name, level = 'p_deck_type'):
+    def create_stacked_histogram(self, df, title, level = 'p_deck_type', agg_level='win'):
         """
         Creates a stacked histogram of the card for it's win counts
 
@@ -432,22 +436,22 @@ class yaha_analyzer(object):
         :return: one dictionary to be used with plotly.utils.PlotlyJSONEncoder
         :rtype: dictionary
         """
-        stats = df.reset_index().groupby([level, 'turn']).agg({'win': np.sum})
+        stats = df.reset_index().groupby([level, 'turn']).agg({agg_level: np.sum})
         hist_data = []
         traces = []
         for deck_type, new_df in stats.groupby(level=0):
             df = new_df.reset_index()
             trace = go.Bar(
                 x = df['turn'],
-                y = df['win'],
+                y = df[agg_level],
                 name = deck_type.replace('_', ' ')
             )
             traces.append(trace)
         layout = go.Layout(
             barmode='stack',
             xaxis = dict(title='Turn #'),
-            yaxis = dict(title='Win Count'),
-            title = 'Win Counts for {}'.format(card_name),
+            yaxis = dict(title='{} Count'.format(agg_level)),
+            title = title,
             showlegend = True
         )
         return go.Figure(data = traces, layout=layout)
@@ -596,9 +600,11 @@ class yaha_analyzer(object):
             h_data = data.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc[card]
             h_data.loc[:, 'win%'] = h_data['win']/(h_data['loss'] + h_data['win'])
             heatmap = self.create_heatmap(x = 'o_deck_type', y = 'p_deck_type',z = 'win%', df = h_data, title = 'Win % of {}'.format(card), text='total_games')
-            distplot_with = self.create_stacked_histogram(df = data.loc[card], card_name = card)
-            distplot_against = self.create_stacked_histogram(df = data.loc[card], card_name = card, level='o_deck_type' )
-            graph_json = json.dumps([heatmap, distplot_with, distplot_against], cls=plotly.utils.PlotlyJSONEncoder)
+            distplot_with_win = self.create_stacked_histogram(df = data.loc[card], title='Win Counts With {} in Decks'.format(card))
+            distplot_against_win = self.create_stacked_histogram(df = data.loc[card], title = 'Win Counts With {} Against Decks'.format(card), level='o_deck_type')
+            distplot_with_lose = self.create_stacked_histogram(df = data.loc[card], title='Lose Counts With {} in Decks'.format(card), agg_level='loss')
+            distplot_against_lose = self.create_stacked_histogram(df = data.loc[card], title='Lose Counts With {} Against Decks'.format(card), level='o_deck_type', agg_level='loss')
+            graph_json = json.dumps([heatmap, distplot_with_win, distplot_against_win, distplot_with_lose, distplot_against_lose], cls=plotly.utils.PlotlyJSONEncoder)
             graph_name = card
             sql_data.append((graph_id, card, graph_json, 'card'))
             graph_id += 1
@@ -639,9 +645,11 @@ class yaha_analyzer(object):
         return data
 
     def rebuild_and_update(self):
+        """Pull collectobot data and remake the graphs"""
         self.generate_collectobot_data()
         self.make_graph_data()
 
     def remake_graphs(self):
+        """Remake the graphs"""
         self.open_collectobot_data()
         self.make_graph_data()

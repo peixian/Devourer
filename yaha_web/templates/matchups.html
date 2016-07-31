@@ -3,8 +3,9 @@
 
 
 {% block body %}
+        <h2>{{page_name}}</h2>
         {% for id in ids %}
-            <h3>{{id}}</h3>
+        <!-- <h3>{{id}}</h3> -->
             <div id="{{id}}"></div>
         {% endfor %}
 {% endblock%}

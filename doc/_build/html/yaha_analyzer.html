@@ -193,19 +193,24 @@
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.create_stacked_histogram">
-<code class="descname">create_stacked_histogram</code><span class="sig-paren">(</span><em>df</em>, <em>card_name</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_stacked_histogram" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a stacked histogram of the card for it&#8217;s win counts
-:param df: the card dataframe to generate a histogram for
-:type df: pandas dataframe
-:param card_name: the card name for the title
-:type card_name: string</p>
+<code class="descname">create_stacked_histogram</code><span class="sig-paren">(</span><em>df</em>, <em>title</em>, <em>level='p_deck_type'</em>, <em>agg_level='win'</em><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.create_stacked_histogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a stacked histogram of the card for it&#8217;s win counts</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">one dictionary to be used with plotly.utils.PlotlyJSONEncoder</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>pandas dataframe</em>) &#8211; the card dataframe to generate a histogram for</li>
+<li><strong>card_name</strong> (<em>string</em>) &#8211; the card name for the title</li>
+<li><strong>level</strong> (<em>string</em>) &#8211; the level of filtering, e.g. the stacks the histogram has</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dictionary</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">one dictionary to be used with plotly.utils.PlotlyJSONEncoder</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dictionary</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -428,12 +433,14 @@
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.rebuild_and_update">
 <code class="descname">rebuild_and_update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.rebuild_and_update" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Pull collectobot data and remake the graphs</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.remake_graphs">
 <code class="descname">remake_graphs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#yaha_analyzer.yaha_analyzer.remake_graphs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Remake the graphs</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="yaha_analyzer.yaha_analyzer.store_data">

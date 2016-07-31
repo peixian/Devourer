@@ -21,7 +21,7 @@ def card(card_name):
     scrape = yaha_analyzer.yaha_analyzer()
     graphJSON = scrape.get_graph_data(card_name)
     game_count = 20
-    return render_template('matchups.html', title = card_name, active=generate_active_status('card'), graphJSON=graphJSON, game_count = game_count, ids = ['Heatmap', 'Win Counts With {} in Decks'.format(card_name), 'Win Counts With {} Against Decks'.format(card_name)])
+    return render_template('matchups.html', title = card_name, page_name = card_name, active=generate_active_status('card'), graphJSON=graphJSON, game_count = game_count, ids = ['Heatmap', 'Win Counts With {} in Decks'.format(card_name), 'Win Counts With {} Against Decks'.format(card_name), 'Lose Counts With', 'Lose Counts Against'])
 
 @app.route('/deck/<deck>')
 def return_deck(deck):
@@ -30,7 +30,7 @@ def return_deck(deck):
     graphJSON = scrape.get_graph_data(deck)
 
     game_count = 20
-    return render_template('matchups.html', title = deck, active = generate_active_status('deck'), graphJSON = graphJSON, game_count = game_count, ids = ['Heatmap'])
+    return render_template('matchups.html', title = deck, page_name = deck, active = generate_active_status('deck'), graphJSON = graphJSON, game_count = game_count, ids = ['Heatmap'])
 
 @app.route('/decks')
 def return_decks():

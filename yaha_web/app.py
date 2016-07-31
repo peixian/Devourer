@@ -14,14 +14,14 @@ app = Flask(__name__)
 def index():
     scrape = yaha_analyzer.yaha_analyzer()
     deck_data, card_data = scrape.get_name_list()
-    return render_template('front.html', deck_data=deck_data, card_data=card_data, game_count = 20)
+    return render_template('front.html', title = 'Yaha', active=generate_active_status('index'), deck_data=deck_data, card_data=card_data, game_count = 20)
 
 @app.route('/card/<card_name>')
 def card(card_name):
     scrape = yaha_analyzer.yaha_analyzer()
     graphJSON = scrape.get_graph_data(card_name)
     game_count = 20
-    return render_template('matchups.html', graphJSON=graphJSON, game_count = game_count, ids = ['Heatmap', 'Win Counts'])
+    return render_template('matchups.html', title = card_name, active=generate_active_status('card'), graphJSON=graphJSON, game_count = game_count, ids = ['Heatmap', 'Win Counts With {} in Decks'.format(card_name), 'Win Counts With {} Against Decks'.format(card_name)])
 
 @app.route('/deck/<deck>')
 def return_deck(deck):
@@ -30,8 +30,19 @@ def return_deck(deck):
     graphJSON = scrape.get_graph_data(deck)
 
     game_count = 20
-    return render_template('matchups.html', graphJSON = graphJSON, game_count = game_count, ids = ['Heatmap'])
+    return render_template('matchups.html', title = deck, active = generate_active_status('deck'), graphJSON = graphJSON, game_count = game_count, ids = ['Heatmap'])
 
+@app.route('/decks')
+def return_decks():
+    scrape = yaha_analyzer.yaha_analyzer()
+    deck_data, card_data = scrape.get_name_list()
+    return render_template('front.html', title = 'Decks', active = generate_active_status('deck'), deck_data=deck_data, card_data=[], game_count = 20)
+
+@app.route('/cards')
+def return_cards():
+    scrape = yaha_analyzer.yaha_analyzer()
+    deck_data, card_data = scrape.get_name_list()
+    return render_template('front.html', title = 'Cards', active=generate_active_status('card'), deck_data=[], card_data=card_data, game_count = 20)
 
 @app.route('/rebuild')
 def rebuild():
@@ -43,10 +54,14 @@ def remake():
     scrape = yaha_analyzer.yaha_analyzer()
     scrape.remake_graphs()
 
-def generate_graph(graphs):
-    ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)]
-    graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-    return ids, graphJSON
+
+def generate_active_status(active_element):
+    if active_element == 'index':
+        return ['active', '', '']
+    elif active_element == 'deck':
+        return ['', 'active', '']
+    elif active_element == 'card':
+        return ['', '', 'active']
 
 def remove_underscore(names):
     return list(map(lambda x: x.replace('_', ' '), names))

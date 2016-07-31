@@ -7,11 +7,7 @@
 
     <div class="clusterize row">
         <table class="eleven columns">
-            <thead>
-                <tr>
-                    <th>Deck/Card Name</th>
-                </tr>
-            </thead>
+            <p>Search Results</p>
         </table>
         <div id="scrollArea" class="clusterize-scroll eleven columns">
             <table>
@@ -49,6 +45,7 @@
          value: deck_data[i].toLowerCase(),
          markup: '<tr>' +
                  '<td>' + '<a class="link" href="/deck/' + deck_data[i] + '">' + deck_data[i] + '</a>' + '</td>' +
+                 '<td class="result-type"><p>Deck</p></td>'+
                  '</tr>',
          active: true
      });
@@ -59,6 +56,7 @@
          value: card_data[i].toLowerCase(),
          markup: '<tr>' +
                  '<td>' + '<a class="link" href="/card/' + card_data[i] + '">' + card_data[i] + '</a>' + '</td>' +
+                 '<td class="result-type"><p>Card</p></td>'+
                  '</tr>',
          active: true
      });

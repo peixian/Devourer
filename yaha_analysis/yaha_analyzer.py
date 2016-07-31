@@ -329,6 +329,7 @@ class yaha_analyzer(object):
                 for m, val in enumerate(row):
                     hover_text[n][m] = 'Total Games: {}'.format(hover_text[n][m])
         data = data[[x, y, z]]
+        data.loc[:, z] = data[z]*100
         x_vals = sorted(data[x].unique())
         y_vals = sorted(data[y].unique())
         x_vals = list(map(lambda x: x.replace('_', ' '), x_vals))
@@ -417,18 +418,21 @@ class yaha_analyzer(object):
         return graphs
 
 
-    def create_stacked_histogram(self, df, card_name):
+    def create_stacked_histogram(self, df, card_name, level = 'p_deck_type'):
         """
         Creates a stacked histogram of the card for it's win counts
+
         :param df: the card dataframe to generate a histogram for
         :type df: pandas dataframe
         :param card_name: the card name for the title
         :type card_name: string
+        :param level: the level of filtering, e.g. the stacks the histogram has
+        :type level: string
 
         :return: one dictionary to be used with plotly.utils.PlotlyJSONEncoder
         :rtype: dictionary
         """
-        stats = df.reset_index().groupby(['p_deck_type', 'turn']).agg({'win': np.sum})
+        stats = df.reset_index().groupby([level, 'turn']).agg({'win': np.sum})
         hist_data = []
         traces = []
         for deck_type, new_df in stats.groupby(level=0):
@@ -592,8 +596,9 @@ class yaha_analyzer(object):
             h_data = data.sum(level=['card', 'p_deck_type', 'o_deck_type']).loc[card]
             h_data.loc[:, 'win%'] = h_data['win']/(h_data['loss'] + h_data['win'])
             heatmap = self.create_heatmap(x = 'o_deck_type', y = 'p_deck_type',z = 'win%', df = h_data, title = 'Win % of {}'.format(card), text='total_games')
-            distplot = self.create_stacked_histogram(df = data.loc[card], card_name = card)
-            graph_json = json.dumps([heatmap, distplot], cls=plotly.utils.PlotlyJSONEncoder)
+            distplot_with = self.create_stacked_histogram(df = data.loc[card], card_name = card)
+            distplot_against = self.create_stacked_histogram(df = data.loc[card], card_name = card, level='o_deck_type' )
+            graph_json = json.dumps([heatmap, distplot_with, distplot_against], cls=plotly.utils.PlotlyJSONEncoder)
             graph_name = card
             sql_data.append((graph_id, card, graph_json, 'card'))
             graph_id += 1

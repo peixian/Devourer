@@ -4,18 +4,24 @@
      width: 100%
 }
 .clusterize {
-    background-color: #34495E;
 }
 .clusterize th {
     color: #dd5;
     margin: 1em;
     font-size: 1em;
 }
-
+.clusterize-scroll td {
+    border: 1px solid #ddd;
+}
+.clusterize-scroll tr:nth-of-type(even) {
+    background: #F9F9F9;
+}
+.clusterize-scroll .result-type p{
+    margin: .7em;
+}
 .clusterize-scroll td a {
-    font-size: 4em;
+    font-size: 2em;
     margin: 1em;
-    color: white;
 }
 .clusterize-scroll table {
     width: 100%;
@@ -26,6 +32,5 @@
     margin-bottom: 3em;
 }
 .clusterize-content {
-    text-align: center;
     width: 100%;
 }

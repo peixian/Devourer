@@ -430,26 +430,21 @@ class yaha_analyzer(object):
         """
         stats = df.reset_index().groupby(['p_deck_type', 'turn']).agg({'win': np.sum})
         hist_data = []
+        traces = []
         for deck_type, new_df in stats.groupby(level=0):
             df = new_df.reset_index()
-            dist = []
-            for r in zip(df['turn'], df['win']):
-                dist.extend([r[0]]*r[1])
-            hist_data.append(dist)
-        groups = stats.index.get_level_values(0).unique()
-        traces = []
-        for i, group in enumerate(groups):
-            trace = go.Histogram(
-                x = hist_data[i],
-                opacity = .75,
-                name = group
+            trace = go.Bar(
+                x = df['turn'],
+                y = df['win'],
+                name = deck_type.replace('_', ' ')
             )
             traces.append(trace)
         layout = go.Layout(
             barmode='stack',
             xaxis = dict(title='Turn #'),
             yaxis = dict(title='Win Count'),
-            title = 'Win Counts for {}'.format(card_name)
+            title = 'Win Counts for {}'.format(card_name),
+            showlegend = True
         )
         return go.Figure(data = traces, layout=layout)
 

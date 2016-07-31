@@ -272,7 +272,7 @@ Yogg-Saron, Hope's End Other_Druid   Other_Warrior   9               6
   #stats = card_stats[card_stats['card'] == 'Fiery War Axe']
   #print(stats)
   #print(cards.loc['Fiery War Axe', 'Dragon_Warrior'])
-  card_stats = cards.loc['Fiery War Axe'].reset_index().groupby(['turn']).agg({'loss': np.sum, 'win': np.sum, 'win%': np.mean, 'total_games': np.sum})
+  card_stats = cards.loc['Bloodhoof Brave'].reset_index().groupby(['turn']).agg({'win': np.sum})
   #print(card_stats)
   print(card_stats)
 #+END_SRC
@@ -281,20 +281,16 @@ Yogg-Saron, Hope's End Other_Druid   Other_Warrior   9               6
 #+begin_example
       win      win%  loss  total_games
 turn                                  
-1      76  0.580470    65          141
-2     668  0.540351   612         1280
-3     185  0.511997   194          379
-4     199  0.540398   179          378
-5     213  0.501844   198          411
-6     208  0.556884   172          380
-7     172  0.521753   167          339
-8     100  0.498364    98          198
-9      75  0.507004    80          155
-10     49  0.612082    34           83
-11     35  0.558939    23           58
-12     17  0.562500    15           32
-13      7  0.583333     5           12
-14     10  0.535714     9           19
+3      15  0.551948    11           26
+4     168  0.503975   170          338
+5      65  0.516421    63          128
+6      75  0.528825    66          141
+7      76  0.553301    62          138
+8      68  0.535278    61          129
+9      58  0.530950    59          117
+10     36  0.511072    32           68
+11     18  0.508929    17           35
+12      8  0.470588     9           17
 #+end_example
 
 #+BEGIN_SRC ipython :session :file /tmp/image.png :exports both

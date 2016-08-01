@@ -36,4 +36,24 @@ class YahaTests(TestCase):
         self.client.generate_decks()
         self.assertTrue(self.games.size > 0)
 
+    def unique_decks_tests(self):
+        """
+        Tests for a unique deck list
+        """
+        self.client.open_collectobot_data()
+        self.client.generate_decks()
+        deck_types = self.client._unique_decks()
+        self.assertTrue(len(deck_types) > 0)
+        self.assertTrue(isinstance(deck_types[0], str))
+
+    def unique_cards_test(self):
+        """
+        Tests for a unique card lists
+        """
+        self.client.open_collectobot_data()
+        self.client.generate_decks()
+        card_types = self.client._unique_cards()
+        self.assertTrue(len(card_types) > 0)
+        self.assertTrue(isinstance(card_types[0], str))
+
         

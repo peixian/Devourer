@@ -8,7 +8,7 @@ import os
 import json
 
 URL = 'http://files.hearthscry.com/collectobot/'
-DATABASE = './collectobot_data/collectobot.db'
+DATABASE = '../collectobot_data/collectobot.db'
 
 def pull_data():
     """
@@ -65,8 +65,6 @@ def add_june_2016():
 
     conn.commit()
     conn.close()
-
-
 
 def aggregate(start_date = '2016-06-30', end_date = pd.to_datetime('today').strftime('%Y-%m-%d')):
     """
